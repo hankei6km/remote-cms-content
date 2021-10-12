@@ -52,11 +52,6 @@ import cli from './cli.js'
         required: true,
         description: 'app id to API endpoint'
       },
-      'app-name': {
-        type: 'string',
-        required: false,
-        description: 'app id to iamge adapter endpoint'
-      },
       'map-config': {
         type: 'string',
         required: true,
@@ -76,7 +71,6 @@ import cli from './cli.js'
       stderr: process.stderr,
       apiBaseURL: argv['api-base-url'],
       appId: argv['app-id'],
-      appName: argv['app-name'] || '',
       mapConfig: argv['map-config'],
       accessKey: argv['access-key'],
       saveOpts: {

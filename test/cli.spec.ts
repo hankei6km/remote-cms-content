@@ -46,7 +46,6 @@ describe('cli()', () => {
       stderr,
       apiBaseURL: 'http://localhost:3000',
       appId: 'appid',
-      appName: 'appname',
       mapConfig: 'test/assets/mapconfig.json',
       accessKey: 'secret',
       saveOpts: {
@@ -100,7 +99,6 @@ describe('cli()', () => {
       stderr,
       apiBaseURL: 'http://localhost:3000',
       appId: 'appid',
-      appName: 'appname',
       mapConfig: 'test/assets/mapconfig.json',
       accessKey: 'secret',
       saveOpts: {

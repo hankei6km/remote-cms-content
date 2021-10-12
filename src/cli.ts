@@ -17,7 +17,6 @@ type Opts = {
   stderr: Writable
   apiBaseURL: string
   appId: string
-  appName: string
   mapConfig: string
   accessKey: string
   saveOpts: SaveOpts

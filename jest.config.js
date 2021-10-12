@@ -7,6 +7,7 @@ export default {
   transform: {},
   collectCoverage: true,
   collectCoverageFrom: ['<rootDir>/src/**/*.ts'],
+  coveragePathIgnorePatterns :[ "<rootDir>/node_modules/","<rootDir>/src/types/"],
   // https://kulshekhar.github.io/ts-jest/docs/next/guides/esm-support/
   preset: 'ts-jest/presets/default-esm',
   extensionsToTreatAsEsm: ['.ts'],

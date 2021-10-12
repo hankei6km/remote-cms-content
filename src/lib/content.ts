@@ -75,7 +75,7 @@ export async function saveRemoteContents({
             fileNameFromURL(c[1], 'fileName'),
             imageInfo
           )
-          if (info.url.startsWith(staticRoot)) {
+          if (staticRoot && info.url.startsWith(staticRoot)) {
             c[1] = {
               ...info,
               url: info.url.substring(staticRootLen)

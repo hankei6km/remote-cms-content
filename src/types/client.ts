@@ -3,6 +3,7 @@ export type FetchResult = {
 }
 
 export type ClientChain = {
+  api: (name: string) => ClientChain
   limit: (n: number) => ClientChain
   skip: (n: number) => ClientChain
   fetch: () => Promise<FetchResult>

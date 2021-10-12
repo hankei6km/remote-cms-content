@@ -38,14 +38,19 @@ export function apiActionBodyFind(
 
 export const client: Client = function client({
   apiBaseURL,
-  apiName,
+  apiName: inApiName,
   credential
 }: ClientOpts): ClientInstance {
   const request = () => {
+    let apiName: string | undefined = inApiName
     let skip: number | undefined = undefined
     let limit: number | undefined = undefined
 
     const clientChain: ClientChain = {
+      api(name: string) {
+        apiName = name
+        return clientChain
+      },
       limit(n: number) {
         limit = n
         return clientChain

@@ -3,6 +3,7 @@ import yargs from 'yargs'
 
 import { hideBin } from 'yargs/helpers'
 import cli from './cli.js'
+import { ClientKindValues } from './types/client.js'
 ;(async () => {
   const argv = await yargs(hideBin(process.argv))
     .scriptName('rcc')
@@ -42,6 +43,11 @@ import cli from './cli.js'
       }
     )
     .options({
+      'client-kind': {
+        choices: ClientKindValues,
+        required: true,
+        description: 'choise client kind'
+      },
       'api-base-url': {
         type: 'string',
         required: true,
@@ -69,6 +75,7 @@ import cli from './cli.js'
       command: `${argv._[0]}`,
       stdout: process.stdout,
       stderr: process.stderr,
+      clientKind: argv['client-kind'],
       apiBaseURL: argv['api-base-url'],
       appId: argv['app-id'],
       mapConfig: argv['map-config'],

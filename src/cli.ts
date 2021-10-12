@@ -1,7 +1,8 @@
 import fs from 'fs/promises'
 import { Writable } from 'stream'
-import { client } from './lib/client/appsheet.js'
+import { client } from './lib/client.js'
 import { saveRemoteContents } from './lib/content.js'
+import { ClientKind } from './types/client.js'
 
 type SaveOpts = {
   apiName: string
@@ -15,6 +16,7 @@ type Opts = {
   command: string
   stdout: Writable
   stderr: Writable
+  clientKind: ClientKind
   apiBaseURL: string
   appId: string
   mapConfig: string
@@ -25,6 +27,7 @@ const cli = async ({
   command,
   stdout,
   stderr,
+  clientKind,
   apiBaseURL,
   appId,
   mapConfig,
@@ -36,7 +39,7 @@ const cli = async ({
     switch (command) {
       case 'save':
         cliErr = await saveRemoteContents({
-          client: client({ apiBaseURL, credential: [appId, accessKey] }),
+          client: client(clientKind,{ apiBaseURL, credential: [appId, accessKey] }),
           mapConfig: JSON.parse((await fs.readFile(mapConfig)).toString()),
           ...saveOpts
         })

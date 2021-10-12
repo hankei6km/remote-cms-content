@@ -1,3 +1,6 @@
+export const ClientKindValues = ['appsheet', 'microcms'] as const
+export type ClientKind = typeof ClientKindValues[number]
+
 export type FetchResult = {
   rows: any[]
 }
@@ -10,6 +13,7 @@ export type ClientChain = {
 }
 
 export type ClientInstance = {
+  kind: () => ClientKind
   request: () => ClientChain
 }
 

@@ -1,9 +1,8 @@
-import path from 'path'
 import mockAxios from 'jest-mock-axios'
-import { BaseCols, MapConfig } from '../../src/types/map.js'
-import { client } from '../../src/lib/client/appsheet.js'
-import { saveContentFile, saveRemoteContents } from '../../src/lib/content.js'
 import { ImageInfo } from '../../src/types/media.js'
+import { BaseCols, MapConfig } from '../../src/types/map.js'
+import { saveContentFile, saveRemoteContents } from '../../src/lib/content.js'
+import { client } from '../../src/lib/client.js'
 
 jest.mock('fs/promises', () => {
   const mockWriteFileFn = async (pathName: string) => {
@@ -129,7 +128,7 @@ describe('saveRemoteContents()', () => {
       ]
     }
     const res = saveRemoteContents({
-      client: client({
+      client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']
@@ -201,7 +200,7 @@ describe('saveRemoteContents()', () => {
       ]
     }
     const res = saveRemoteContents({
-      client: client({
+      client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']
@@ -234,7 +233,7 @@ describe('saveRemoteContents()', () => {
   })
   it('should return error', async () => {
     const res = saveRemoteContents({
-      client: client({
+      client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']

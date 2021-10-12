@@ -88,5 +88,8 @@ export const client: Client = function client({
     }
     return clientChain
   }
-  return { request }
+  return {
+    kind: () => 'appsheet',
+    request
+  }
 }

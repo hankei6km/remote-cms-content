@@ -1,5 +1,5 @@
 import mockAxios from 'jest-mock-axios'
-import { apiActionPath, client } from '../../../src/lib/client/appsheet.js'
+import { apiActionPath, client } from '../../../src/lib/clients/appsheet.js'
 
 afterEach(() => {
   mockAxios.reset()

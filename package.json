@@ -16,7 +16,8 @@
     "nuxt",
     "nuxt-content"
   ],
-  "main": "dist/index.js",
+  "exports": "./index.js",
+  "type": "module",
   "types": "dist/index.d.ts",
   "files": [
     "dist"

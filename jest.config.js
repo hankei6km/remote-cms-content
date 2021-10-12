@@ -5,6 +5,8 @@ export default {
     '**/?(*.)+(spec|test).+(ts|tsx|js)'
   ],
   transform: {},
+  collectCoverage: true,
+  collectCoverageFrom: ['<rootDir>/src/**/*.ts'],
   // https://kulshekhar.github.io/ts-jest/docs/next/guides/esm-support/
   preset: 'ts-jest/presets/default-esm',
   extensionsToTreatAsEsm: ['.ts'],

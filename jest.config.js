@@ -1,5 +1,5 @@
 export default {
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>'],
   testMatch: [
     '**/__tests__/**/*.+(ts|tsx|js)',
     '**/?(*.)+(spec|test).+(ts|tsx|js)'
@@ -18,4 +18,4 @@ export default {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
   }
-};
+}

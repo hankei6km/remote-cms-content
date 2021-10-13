@@ -55,7 +55,7 @@ import { ClientKindValues } from './types/client.js'
       },
       'app-id': {
         type: 'string',
-        required: true,
+        required: false,
         description: 'app id to API endpoint'
       },
       'map-config': {
@@ -77,7 +77,7 @@ import { ClientKindValues } from './types/client.js'
       stderr: process.stderr,
       clientKind: argv['client-kind'],
       apiBaseURL: argv['api-base-url'],
-      appId: argv['app-id'],
+      appId: argv['app-id']||'',
       mapConfig: argv['map-config'],
       accessKey: argv['access-key'],
       saveOpts: {

@@ -9,6 +9,13 @@ describe('client', () => {
     })
     expect(c.kind()).toEqual('appsheet')
   })
+  it('should return microcms client instanse', () => {
+    const c = client('microcms', {
+      apiBaseURL: 'http://localhost:3000',
+      credential: ['', 'secret']
+    })
+    expect(c.kind()).toEqual('appsheet')
+  })
   it('should throw error when pass unkown kid', () => {
     expect(() =>
       client('UNKWON' as any, {

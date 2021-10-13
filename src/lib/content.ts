@@ -57,10 +57,12 @@ export async function saveRemoteContents({
   let ret: Error | null = null
   try {
     const res = await client.request().api(apiName).fetch()
-    const rows = res.rows.map((row) => mappingFlds(row, mapConfig))
-    const len = rows.length
+    const contens = res.contents.map((content) =>
+      mappingFlds(content, mapConfig)
+    )
+    const len = contens.length
     for (let idx = 0; idx < len; idx++) {
-      const fldsArray: [string, any][] = Object.entries(rows[idx])
+      const fldsArray: [string, any][] = Object.entries(contens[idx])
       const fldsLen = fldsArray.length
       for (let fldsIdx = 0; fldsIdx < fldsLen; fldsIdx++) {
         const c = fldsArray[fldsIdx]
@@ -85,7 +87,7 @@ export async function saveRemoteContents({
           }
         }
       }
-      const flds: BaseFlds = { ...rows[idx] }
+      const flds: BaseFlds = { ...contens[idx] }
       fldsArray.forEach(([k, v]) => (flds[k] = v))
       ret = await saveContentFile(flds, dstContentsDir, idx)
       if (ret) {

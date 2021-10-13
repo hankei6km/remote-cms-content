@@ -83,7 +83,7 @@ export const client: Client = function client({
           )
         }
 
-        return { rows: res.data }
+        return { contents: res.data }
       }
     }
     return clientChain

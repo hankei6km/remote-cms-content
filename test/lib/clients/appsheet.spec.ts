@@ -6,14 +6,16 @@ afterEach(() => {
 })
 
 describe('client_appsheet', () => {
-  it('should get bare rows from AppSheet app', async () => {
+  it('should get bare contents(rows) from AppSheet app', async () => {
     const n = new Date().toUTCString()
 
     const res = client({
       apiBaseURL: 'https://api.appsheet.com/api/v2/',
       apiName: 'tbl',
       credential: ['appId', 'secret']
-    }).request().fetch()
+    })
+      .request()
+      .fetch()
     expect(mockAxios.post).toHaveBeenLastCalledWith(
       `https://api.appsheet.com/api/v2/${apiActionPath(
         'appId',
@@ -44,6 +46,6 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({rows:mockData})
+    expect(await res).toEqual({ contents: mockData })
   })
 })

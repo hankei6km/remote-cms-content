@@ -1,4 +1,31 @@
+import { readFile } from 'fs/promises'
+import Ajv from 'ajv'
 import { BaseFlds, MapConfig } from '../types/map.js'
+import { mapConfigSchema } from '../types/mapConfigSchema.js'
+
+const ajv = new Ajv()
+const validate = ajv.compile(mapConfigSchema)
+
+export function validateMapConfig(mapConfig: any): MapConfig {
+  if (!validate(mapConfig) && validate.errors) {
+    // allErrors false 前提.
+    throw new Error(
+      `validateMapConfig: message=${
+        validate.errors[0]?.message
+      } params=${JSON.stringify(validate.errors[0]?.params)}`
+    )
+  }
+  return mapConfig as MapConfig
+}
+
+export async function loadMapConfig(jsonFile: string): Promise<MapConfig> {
+  try {
+    const s = await readFile(jsonFile)
+    return validateMapConfig(JSON.parse(s.toString()))
+  } catch (err) {
+    throw new Error(`loadMapConfig: jsonFile=${jsonFile} ${err}`)
+  }
+}
 
 const validIdRegExp = /^[-_0-9a-zA-Z]+$/
 export function validId(s: string | number): boolean {

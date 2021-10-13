@@ -1,15 +1,15 @@
 import {
-  loadMapconfig,
+  loadMapConfig,
   mappingFlds,
-  validateMapconfig,
+  validateMapConfig,
   validId
 } from '../../src/lib/map.js'
 
-describe('validateMapconfig', () => {
+describe('validateMapConfig', () => {
   test('should return MapConfig', () => {
-    expect(validateMapconfig({ flds: [] })).toEqual({ flds: [] })
+    expect(validateMapConfig({ flds: [] })).toEqual({ flds: [] })
     expect(
-      validateMapconfig({
+      validateMapConfig({
         flds: [
           {
             srcName: 'タイトル',
@@ -29,16 +29,16 @@ describe('validateMapconfig', () => {
     })
   })
   test('should throw error when invalid data passed', () => {
-    expect(() => validateMapconfig({})).toThrowError(/flds/)
-    expect(() => validateMapconfig({ flds: [], dirty: true })).toThrowError(
+    expect(() => validateMapConfig({})).toThrowError(/flds/)
+    expect(() => validateMapConfig({ flds: [], dirty: true })).toThrowError(
       /additional/
     )
   })
 })
 
-describe('loadMapconfig', () => {
+describe('loadMapConfig', () => {
   test('should load MapConfig from json file', async () => {
-    expect(loadMapconfig('test/assets/mapconfig.json')).resolves.toEqual({
+    expect(loadMapConfig('test/assets/mapconfig.json')).resolves.toEqual({
       flds: [
         {
           srcName: 'タイトル',
@@ -55,17 +55,17 @@ describe('loadMapconfig', () => {
   })
   test('should throw error when invalid type loaded', async () => {
     expect(
-      loadMapconfig('test/assets/mapconfig_type_err.json')
+      loadMapConfig('test/assets/mapconfig_type_err.json')
     ).rejects.toThrowError(/flds/)
   })
   test('should throw error when invalid json loaded', async () => {
     expect(
-      loadMapconfig('test/assets/mapconfig_invalid.json')
+      loadMapConfig('test/assets/mapconfig_invalid.json')
     ).rejects.toThrowError(/SyntaxError/)
   })
   test('should throw error when not exist json loaded', async () => {
     expect(
-      loadMapconfig('test/assets/mapconfig_not_exist.json')
+      loadMapConfig('test/assets/mapconfig_not_exist.json')
     ).rejects.toThrowError(/ENOENT/)
   })
 })

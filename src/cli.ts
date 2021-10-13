@@ -2,7 +2,7 @@ import fs from 'fs/promises'
 import { Writable } from 'stream'
 import { client } from './lib/client.js'
 import { saveRemoteContents } from './lib/content.js'
-import { loadMapconfig } from './lib/map.js'
+import { loadMapConfig } from './lib/map.js'
 import { ClientKind } from './types/client.js'
 
 type SaveOpts = {
@@ -41,7 +41,7 @@ const cli = async ({
       case 'save':
         cliErr = await saveRemoteContents({
           client: client(clientKind,{ apiBaseURL, credential: [appId, accessKey] }),
-          mapConfig: await loadMapconfig(mapConfig),
+          mapConfig: await loadMapConfig(mapConfig),
           ...saveOpts
         })
         break

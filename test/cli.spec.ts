@@ -44,7 +44,7 @@ describe('cli()', () => {
       command: 'save',
       stdout,
       stderr,
-      clientKind:'appsheet',
+      clientKind: 'appsheet',
       apiBaseURL: 'http://localhost:3000',
       appId: 'appid',
       mapConfig: 'test/assets/mapconfig.json',
@@ -64,16 +64,16 @@ describe('cli()', () => {
         client: expect.any(Object),
         apiName: 'tbl',
         mapConfig: {
-          cols: [
+          flds: [
             {
               srcName: 'タイトル',
               dstName: 'title',
-              colType: 'string'
+              fldType: 'string'
             },
             {
               srcName: '画像',
               dstName: 'image',
-              colType: 'image'
+              fldType: 'image'
             }
           ]
         },
@@ -98,7 +98,7 @@ describe('cli()', () => {
       command: 'save',
       stdout,
       stderr,
-      clientKind:'appsheet',
+      clientKind: 'appsheet',
       apiBaseURL: 'http://localhost:3000',
       appId: 'appid',
       mapConfig: 'test/assets/mapconfig.json',

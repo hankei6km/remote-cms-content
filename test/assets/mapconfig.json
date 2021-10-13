@@ -1,14 +1,14 @@
 {
-  "cols": [
+  "flds": [
     {
       "srcName": "タイトル",
       "dstName": "title",
-      "colType": "string"
+      "fldType": "string"
     },
     {
       "srcName": "画像",
       "dstName": "image",
-      "colType": "image"
+      "fldType": "image"
     }
   ]
 }

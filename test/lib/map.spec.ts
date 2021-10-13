@@ -1,4 +1,4 @@
-import { mappingCols, validId } from '../../src/lib/map.js'
+import { mappingFlds, validId } from '../../src/lib/map.js'
 
 describe('validId', () => {
   test('should return true', () => {
@@ -20,11 +20,11 @@ describe('validId', () => {
   })
 })
 
-describe('mappingCols', () => {
-  test('should map cols', () => {
+describe('mappingFlds', () => {
+  test('should map flds', () => {
     const n = new Date().toUTCString()
     expect(
-      mappingCols(
+      mappingFlds(
         {
           _RowNumber: 1,
           id: 'idstring',
@@ -38,37 +38,37 @@ describe('mappingCols', () => {
           背景色: '青'
         },
         {
-          cols: [
+          flds: [
             {
               srcName: 'タイトル',
               dstName: 'title',
-              colType: 'string'
+              fldType: 'string'
             },
             {
               srcName: '回数',
               dstName: 'count',
-              colType: 'number'
+              fldType: 'number'
             },
             {
               srcName: 'タイムスタンプ',
               dstName: 'timestamp',
-              colType: 'datetime'
+              fldType: 'datetime'
             },
             {
               srcName: '画像',
               dstName: 'image',
-              colType: 'image'
+              fldType: 'image'
             },
             {
               srcName: '色',
               dstName: 'color',
-              colType: 'enum',
+              fldType: 'enum',
               replace: []
             },
             {
               srcName: '背景色',
               dstName: 'bgColor',
-              colType: 'enum',
+              fldType: 'enum',
               replace: [
                 { pattern: '赤', replacement: 'red' },
                 { pattern: '青', replacement: 'blue' }
@@ -93,7 +93,7 @@ describe('mappingCols', () => {
   test('should throw invalid id error ', () => {
     const n = new Date().toUTCString()
     expect(() =>
-      mappingCols(
+      mappingFlds(
         {
           _RowNumber: 1,
           id: 'id.string',
@@ -102,18 +102,18 @@ describe('mappingCols', () => {
           名前: 'file.md'
         },
         {
-          cols: [
+          flds: [
             {
               srcName: '名前',
               dstName: 'filename',
-              colType: 'string'
+              fldType: 'string'
             }
           ]
         }
       )
-    ).toThrow(`mappingCols: invalid id: value = id.string, params = id, id, id`)
+    ).toThrow(`mappingFlds: invalid id: value = id.string, params = id, id, id`)
     expect(() =>
-      mappingCols(
+      mappingFlds(
         {
           _RowNumber: 1,
           createdAt: n,
@@ -121,18 +121,18 @@ describe('mappingCols', () => {
           名前: 'file.md'
         },
         {
-          cols: [
+          flds: [
             {
               srcName: '名前',
               dstName: 'filename',
-              colType: 'string'
+              fldType: 'string'
             }
           ]
         }
       )
-    ).toThrow(`mappingCols: invalid id: value = undefined, params = id, id, id`)
+    ).toThrow(`mappingFlds: invalid id: value = undefined, params = id, id, id`)
     expect(() =>
-      mappingCols(
+      mappingFlds(
         {
           _RowNumber: 1,
           id: 'idstring',
@@ -141,23 +141,23 @@ describe('mappingCols', () => {
           名前: 'file.md'
         },
         {
-          cols: [
+          flds: [
             {
               srcName: '名前',
               dstName: 'filename',
-              colType: 'id'
+              fldType: 'id'
             }
           ]
         }
       )
     ).toThrow(
-      `mappingCols: invalid id: value = file.md, params = 名前, filename, id`
+      `mappingFlds: invalid id: value = file.md, params = 名前, filename, id`
     )
   })
   test('should throw invalid type error ', () => {
     const n = new Date().toUTCString()
     expect(() =>
-      mappingCols(
+      mappingFlds(
         {
           _RowNumber: 1,
           id: 'idstring',
@@ -166,23 +166,23 @@ describe('mappingCols', () => {
           回数: '21'
         },
         {
-          cols: [
+          flds: [
             {
               srcName: '回数',
               dstName: 'count',
-              colType: 'number'
+              fldType: 'number'
             }
           ]
         }
       )
     ).toThrow(
-      `mappingCols: invalid type: actually type = string, params = 回数, count, number`
+      `mappingFlds: invalid type: actually type = string, params = 回数, count, number`
     )
   })
-  test('should skip no exist cols', () => {
+  test('should skip no exist flds', () => {
     const n = new Date().toUTCString()
     expect(
-      mappingCols(
+      mappingFlds(
         {
           _RowNumber: 1,
           id: 'idstring',
@@ -191,16 +191,16 @@ describe('mappingCols', () => {
           回数: 21
         },
         {
-          cols: [
+          flds: [
             {
               srcName: 'タイトル',
               dstName: 'title',
-              colType: 'string'
+              fldType: 'string'
             },
             {
               srcName: '回数',
               dstName: 'count',
-              colType: 'number'
+              fldType: 'number'
             }
           ]
         }

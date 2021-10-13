@@ -1,6 +1,6 @@
 import mockAxios from 'jest-mock-axios'
 import { ImageInfo } from '../../src/types/media.js'
-import { BaseCols, MapConfig } from '../../src/types/map.js'
+import { BaseFlds, MapConfig } from '../../src/types/map.js'
 import { saveContentFile, saveRemoteContents } from '../../src/lib/content.js'
 import { client } from '../../src/lib/client.js'
 
@@ -28,7 +28,7 @@ jest.mock('fs/promises', () => {
 jest.mock('../../src/lib/media', () => {
   let mockFileNameFromURL = jest.fn()
   let mockSaveImageFile = jest.fn()
-  const reset = (rows: BaseCols[]) => {
+  const reset = (rows: BaseFlds[]) => {
     mockSaveImageFile
       .mockReset()
       .mockImplementation(
@@ -121,10 +121,10 @@ markdown
 describe('saveRemoteContents()', () => {
   it('should get remote content and save as local files', async () => {
     const mapConfig: MapConfig = {
-      cols: [
-        { srcName: 'タイトル', dstName: 'title', colType: 'string' },
-        { srcName: '画像', dstName: 'image', colType: 'image' },
-        { srcName: 'content', dstName: 'content', colType: 'string' }
+      flds: [
+        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
+        { srcName: '画像', dstName: 'image', fldType: 'image' },
+        { srcName: 'content', dstName: 'content', fldType: 'string' }
       ]
     }
     const res = saveRemoteContents({
@@ -194,9 +194,9 @@ describe('saveRemoteContents()', () => {
   })
   it('should get remote content and save as local files without image options', async () => {
     const mapConfig: MapConfig = {
-      cols: [
-        { srcName: 'タイトル', dstName: 'title', colType: 'string' },
-        { srcName: '画像', dstName: 'image', colType: 'image' }
+      flds: [
+        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
+        { srcName: '画像', dstName: 'image', fldType: 'image' }
       ]
     }
     const res = saveRemoteContents({
@@ -241,7 +241,7 @@ describe('saveRemoteContents()', () => {
         credential: ['appId', 'secret']
       }),
       apiName: 'tbl',
-      mapConfig: { cols: [] },
+      mapConfig: { flds: [] },
       dstContentsDir: '/error',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',

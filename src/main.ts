@@ -61,7 +61,7 @@ import { ClientKindValues } from './types/client.js'
       'map-config': {
         type: 'string',
         required: true,
-        description: 'json file name that contain mapping columns etc.'
+        description: 'json file name that contain mapping fields etc.'
       },
       'access-key': {
         type: 'string',

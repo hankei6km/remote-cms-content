@@ -1,4 +1,4 @@
-import { BaseCols, MapConfig } from '../types/map'
+import { BaseFlds, MapConfig } from '../types/map.js'
 
 const validIdRegExp = /^[-_0-9a-zA-Z]+$/
 export function validId(s: string | number): boolean {
@@ -14,10 +14,10 @@ function throwInvalidId(
   value: string,
   srcName: string,
   dstName: string,
-  colType: string
+  fldType: string
 ) {
   throw new Error(
-    `mappingCols: invalid id: value = ${value}, params = ${srcName}, ${dstName}, ${colType}`
+    `mappingFlds: invalid id: value = ${value}, params = ${srcName}, ${dstName}, ${fldType}`
   )
 }
 
@@ -25,47 +25,47 @@ function throwInvalidType(
   actually: string,
   srcName: string,
   dstName: string,
-  colType: string
+  fldType: string
 ) {
   throw new Error(
-    `mappingCols: invalid type: actually type = ${actually}, params = ${srcName}, ${dstName}, ${colType}`
+    `mappingFlds: invalid type: actually type = ${actually}, params = ${srcName}, ${dstName}, ${fldType}`
   )
 }
 
-export function mappingCols(s: any, mapConfig: MapConfig): BaseCols {
+export function mappingFlds(s: any, mapConfig: MapConfig): BaseFlds {
   const n = new Date()
   const id = validId(s.id) ? s.id : throwInvalidId(s.id, 'id', 'id', 'id')
-  const ret: BaseCols = {
+  const ret: BaseFlds = {
     _RowNumber: s._RowNumber !== undefined ? s._RowNumber! : -1,
     id,
     createdAt: s.createdAt ? new Date(s.createdAt) : n,
     updatedAt: s.updatedAt ? new Date(s.updatedAt) : n
   }
-  mapConfig.cols.forEach((m) => {
+  mapConfig.flds.forEach((m) => {
     if (s.hasOwnProperty(m.srcName)) {
-      const srcColType = typeof s[m.srcName]
-      switch (m.colType) {
+      const srcFldType = typeof s[m.srcName]
+      switch (m.fldType) {
         case 'id':
-          if (srcColType === 'number' || srcColType === 'string') {
+          if (srcFldType === 'number' || srcFldType === 'string') {
             if (validId(s[m.srcName])) {
               ret[m.dstName] = `${s[m.srcName]}`
             } else {
-              throwInvalidId(s[m.srcName], m.srcName, m.dstName, m.colType)
+              throwInvalidId(s[m.srcName], m.srcName, m.dstName, m.fldType)
             }
           } else {
-            throwInvalidType(srcColType, m.srcName, m.dstName, m.colType)
+            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
           break
         case 'number':
-          if (srcColType === 'number') {
+          if (srcFldType === 'number') {
             ret[m.dstName] = s[m.srcName]
           } else {
-            throwInvalidType(srcColType, m.srcName, m.dstName, m.colType)
+            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
           break
         case 'string':
         case 'image': // この時点では文字列として扱う(保存時にファイルをダウンロードする).
-          if (srcColType === 'string' || srcColType === 'number') {
+          if (srcFldType === 'string' || srcFldType === 'number') {
             ret[m.dstName] = `${s[m.srcName]}`
           } else {
             ret[m.dstName] = `${s[m.srcName] || ''}`

@@ -2,22 +2,22 @@ import path from 'path'
 import fs from 'fs/promises'
 import matter from 'gray-matter'
 import { ISize } from 'image-size/dist/types/interface'
-import { BaseCols } from '../types/map.js'
-import { mappingCols } from './map.js'
+import { BaseFlds } from '../types/map.js'
+import { mappingFlds } from './map.js'
 import { SaveRemoteContentsOptions } from '../types/content.js'
 import { fileNameFromURL, saveImageFile } from './media.js'
 
 export async function saveContentFile(
-  cols: BaseCols,
+  flds: BaseFlds,
   dstDir: string,
   position: number
 ): Promise<Error | null> {
   let ret: Error | null = null
 
-  const savePath = `${path.resolve(dstDir, cols.id)}.md`
+  const savePath = `${path.resolve(dstDir, flds.id)}.md`
 
   try {
-    const { content, ...metaData } = cols
+    const { content, ...metaData } = flds
     const file = matter.stringify(content || '', { ...metaData, position })
     await fs.writeFile(savePath, file)
   } catch (err: any) {
@@ -57,16 +57,16 @@ export async function saveRemoteContents({
   let ret: Error | null = null
   try {
     const res = await client.request().api(apiName).fetch()
-    const rows = res.rows.map((row) => mappingCols(row, mapConfig))
+    const rows = res.rows.map((row) => mappingFlds(row, mapConfig))
     const len = rows.length
     for (let idx = 0; idx < len; idx++) {
-      const colsArray: [string, any][] = Object.entries(rows[idx])
-      const colsLen = colsArray.length
-      for (let colsIdx = 0; colsIdx < colsLen; colsIdx++) {
-        const c = colsArray[colsIdx]
+      const fldsArray: [string, any][] = Object.entries(rows[idx])
+      const fldsLen = fldsArray.length
+      for (let fldsIdx = 0; fldsIdx < fldsLen; fldsIdx++) {
+        const c = fldsArray[fldsIdx]
         if (
-          mapConfig.cols.findIndex(
-            ({ dstName, colType }) => dstName === c[0] && colType === 'image'
+          mapConfig.flds.findIndex(
+            ({ dstName, fldType }) => dstName === c[0] && fldType === 'image'
           ) >= 0
         ) {
           const info = await saveImageFile(
@@ -85,9 +85,9 @@ export async function saveRemoteContents({
           }
         }
       }
-      const cols: BaseCols = { ...rows[idx] }
-      colsArray.forEach(([k, v]) => (cols[k] = v))
-      ret = await saveContentFile(cols, dstContentsDir, idx)
+      const flds: BaseFlds = { ...rows[idx] }
+      fldsArray.forEach(([k, v]) => (flds[k] = v))
+      ret = await saveContentFile(flds, dstContentsDir, idx)
       if (ret) {
         break
       }

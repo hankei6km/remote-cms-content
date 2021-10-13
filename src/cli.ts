@@ -40,7 +40,10 @@ const cli = async ({
     switch (command) {
       case 'save':
         cliErr = await saveRemoteContents({
-          client: client(clientKind,{ apiBaseURL, credential: [appId, accessKey] }),
+          client: client(clientKind, {
+            apiBaseURL,
+            credential: [appId, accessKey]
+          }),
           mapConfig: await loadMapConfig(mapConfig),
           ...saveOpts
         })

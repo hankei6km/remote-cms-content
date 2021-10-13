@@ -32,7 +32,8 @@
     "test": "jest",
     "clean": "rm -r dist/*",
     "upgrade-interactive": "npm-check --update",
-    "csb:test": "npm test -- --runInBand --watchAll"
+    "csb:test": "npm test -- --runInBand --watchAll",
+    "mapconfig-schema:build": "sh scripts/mapconfig-schema-build.sh"
   },
   "dependencies": {
     "axios": "^0.21.4",

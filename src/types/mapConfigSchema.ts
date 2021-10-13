@@ -222,6 +222,9 @@ export const mapConfigSchema =
                 ]
             },
             "type": "array"
+        },
+        "passthruUnmapped": {
+            "type": "boolean"
         }
     },
     "required": [

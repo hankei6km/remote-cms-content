@@ -27,6 +27,10 @@ describe('validateMapConfig', () => {
         }
       ]
     })
+    expect(validateMapConfig({ passthruUnmapped: true, flds: [] })).toEqual({
+      passthruUnmapped: true,
+      flds: []
+    })
   })
   test('should throw error when invalid data passed', () => {
     expect(() => validateMapConfig({})).toThrowError(/flds/)

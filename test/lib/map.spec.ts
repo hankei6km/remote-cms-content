@@ -1,4 +1,74 @@
-import { mappingFlds, validId } from '../../src/lib/map.js'
+import {
+  loadMapconfig,
+  mappingFlds,
+  validateMapconfig,
+  validId
+} from '../../src/lib/map.js'
+
+describe('validateMapconfig', () => {
+  test('should return MapConfig', () => {
+    expect(validateMapconfig({ flds: [] })).toEqual({ flds: [] })
+    expect(
+      validateMapconfig({
+        flds: [
+          {
+            srcName: 'タイトル',
+            dstName: 'title',
+            fldType: 'string'
+          }
+        ]
+      })
+    ).toEqual({
+      flds: [
+        {
+          srcName: 'タイトル',
+          dstName: 'title',
+          fldType: 'string'
+        }
+      ]
+    })
+  })
+  test('should throw error when invalid data passed', () => {
+    expect(() => validateMapconfig({})).toThrowError(/flds/)
+    expect(() => validateMapconfig({ flds: [], dirty: true })).toThrowError(
+      /additional/
+    )
+  })
+})
+
+describe('loadMapconfig', () => {
+  test('should load MapConfig from json file', async () => {
+    expect(loadMapconfig('test/assets/mapconfig.json')).resolves.toEqual({
+      flds: [
+        {
+          srcName: 'タイトル',
+          dstName: 'title',
+          fldType: 'string'
+        },
+        {
+          srcName: '画像',
+          dstName: 'image',
+          fldType: 'image'
+        }
+      ]
+    })
+  })
+  test('should throw error when invalid type loaded', async () => {
+    expect(
+      loadMapconfig('test/assets/mapconfig_type_err.json')
+    ).rejects.toThrowError(/flds/)
+  })
+  test('should throw error when invalid json loaded', async () => {
+    expect(
+      loadMapconfig('test/assets/mapconfig_invalid.json')
+    ).rejects.toThrowError(/SyntaxError/)
+  })
+  test('should throw error when not exist json loaded', async () => {
+    expect(
+      loadMapconfig('test/assets/mapconfig_not_exist.json')
+    ).rejects.toThrowError(/ENOENT/)
+  })
+})
 
 describe('validId', () => {
   test('should return true', () => {

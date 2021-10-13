@@ -2,6 +2,7 @@ import fs from 'fs/promises'
 import { Writable } from 'stream'
 import { client } from './lib/client.js'
 import { saveRemoteContents } from './lib/content.js'
+import { loadMapconfig } from './lib/map.js'
 import { ClientKind } from './types/client.js'
 
 type SaveOpts = {
@@ -40,7 +41,7 @@ const cli = async ({
       case 'save':
         cliErr = await saveRemoteContents({
           client: client(clientKind,{ apiBaseURL, credential: [appId, accessKey] }),
-          mapConfig: JSON.parse((await fs.readFile(mapConfig)).toString()),
+          mapConfig: await loadMapconfig(mapConfig),
           ...saveOpts
         })
         break

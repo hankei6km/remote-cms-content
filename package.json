@@ -36,6 +36,7 @@
     "mapconfig-schema:build": "sh scripts/mapconfig-schema-build.sh"
   },
   "dependencies": {
+    "ajv": "^8.6.3",
     "axios": "^0.21.4",
     "gray-matter": "^4.0.3",
     "image-size": "^1.0.0",

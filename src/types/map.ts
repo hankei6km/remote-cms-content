@@ -48,5 +48,6 @@ export type MapFlds = (
 )[]
 
 export type MapConfig = {
+  passthruUnmapped?: boolean
   flds: MapFlds
 }

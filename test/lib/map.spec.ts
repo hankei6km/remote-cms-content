@@ -27,6 +27,10 @@ describe('validateMapConfig', () => {
         }
       ]
     })
+    expect(validateMapConfig({ passthruUnmapped: true, flds: [] })).toEqual({
+      passthruUnmapped: true,
+      flds: []
+    })
   })
   test('should throw error when invalid data passed', () => {
     expect(() => validateMapConfig({})).toThrowError(/flds/)
@@ -258,6 +262,7 @@ describe('mappingFlds', () => {
           id: 'idstring',
           createdAt: n,
           updatedAt: n,
+          title: 'title1',
           回数: 21
         },
         {
@@ -281,6 +286,63 @@ describe('mappingFlds', () => {
       createdAt: new Date(n),
       updatedAt: new Date(n),
       count: 21
+    })
+  })
+  test('should pass through unmapped flds', () => {
+    const n = new Date().toUTCString()
+    expect(
+      mappingFlds(
+        {
+          _RowNumber: 1,
+          id: 'idstring',
+          createdAt: n,
+          updatedAt: n,
+          title: 'title1',
+          回数: 21,
+          category: [
+            {
+              title: 'Cat1',
+              id: 'cat1'
+            },
+            {
+              title: 'Cat2',
+              id: 'cat2'
+            }
+          ]
+        },
+        {
+          passthruUnmapped: true,
+          flds: [
+            {
+              srcName: 'タイトル',
+              dstName: 'title',
+              fldType: 'string'
+            },
+            {
+              srcName: '回数',
+              dstName: 'count',
+              fldType: 'number'
+            }
+          ]
+        }
+      )
+    ).toEqual({
+      _RowNumber: 1,
+      id: 'idstring',
+      createdAt: new Date(n),
+      updatedAt: new Date(n),
+      title: 'title1',
+      count: 21,
+      category: [
+        {
+          title: 'Cat1',
+          id: 'cat1'
+        },
+        {
+          title: 'Cat2',
+          id: 'cat2'
+        }
+      ]
     })
   })
 })

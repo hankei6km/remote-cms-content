@@ -60,24 +60,24 @@ function throwInvalidType(
 }
 
 export function mappingFlds(s: any, mapConfig: MapConfig): BaseFlds {
+  const { _RowNumber, id, createdAt, updatedAt, ...src } = s
   const n = new Date()
-  const id = validId(s.id) ? s.id : throwInvalidId(s.id, 'id', 'id', 'id')
   const ret: BaseFlds = {
-    _RowNumber: s._RowNumber !== undefined ? s._RowNumber! : -1,
-    id,
-    createdAt: s.createdAt ? new Date(s.createdAt) : n,
-    updatedAt: s.updatedAt ? new Date(s.updatedAt) : n
+    _RowNumber: _RowNumber !== undefined ? _RowNumber! : -1,
+    id: validId(id) ? id : throwInvalidId(id, 'id', 'id', 'id'),
+    createdAt: createdAt ? new Date(createdAt) : n,
+    updatedAt: updatedAt ? new Date(updatedAt) : n
   }
   mapConfig.flds.forEach((m) => {
-    if (s.hasOwnProperty(m.srcName)) {
-      const srcFldType = typeof s[m.srcName]
+    if (src.hasOwnProperty(m.srcName)) {
+      const srcFldType = typeof src[m.srcName]
       switch (m.fldType) {
         case 'id':
           if (srcFldType === 'number' || srcFldType === 'string') {
-            if (validId(s[m.srcName])) {
-              ret[m.dstName] = `${s[m.srcName]}`
+            if (validId(src[m.srcName])) {
+              ret[m.dstName] = `${src[m.srcName]}`
             } else {
-              throwInvalidId(s[m.srcName], m.srcName, m.dstName, m.fldType)
+              throwInvalidId(src[m.srcName], m.srcName, m.dstName, m.fldType)
             }
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
@@ -85,7 +85,7 @@ export function mappingFlds(s: any, mapConfig: MapConfig): BaseFlds {
           break
         case 'number':
           if (srcFldType === 'number') {
-            ret[m.dstName] = s[m.srcName]
+            ret[m.dstName] = src[m.srcName]
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
@@ -93,16 +93,16 @@ export function mappingFlds(s: any, mapConfig: MapConfig): BaseFlds {
         case 'string':
         case 'image': // この時点では文字列として扱う(保存時にファイルをダウンロードする).
           if (srcFldType === 'string' || srcFldType === 'number') {
-            ret[m.dstName] = `${s[m.srcName]}`
+            ret[m.dstName] = `${src[m.srcName]}`
           } else {
-            ret[m.dstName] = `${s[m.srcName] || ''}`
+            ret[m.dstName] = `${src[m.srcName] || ''}`
           }
           break
         case 'datetime':
-          ret[m.dstName] = new Date(`${s[m.srcName]}`)
+          ret[m.dstName] = new Date(`${src[m.srcName]}`)
           break
         case 'enum':
-          const str = `${s[m.srcName]}`
+          const str = `${src[m.srcName]}`
           const matchIdx = m.replace.findIndex(({ pattern }) =>
             str.match(pattern)
           )
@@ -116,7 +116,17 @@ export function mappingFlds(s: any, mapConfig: MapConfig): BaseFlds {
           }
           break
       }
+      if (ret.hasOwnProperty(m.dstName)) {
+        delete src[m.srcName]
+      }
     }
   })
+  if (mapConfig.passthruUnmapped) {
+    Object.entries(src).forEach(([k, v]) => {
+      if (!ret.hasOwnProperty(k)) {
+        ret[k] = v
+      }
+    })
+  }
   return ret
 }

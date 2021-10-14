@@ -123,7 +123,7 @@ describe('saveRemoteContents()', () => {
     const mapConfig: MapConfig = {
       flds: [
         { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
-        { srcName: '画像', dstName: 'image', fldType: 'image' },
+        { srcName: '画像', dstName: 'image', fldType: 'image', setSize: true },
         { srcName: 'content', dstName: 'content', fldType: 'string' }
       ]
     }
@@ -192,7 +192,7 @@ describe('saveRemoteContents()', () => {
     expect(mockWriteFile.mock.calls[1][1]).toContain('position: 1')
     expect(mockWriteFile.mock.calls[1][1]).toContain('markdown2')
   })
-  it('should get remote content and save as local files without image options', async () => {
+  it('should get remote content and save as local files without setSize options', async () => {
     const mapConfig: MapConfig = {
       flds: [
         { srcName: 'タイトル', dstName: 'title', fldType: 'string' },

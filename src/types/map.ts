@@ -28,6 +28,7 @@ export type MapFldsDatetime = {
 
 export type MapFldsImage = {
   fldType: 'image'
+  setSize?: boolean
 } & MapFldsBase
 
 export type MapFldsEnum = {

@@ -50,8 +50,7 @@ export async function saveRemoteContents({
   mapConfig,
   dstContentsDir,
   dstImagesDir,
-  staticRoot,
-  imageInfo
+  staticRoot
 }: SaveRemoteContentsOptions): Promise<Error | null> {
   const staticRootLen = staticRoot.length
   let ret: Error | null = null
@@ -66,16 +65,21 @@ export async function saveRemoteContents({
       const fldsLen = fldsArray.length
       for (let fldsIdx = 0; fldsIdx < fldsLen; fldsIdx++) {
         const c = fldsArray[fldsIdx]
-        const mapIdx = mapConfig.flds.findIndex(
-          ({ dstName, fldType }) => dstName === c[0] && fldType === 'image'
-        )
-        if (mapIdx >= 0) {
-          const map: MapFldsImage = mapConfig.flds[mapIdx] as MapFldsImage
+        const mapFld: MapFldsImage | undefined = (() => {
+          const mapIdx = mapConfig.flds.findIndex(
+            ({ dstName, fldType }) => dstName === c[0] && fldType === 'image'
+          )
+          if (mapIdx >= 0) {
+            return mapConfig.flds[mapIdx] as MapFldsImage
+          }
+          return
+        })()
+        if (mapFld) {
           const info = await saveImageFile(
             c[1],
             dstImagesDir,
             fileNameFromURL(c[1], 'fileName'),
-            map.setSize || false
+            mapFld.setSize || false
           )
           if (staticRoot && info.url.startsWith(staticRoot)) {
             c[1] = {

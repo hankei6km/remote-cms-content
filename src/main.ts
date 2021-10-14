@@ -18,11 +18,6 @@ import { ClientKindValues } from './types/client.js'
               type: 'string',
               defult: 'static/',
               description: 'root of static path to trim image path'
-            },
-            'image-info': {
-              type: 'boolean',
-              defult: 'false',
-              description: 'extract information of image(size, meta)'
             }
           })
           .positional('apiName', {
@@ -77,15 +72,14 @@ import { ClientKindValues } from './types/client.js'
       stderr: process.stderr,
       clientKind: argv['client-kind'],
       apiBaseURL: argv['api-base-url'],
-      appId: argv['app-id']||'',
+      appId: argv['app-id'] || '',
       mapConfig: argv['map-config'],
       accessKey: argv['access-key'],
       saveOpts: {
         apiName: argv.apiName,
         dstContentsDir: argv.dstContentsDir,
         dstImagesDir: argv.dstImagesDir,
-        staticRoot: argv['static-root'] || 'static/',
-        imageInfo: argv['image-info'] || false
+        staticRoot: argv['static-root'] || 'static/'
       }
     })
   )

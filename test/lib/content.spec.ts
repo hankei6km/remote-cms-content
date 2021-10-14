@@ -137,8 +137,7 @@ describe('saveRemoteContents()', () => {
       mapConfig,
       dstContentsDir: '/path/content',
       dstImagesDir: '/path/static/images',
-      staticRoot: '/path/static',
-      imageInfo: true
+      staticRoot: '/path/static'
     })
     mockAxios.mockResponse({
       data: [
@@ -209,8 +208,7 @@ describe('saveRemoteContents()', () => {
       mapConfig,
       dstContentsDir: '/path/content',
       dstImagesDir: '/path/static/images',
-      staticRoot: '',
-      imageInfo: false
+      staticRoot: ''
     })
     mockAxios.mockResponse({
       data: [
@@ -244,8 +242,7 @@ describe('saveRemoteContents()', () => {
       mapConfig: { flds: [] },
       dstContentsDir: '/error',
       dstImagesDir: '/path/static/images',
-      staticRoot: '/path/static',
-      imageInfo: true
+      staticRoot: '/path/static'
     })
     mockAxios.mockResponse({
       data: [

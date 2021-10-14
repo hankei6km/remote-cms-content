@@ -8,5 +8,4 @@ export type SaveRemoteContentsOptions = {
   dstContentsDir: string
   dstImagesDir: string
   staticRoot: string
-  imageInfo: boolean
 }

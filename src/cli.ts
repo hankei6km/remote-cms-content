@@ -10,7 +10,6 @@ type SaveOpts = {
   dstContentsDir: string
   dstImagesDir: string
   staticRoot: string
-  imageInfo: boolean
 }
 
 type Opts = {

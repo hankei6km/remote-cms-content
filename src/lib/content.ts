@@ -18,7 +18,11 @@ export async function saveContentFile(
 
   try {
     const { content, ...metaData } = flds
-    const file = matter.stringify(content || '', { ...metaData, position })
+    // content は string を期待しているが、異なる場合もある、かな.
+    const file = matter.stringify(content !== undefined ? `${content}` : '', {
+      ...metaData,
+      position
+    })
     await fs.writeFile(savePath, file)
   } catch (err: any) {
     ret = new Error(`saveFile error: ${err}`)

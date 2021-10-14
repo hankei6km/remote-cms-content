@@ -28,7 +28,7 @@ export async function loadMapConfig(jsonFile: string): Promise<MapConfig> {
 }
 
 const validIdRegExp = /^[-_0-9a-zA-Z]+$/
-export function validId(s: string | number): boolean {
+export function validId(s: unknown): s is number | string {
   if (typeof s === 'number') {
     return true
   } else if (typeof s === 'string' && s.match(validIdRegExp)) {
@@ -38,7 +38,7 @@ export function validId(s: string | number): boolean {
 }
 
 function throwInvalidId(
-  value: string,
+  value: unknown,
   srcName: string,
   dstName: string,
   fldType: string
@@ -59,14 +59,22 @@ function throwInvalidType(
   )
 }
 
-export function mappingFlds(s: any, mapConfig: MapConfig): BaseFlds {
+export function mappingFlds(
+  s: Record<string, unknown>,
+  mapConfig: MapConfig
+): BaseFlds {
   const { _RowNumber, id, createdAt, updatedAt, ...src } = s
   const n = new Date()
   const ret: BaseFlds = {
-    _RowNumber: _RowNumber !== undefined ? _RowNumber! : -1,
-    id: validId(id) ? id : throwInvalidId(id, 'id', 'id', 'id'),
-    createdAt: createdAt ? new Date(createdAt) : n,
-    updatedAt: updatedAt ? new Date(updatedAt) : n
+    _RowNumber: typeof _RowNumber === 'number' ? _RowNumber! : -1,
+    id: '',
+    createdAt: typeof createdAt === 'string' ? new Date(createdAt) : n,
+    updatedAt: typeof updatedAt === 'string' ? new Date(updatedAt) : n
+  }
+  if (validId(id)) {
+    ret.id = `${id}`
+  } else {
+    throwInvalidId(id, 'id', 'id', 'id')
   }
   mapConfig.flds.forEach((m) => {
     if (src.hasOwnProperty(m.srcName)) {

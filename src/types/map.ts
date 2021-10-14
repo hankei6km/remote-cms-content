@@ -3,7 +3,7 @@ export type BaseFlds = {
   id: string
   createdAt: Date
   updatedAt: Date
-} & Record<string, any>
+} & Record<string, unknown>
 
 export type MapFldsBase = {
   srcName: string

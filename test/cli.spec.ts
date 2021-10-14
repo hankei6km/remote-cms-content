@@ -1,5 +1,5 @@
 import { PassThrough } from 'stream'
-import cli from '../src/cli.js'
+import { cli } from '../src/cli.js'
 import { SaveRemoteContentsOptions } from '../src/types/content.js'
 
 jest.mock('../src/lib/content', () => {

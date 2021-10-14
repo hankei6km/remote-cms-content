@@ -10,7 +10,6 @@ type SaveOpts = {
   dstContentsDir: string
   dstImagesDir: string
   staticRoot: string
-  imageInfo: boolean
 }
 
 type Opts = {
@@ -24,7 +23,7 @@ type Opts = {
   accessKey: string
   saveOpts: SaveOpts
 }
-const cli = async ({
+export const cli = async ({
   command,
   stdout,
   stderr,
@@ -59,5 +58,3 @@ const cli = async ({
   }
   return 0
 }
-
-export default cli

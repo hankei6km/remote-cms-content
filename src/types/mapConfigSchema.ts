@@ -158,6 +158,9 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
+                            "setSize": {
+                                "type": "boolean"
+                            },
                             "srcName": {
                                 "type": "string"
                             }

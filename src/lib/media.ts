@@ -32,7 +32,7 @@ export async function saveImageFile(
   src: string,
   imagesDir: string,
   imageFileName: string,
-  imageInfo: boolean
+  setSize: boolean
 ): Promise<ImageInfo> {
   const savePath = path.join(imagesDir, imageFileName)
   await new Promise((resolve, reject) => {
@@ -61,7 +61,7 @@ export async function saveImageFile(
     url: savePath,
     // TODO: orientation の処理を検討(おそらく raw などでの補正? がいると思う).
     size:
-      imageInfo && savePath
+      setSize && savePath
         ? await sizeOf(savePath) // Promise が返ってくるのだが?
         : {}, // { width: undefined, height: undefined } の代わり.
     meta: {}

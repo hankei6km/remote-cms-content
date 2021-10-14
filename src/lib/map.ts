@@ -99,11 +99,19 @@ export function mappingFlds(
           }
           break
         case 'string':
-        case 'image': // この時点では文字列として扱う(保存時にファイルをダウンロードする).
           if (srcFldType === 'string' || srcFldType === 'number') {
             ret[m.dstName] = `${src[m.srcName]}`
           } else {
             ret[m.dstName] = `${src[m.srcName] || ''}`
+          }
+          break
+        case 'image': // この時点では文字列として扱う(保存時にファイルをダウンロードする).
+          if (srcFldType === 'string' || srcFldType === 'number') {
+            ret[m.dstName] = `${src[m.srcName]}`
+          } else if (srcFldType === 'object') {
+            ret[m.dstName] = src[m.srcName]
+          } else {
+            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
           break
         case 'datetime':

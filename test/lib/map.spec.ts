@@ -108,6 +108,11 @@ describe('mappingFlds', () => {
           回数: 21,
           タイムスタンプ: n,
           画像: 'アプリ_Images/test.png',
+          画像obj: {
+            url: 'http://localhost:3000/path/to/image.jpg',
+            width: 200,
+            height: 100
+          },
           色: '赤',
           背景色: '青'
         },
@@ -131,6 +136,11 @@ describe('mappingFlds', () => {
             {
               srcName: '画像',
               dstName: 'image',
+              fldType: 'image'
+            },
+            {
+              srcName: '画像obj',
+              dstName: 'imageObj',
               fldType: 'image'
             },
             {
@@ -160,6 +170,11 @@ describe('mappingFlds', () => {
       count: 21,
       timestamp: new Date(n),
       image: 'アプリ_Images/test.png',
+      imageObj: {
+        url: 'http://localhost:3000/path/to/image.jpg',
+        width: 200,
+        height: 100
+      },
       color: '赤',
       bgColor: 'blue'
     })

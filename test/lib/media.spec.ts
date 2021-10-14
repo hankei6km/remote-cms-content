@@ -147,6 +147,34 @@ describe('saveImage', () => {
       url: '/path/to/static/image.jpg'
     })
   })
+  it('should get image with image object', async () => {
+    const res = saveImageFile(
+      {
+        url: 'http://localhost:3000/path/to/image.jpg',
+        width: 200,
+        height: 100
+      },
+      '/path/to/static',
+      'image.jpg',
+      false
+    )
+    expect(mockAxios.request).toHaveBeenLastCalledWith({
+      method: 'get',
+      url: 'http://localhost:3000/path/to/image.jpg',
+      responseType: 'stream'
+    })
+    mockAxios.mockResponse({
+      data: 'image data'
+    })
+    await expect(res).resolves.toEqual({
+      size: {
+        width: 200,
+        height: 100
+      },
+      meta: {},
+      url: '/path/to/static/image.jpg'
+    })
+  })
   it('should throw error by 404', async () => {
     const res = saveImageFile(
       'http://localhost:3000/image.jpg',

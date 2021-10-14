@@ -29,17 +29,27 @@ export function fileNameFromURL(src: string, fieldName: string): string {
 }
 
 export async function saveImageFile(
-  src: string,
+  src: string | { url: string; width: number; height: number },
   imagesDir: string,
   imageFileName: string,
   setSize: boolean
 ): Promise<ImageInfo> {
+  let imageUrl: string = ''
+  let width: number | undefined
+  let height: number | undefined
+  if (typeof src === 'string') {
+    imageUrl = src
+  } else {
+    imageUrl = src.url
+    width = src.width
+    height = src.height
+  }
   const savePath = path.join(imagesDir, imageFileName)
   await new Promise((resolve, reject) => {
     axios
       .request({
         method: 'get',
-        url: src,
+        url: imageUrl,
         responseType: 'stream'
       })
       .then((response) => {
@@ -57,6 +67,16 @@ export async function saveImageFile(
       })
   })
 
+  if (width !== undefined && height !== undefined) {
+    return {
+      url: savePath,
+      size: {
+        width,
+        height
+      },
+      meta: {}
+    }
+  }
   return {
     url: savePath,
     // TODO: orientation の処理を検討(おそらく raw などでの補正? がいると思う).

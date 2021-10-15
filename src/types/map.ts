@@ -49,6 +49,18 @@ export type MapFlds = (
 )[]
 
 export type MapConfig = {
+  media?: {
+    image?: {
+      download?: boolean
+      library?: [
+        {
+          src: string
+          kind: 'imgix'
+          download?: boolean
+        }
+      ]
+    }
+  }
   passthruUnmapped?: boolean
   flds: MapFlds
 }

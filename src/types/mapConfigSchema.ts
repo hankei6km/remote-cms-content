@@ -226,6 +226,50 @@ export const mapConfigSchema =
             },
             "type": "array"
         },
+        "media": {
+            "additionalProperties": false,
+            "properties": {
+                "image": {
+                    "additionalProperties": false,
+                    "properties": {
+                        "download": {
+                            "type": "boolean"
+                        },
+                        "library": {
+                            "items": [
+                                {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                        "download": {
+                                            "type": "boolean"
+                                        },
+                                        "kind": {
+                                            "enum": [
+                                                "imgix"
+                                            ],
+                                            "type": "string"
+                                        },
+                                        "src": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "kind",
+                                        "src"
+                                    ],
+                                    "type": "object"
+                                }
+                            ],
+                            "maxItems": 1,
+                            "minItems": 1,
+                            "type": "array"
+                        }
+                    },
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        },
         "passthruUnmapped": {
             "type": "boolean"
         }

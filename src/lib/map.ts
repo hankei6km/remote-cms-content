@@ -2,6 +2,7 @@ import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
 import { BaseFlds, MapConfig } from '../types/map.js'
 import { mapConfigSchema } from '../types/mapConfigSchema.js'
+import { ImageInfo } from '../types/media.js'
 
 const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
@@ -25,6 +26,24 @@ export async function loadMapConfig(jsonFile: string): Promise<MapConfig> {
   } catch (err) {
     throw new Error(`loadMapConfig: jsonFile=${jsonFile} ${err}`)
   }
+}
+
+export function isImageDownload(
+  mapConfig: MapConfig,
+  imageInfo: ImageInfo
+): boolean {
+  if (mapConfig.media?.image) {
+    if (mapConfig.media.image.library) {
+      const libIdx = mapConfig.media.image.library.findIndex(({ src }) =>
+        imageInfo.url.startsWith(src)
+      )
+      if (libIdx >= 0) {
+        return mapConfig.media.image.library[libIdx].download || false
+      }
+    }
+    return mapConfig.media.image.download || false
+  }
+  return false
 }
 
 const validIdRegExp = /^[-_0-9a-zA-Z]+$/

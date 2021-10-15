@@ -1,5 +1,9 @@
 import mockAxios from 'jest-mock-axios'
-import { fileNameFromURL, saveImageFile } from '../../src/lib/media.js'
+import {
+  fileNameFromURL,
+  imageInfoFromSrc,
+  saveImageFile
+} from '../../src/lib/media.js'
 
 jest.mock('fs', () => {
   const mockWrite = jest.fn()
@@ -100,11 +104,48 @@ describe('fileNameFromURL', () => {
     )
   })
 })
-describe('saveImage', () => {
+
+describe('imageInfoFromSrc', () => {
+  it('should get imageInfo', async () => {
+    expect(
+      await imageInfoFromSrc('http://localhost:3000/path/to/image.jpg', false)
+    ).toEqual({
+      url: 'http://localhost:3000/path/to/image.jpg',
+      size: {},
+      meta: {}
+    })
+  })
+  it('should get imageInfo from image object', async () => {
+    expect(
+      await imageInfoFromSrc(
+        {
+          url: 'http://localhost:3000/path/to/image.jpg',
+          width: 200,
+          height: 100
+        },
+        false
+      )
+    ).toEqual({
+      url: 'http://localhost:3000/path/to/image.jpg',
+      size: {
+        width: 200,
+        height: 100
+      },
+      meta: {}
+    })
+  })
+})
+
+describe('saveImageFile', () => {
   it('should get image from remote and save to local file', async () => {
     const res = saveImageFile(
-      'https://www.appsheet.com/template/gettablefileurl?appName=appName&tableName=tbl&fileName=アプリ_Image%2Fimage.jpg',
-      '/path/to/static',
+      {
+        url: 'https://www.appsheet.com/template/gettablefileurl?appName=appName&tableName=tbl&fileName=アプリ_Image%2Fimage.jpg',
+        size: {},
+        meta: {}
+      },
+      '/static/path/to',
+      '/static',
       'image.jpg',
       true
     )
@@ -119,17 +160,24 @@ describe('saveImage', () => {
     await expect(res).resolves.toEqual({
       size: { width: 200, height: 100 },
       meta: {},
-      url: '/path/to/static/image.jpg'
+      url: '/path/to/image.jpg'
     })
     const { mockCreateWriteStream } = require('fs')._getMocks()
     expect(mockCreateWriteStream).toHaveBeenLastCalledWith(
-      '/path/to/static/image.jpg'
+      '/static/path/to/image.jpg'
     )
+    const { mockSizeOf } = require('image-size')._getMocks()
+    expect(mockSizeOf).toHaveBeenLastCalledWith('/static/path/to/image.jpg')
   })
   it('should get image with out iamge info', async () => {
     const res = saveImageFile(
-      'https://www.appsheet.com/template/gettablefileurl?appName=appName&tableName=tbl&fileName=アプリ_Image%2Fimage.jpg',
-      '/path/to/static',
+      {
+        url: 'https://www.appsheet.com/template/gettablefileurl?appName=appName&tableName=tbl&fileName=アプリ_Image%2Fimage.jpg',
+        size: {},
+        meta: {}
+      },
+      'static/path/to/static',
+      'static',
       'image.jpg',
       false
     )
@@ -151,10 +199,14 @@ describe('saveImage', () => {
     const res = saveImageFile(
       {
         url: 'http://localhost:3000/path/to/image.jpg',
-        width: 200,
-        height: 100
+        size: {
+          width: 200,
+          height: 100
+        },
+        meta: {}
       },
-      '/path/to/static',
+      '/static/path/to',
+      '/static',
       'image.jpg',
       false
     )
@@ -172,13 +224,50 @@ describe('saveImage', () => {
         height: 100
       },
       meta: {},
-      url: '/path/to/static/image.jpg'
+      url: '/path/to/image.jpg'
+    })
+  })
+  it('should get image without static root', async () => {
+    const res = saveImageFile(
+      {
+        url: 'http://localhost:3000/path/to/image.jpg',
+        size: {
+          width: 200,
+          height: 100
+        },
+        meta: {}
+      },
+      '/path/to',
+      '',
+      'image.jpg',
+      false
+    )
+    expect(mockAxios.request).toHaveBeenLastCalledWith({
+      method: 'get',
+      url: 'http://localhost:3000/path/to/image.jpg',
+      responseType: 'stream'
+    })
+    mockAxios.mockResponse({
+      data: 'image data'
+    })
+    await expect(res).resolves.toEqual({
+      size: {
+        width: 200,
+        height: 100
+      },
+      meta: {},
+      url: '/path/to/image.jpg'
     })
   })
   it('should throw error by 404', async () => {
     const res = saveImageFile(
-      'http://localhost:3000/image.jpg',
+      {
+        url: 'http://localhost:3000/image.jpg',
+        size: {},
+        meta: {}
+      },
       '/path/to/static',
+      '',
       'image.jpg',
       true
     )

@@ -1,4 +1,5 @@
 import {
+  isImageDownload,
   loadMapConfig,
   mappingFlds,
   validateMapConfig,
@@ -71,6 +72,88 @@ describe('loadMapConfig', () => {
     expect(
       loadMapConfig('test/assets/mapconfig_not_exist.json')
     ).rejects.toThrowError(/ENOENT/)
+  })
+})
+describe('isImageDownload', () => {
+  test('should return true', () => {
+    expect(
+      isImageDownload(
+        { media: { image: { download: true } }, flds: [] },
+        { url: 'http://localhost:3000/image.jpg', size: {}, meta: {} }
+      )
+    ).toBeTruthy()
+    expect(
+      isImageDownload(
+        {
+          media: {
+            image: {
+              library: [
+                { src: 'http://localhost:3000/', kind: 'imgix', download: true }
+              ]
+            }
+          },
+          flds: []
+        },
+        { url: 'http://localhost:3000/image.jpg', size: {}, meta: {} }
+      )
+    ).toBeTruthy()
+    expect(
+      isImageDownload(
+        {
+          media: {
+            image: {
+              download: false,
+              library: [
+                { src: 'http://localhost:3000/', kind: 'imgix', download: true }
+              ]
+            }
+          },
+          flds: []
+        },
+        { url: 'http://localhost:3000/image.jpg', size: {}, meta: {} }
+      )
+    ).toBeTruthy()
+  })
+  test('should return false', () => {
+    expect(
+      isImageDownload(
+        { flds: [] },
+        { url: 'http://localhost:3000/image.jpg', size: {}, meta: {} }
+      )
+    ).not.toBeTruthy()
+    expect(
+      isImageDownload(
+        {
+          media: {
+            image: {
+              library: [{ src: 'http://localhost:3000/', kind: 'imgix' }]
+            }
+          },
+          flds: []
+        },
+        { url: 'http://localhost:3000/image.jpg', size: {}, meta: {} }
+      )
+    ).not.toBeTruthy()
+    expect(
+      isImageDownload(
+        {
+          media: {
+            image: {
+              download: true,
+              library: [
+                {
+                  src: 'http://localhost:3000/',
+                  kind: 'imgix',
+                  download: false
+                }
+              ]
+            }
+          },
+          flds: []
+        },
+        { url: 'http://localhost:3000/image.jpg', size: {}, meta: {} }
+      )
+    ).not.toBeTruthy()
   })
 })
 

@@ -259,10 +259,10 @@ describe('validId', () => {
 })
 
 describe('mappingFlds', () => {
-  test('should map flds', () => {
+  test('should map flds', async () => {
     const n = new Date().toUTCString()
     expect(
-      mappingFlds(
+      await mappingFlds(
         {
           _RowNumber: 1,
           id: 'idstring',
@@ -278,7 +278,8 @@ describe('mappingFlds', () => {
             height: 100
           },
           色: '赤',
-          背景色: '青'
+          背景色: '青',
+          本文: '<p>test html1</p><p>test html2</p>'
         },
         {
           flds: [
@@ -321,6 +322,11 @@ describe('mappingFlds', () => {
                 { pattern: '赤', replacement: 'red' },
                 { pattern: '青', replacement: 'blue' }
               ]
+            },
+            {
+              srcName: '本文',
+              dstName: 'content',
+              fldType: 'html'
             }
           ]
         }
@@ -340,12 +346,13 @@ describe('mappingFlds', () => {
         height: 100
       },
       color: '赤',
-      bgColor: 'blue'
+      bgColor: 'blue',
+      content: 'test html1\n\ntest html2\n'
     })
   })
-  test('should throw invalid id error ', () => {
+  test('should throw invalid id error ', async () => {
     const n = new Date().toUTCString()
-    expect(() =>
+    await expect(
       mappingFlds(
         {
           _RowNumber: 1,
@@ -364,8 +371,10 @@ describe('mappingFlds', () => {
           ]
         }
       )
-    ).toThrow(`mappingFlds: invalid id: value = id.string, params = id, id, id`)
-    expect(() =>
+    ).rejects.toThrowError(
+      `mappingFlds: invalid id: value = id.string, params = id, id, id`
+    )
+    await expect(
       mappingFlds(
         {
           _RowNumber: 1,
@@ -383,8 +392,10 @@ describe('mappingFlds', () => {
           ]
         }
       )
-    ).toThrow(`mappingFlds: invalid id: value = undefined, params = id, id, id`)
-    expect(() =>
+    ).rejects.toThrowError(
+      `mappingFlds: invalid id: value = undefined, params = id, id, id`
+    )
+    await expect(
       mappingFlds(
         {
           _RowNumber: 1,
@@ -403,13 +414,13 @@ describe('mappingFlds', () => {
           ]
         }
       )
-    ).toThrow(
+    ).rejects.toThrowError(
       `mappingFlds: invalid id: value = file.md, params = 名前, filename, id`
     )
   })
-  test('should throw invalid type error ', () => {
+  test('should throw invalid type error ', async () => {
     const n = new Date().toUTCString()
-    expect(() =>
+    await expect(
       mappingFlds(
         {
           _RowNumber: 1,
@@ -428,14 +439,36 @@ describe('mappingFlds', () => {
           ]
         }
       )
-    ).toThrow(
+    ).rejects.toThrowError(
       `mappingFlds: invalid type: actually type = string, params = 回数, count, number`
     )
+    await expect(
+      mappingFlds(
+        {
+          _RowNumber: 1,
+          id: 'idstring',
+          createdAt: n,
+          updatedAt: n,
+          本文: 21
+        },
+        {
+          flds: [
+            {
+              srcName: '本文',
+              dstName: 'content',
+              fldType: 'html'
+            }
+          ]
+        }
+      )
+    ).rejects.toThrowError(
+      `mappingFlds: invalid type: actually type = number, params = 本文, content, html`
+    )
   })
-  test('should skip no exist flds', () => {
+  test('should skip no exist flds', async () => {
     const n = new Date().toUTCString()
     expect(
-      mappingFlds(
+      await mappingFlds(
         {
           _RowNumber: 1,
           id: 'idstring',
@@ -467,10 +500,10 @@ describe('mappingFlds', () => {
       count: 21
     })
   })
-  test('should pass through unmapped flds', () => {
+  test('should pass through unmapped flds', async () => {
     const n = new Date().toUTCString()
     expect(
-      mappingFlds(
+      await mappingFlds(
         {
           _RowNumber: 1,
           id: 'idstring',

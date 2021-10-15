@@ -224,6 +224,29 @@ export const mapConfigSchema =
                             "srcName"
                         ],
                         "type": "object"
+                    },
+                    {
+                        "additionalProperties": false,
+                        "properties": {
+                            "dstName": {
+                                "type": "string"
+                            },
+                            "fldType": {
+                                "enum": [
+                                    "html"
+                                ],
+                                "type": "string"
+                            },
+                            "srcName": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "dstName",
+                            "fldType",
+                            "srcName"
+                        ],
+                        "type": "object"
                     }
                 ]
             },

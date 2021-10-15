@@ -3,7 +3,7 @@ export type BaseFlds = {
   id: string
   createdAt: Date
   updatedAt: Date
-} & Record<string, any>
+} & Record<string, unknown>
 
 export type MapFldsBase = {
   srcName: string
@@ -28,6 +28,7 @@ export type MapFldsDatetime = {
 
 export type MapFldsImage = {
   fldType: 'image'
+  fileNameField?: string
   setSize?: boolean
 } & MapFldsBase
 
@@ -49,6 +50,19 @@ export type MapFlds = (
 )[]
 
 export type MapConfig = {
+  media?: {
+    image?: {
+      fileNameField?: string
+      download?: boolean
+      library?: [
+        {
+          src: string
+          kind: 'imgix'
+          download?: boolean
+        }
+      ]
+    }
+  }
   passthruUnmapped?: boolean
   flds: MapFlds
 }

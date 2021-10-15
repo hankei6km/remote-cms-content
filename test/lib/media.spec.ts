@@ -1,5 +1,8 @@
 import mockAxios from 'jest-mock-axios'
-import { fileNameFromURL, saveImageFile } from '../../src/lib/media.js'
+import {
+  imageInfoFromSrc,
+  saveImageFile
+} from '../../src/lib/media.js'
 
 jest.mock('fs', () => {
   const mockWrite = jest.fn()
@@ -62,49 +65,47 @@ afterEach(() => {
   require('image-size')._reset()
 })
 
-describe('fileNameFromURL', () => {
-  it('should get fileName from path of src', () => {
+describe('imageInfoFromSrc', () => {
+  it('should get imageInfo', async () => {
     expect(
-      fileNameFromURL('http://localhost:3000/path/to/image.jpg', '')
-    ).toEqual('image.jpg')
+      await imageInfoFromSrc('http://localhost:3000/path/to/image.jpg', false)
+    ).toEqual({
+      url: 'http://localhost:3000/path/to/image.jpg',
+      size: {},
+      meta: {}
+    })
   })
-  it('should get fileName from filed of src.searchParams', () => {
+  it('should get imageInfo from image object', async () => {
     expect(
-      fileNameFromURL(
-        'http://localhost:3000/path/to/?fileName=image.jpg',
-        'fileName'
+      await imageInfoFromSrc(
+        {
+          url: 'http://localhost:3000/path/to/image.jpg',
+          width: 200,
+          height: 100
+        },
+        false
       )
-    ).toEqual('image.jpg')
-  })
-  it('should throw error when invalid url passed', () => {
-    expect(() => fileNameFromURL('/path/to/image.jpg', '')).toThrow(
-      'fileNameFromURL: src=/path/to/image.jpg,filedName=: TypeError [ERR_INVALID_URL]: Invalid URL: /path/to/image.jpg'
-    )
-    expect(() => fileNameFromURL('/path/to/image.jpg', 'fileName')).toThrow(
-      'fileNameFromURL: src=/path/to/image.jpg,filedName=fileName: TypeError [ERR_INVALID_URL]: Invalid URL: /path/to/image.jpg'
-    )
-  })
-  it('should throw error when path is blank', () => {
-    expect(() => fileNameFromURL('http://localhost:3000', '')).toThrow(
-      'fileNameFromURL: src=http://localhost:3000,filedName=: image filename is blank'
-    )
-  })
-  it('should throw error when field is not match', () => {
-    expect(() =>
-      fileNameFromURL(
-        'http://localhost:3000/path/to/?fileName=image.jpg',
-        'image'
-      )
-    ).toThrow(
-      'fileNameFromURL: src=http://localhost:3000/path/to/?fileName=image.jpg,filedName=image: image filename is blank'
-    )
+    ).toEqual({
+      url: 'http://localhost:3000/path/to/image.jpg',
+      size: {
+        width: 200,
+        height: 100
+      },
+      meta: {}
+    })
   })
 })
-describe('saveImage', () => {
+
+describe('saveImageFile', () => {
   it('should get image from remote and save to local file', async () => {
     const res = saveImageFile(
-      'https://www.appsheet.com/template/gettablefileurl?appName=appName&tableName=tbl&fileName=アプリ_Image%2Fimage.jpg',
-      '/path/to/static',
+      {
+        url: 'https://www.appsheet.com/template/gettablefileurl?appName=appName&tableName=tbl&fileName=アプリ_Image%2Fimage.jpg',
+        size: {},
+        meta: {}
+      },
+      '/static/path/to',
+      '/static',
       'image.jpg',
       true
     )
@@ -119,17 +120,24 @@ describe('saveImage', () => {
     await expect(res).resolves.toEqual({
       size: { width: 200, height: 100 },
       meta: {},
-      url: '/path/to/static/image.jpg'
+      url: '/path/to/image.jpg'
     })
     const { mockCreateWriteStream } = require('fs')._getMocks()
     expect(mockCreateWriteStream).toHaveBeenLastCalledWith(
-      '/path/to/static/image.jpg'
+      '/static/path/to/image.jpg'
     )
+    const { mockSizeOf } = require('image-size')._getMocks()
+    expect(mockSizeOf).toHaveBeenLastCalledWith('/static/path/to/image.jpg')
   })
   it('should get image with out iamge info', async () => {
     const res = saveImageFile(
-      'https://www.appsheet.com/template/gettablefileurl?appName=appName&tableName=tbl&fileName=アプリ_Image%2Fimage.jpg',
-      '/path/to/static',
+      {
+        url: 'https://www.appsheet.com/template/gettablefileurl?appName=appName&tableName=tbl&fileName=アプリ_Image%2Fimage.jpg',
+        size: {},
+        meta: {}
+      },
+      'static/path/to/static',
+      'static',
       'image.jpg',
       false
     )
@@ -147,10 +155,79 @@ describe('saveImage', () => {
       url: '/path/to/static/image.jpg'
     })
   })
+  it('should get image with image object', async () => {
+    const res = saveImageFile(
+      {
+        url: 'http://localhost:3000/path/to/image.jpg',
+        size: {
+          width: 200,
+          height: 100
+        },
+        meta: {}
+      },
+      '/static/path/to',
+      '/static',
+      'image.jpg',
+      false
+    )
+    expect(mockAxios.request).toHaveBeenLastCalledWith({
+      method: 'get',
+      url: 'http://localhost:3000/path/to/image.jpg',
+      responseType: 'stream'
+    })
+    mockAxios.mockResponse({
+      data: 'image data'
+    })
+    await expect(res).resolves.toEqual({
+      size: {
+        width: 200,
+        height: 100
+      },
+      meta: {},
+      url: '/path/to/image.jpg'
+    })
+  })
+  it('should get image without static root', async () => {
+    const res = saveImageFile(
+      {
+        url: 'http://localhost:3000/path/to/image.jpg',
+        size: {
+          width: 200,
+          height: 100
+        },
+        meta: {}
+      },
+      '/path/to',
+      '',
+      'image.jpg',
+      false
+    )
+    expect(mockAxios.request).toHaveBeenLastCalledWith({
+      method: 'get',
+      url: 'http://localhost:3000/path/to/image.jpg',
+      responseType: 'stream'
+    })
+    mockAxios.mockResponse({
+      data: 'image data'
+    })
+    await expect(res).resolves.toEqual({
+      size: {
+        width: 200,
+        height: 100
+      },
+      meta: {},
+      url: '/path/to/image.jpg'
+    })
+  })
   it('should throw error by 404', async () => {
     const res = saveImageFile(
-      'http://localhost:3000/image.jpg',
+      {
+        url: 'http://localhost:3000/image.jpg',
+        size: {},
+        meta: {}
+      },
       '/path/to/static',
+      '',
       'image.jpg',
       true
     )

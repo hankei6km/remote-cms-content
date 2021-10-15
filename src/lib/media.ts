@@ -2,44 +2,53 @@ import path from 'path'
 import { createWriteStream } from 'fs'
 import axios from 'axios'
 import sizeOf from 'image-size'
-import { ImageInfo } from '../types/media'
+import { ImageInfo, ImageSrc } from '../types/media.js'
 
-export function fileNameFromURL(src: string, fieldName: string): string {
-  // client 側の処理にする？
-  let fileName = ''
-  try {
-    if (fieldName) {
-      const q = new URLSearchParams(new URL(src).searchParams)
-      fileName = path.basename(q.get(fieldName) || '')
-    } else {
-      const u = new URL(src)
-      fileName = path.basename(u.pathname)
+export function trimStaticRoot(s: string, staticRoot: string): string {
+  if (staticRoot && s.startsWith(staticRoot)) {
+    return s.substring(staticRoot.length)
+  }
+  return s
+}
+
+export async function imageInfoFromSrc(
+  src: ImageSrc,
+  setSize: boolean
+): Promise<ImageInfo> {
+  if (typeof src === 'string') {
+    return {
+      url: src,
+      size: {},
+      meta: {}
     }
-  } catch (err: any) {
-    throw new Error(
-      `fileNameFromURL: src=${src},filedName=${fieldName}: ${err}`
-    )
   }
-  if (fileName === '') {
-    throw new Error(
-      `fileNameFromURL: src=${src},filedName=${fieldName}: image filename is blank`
-    )
+
+  return {
+    url: src.url,
+    size:
+      src.width !== undefined && src.height !== undefined
+        ? {
+            width: src.width,
+            height: src.height
+          }
+        : {},
+    meta: {}
   }
-  return fileName
 }
 
 export async function saveImageFile(
-  src: string,
+  src: ImageInfo,
   imagesDir: string,
+  staticRoot: string,
   imageFileName: string,
   setSize: boolean
 ): Promise<ImageInfo> {
-  const savePath = path.join(imagesDir, imageFileName)
+  let savePath = path.join(imagesDir, imageFileName)
   await new Promise((resolve, reject) => {
     axios
       .request({
         method: 'get',
-        url: src,
+        url: src.url,
         responseType: 'stream'
       })
       .then((response) => {
@@ -51,14 +60,26 @@ export async function saveImageFile(
       .catch((err) => {
         reject(
           new Error(
-            `content.saveImage error: src = ${src}, status = ${err.response.status}:${err.response.statusText}`
+            `content.saveImage error: src = ${src.url}, status = ${err.response.status}:${err.response.statusText}`
           )
         )
       })
   })
 
+  const savePathInStatic = trimStaticRoot(savePath, staticRoot)
+
+  if (src.size.width !== undefined && src.size.height !== undefined) {
+    return {
+      url: savePathInStatic,
+      size: {
+        width: src.size.width,
+        height: src.size.height
+      },
+      meta: {}
+    }
+  }
   return {
-    url: savePath,
+    url: savePathInStatic,
     // TODO: orientation の処理を検討(おそらく raw などでの補正? がいると思う).
     size:
       setSize && savePath

@@ -2,7 +2,7 @@ export const ClientKindValues = ['appsheet', 'microcms'] as const
 export type ClientKind = typeof ClientKindValues[number]
 
 export type FetchResult = {
-  contents: any[]
+  contents: Record<string, unknown>[]
 }
 
 export type ClientChain = {

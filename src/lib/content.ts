@@ -3,9 +3,9 @@ import fs from 'fs/promises'
 import matter from 'gray-matter'
 import { ISize } from 'image-size/dist/types/interface'
 import { BaseFlds, MapFldsImage } from '../types/map.js'
-import { isImageDownload, mappingFlds } from './map.js'
+import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
 import { SaveRemoteContentsOptions } from '../types/content.js'
-import { fileNameFromURL, imageInfoFromSrc, saveImageFile } from './media.js'
+import { imageInfoFromSrc, saveImageFile } from './media.js'
 
 export async function saveContentFile(
   flds: BaseFlds,
@@ -71,7 +71,7 @@ export async function saveRemoteContents({
       const fldsLen = fldsArray.length
       for (let fldsIdx = 0; fldsIdx < fldsLen; fldsIdx++) {
         const c = fldsArray[fldsIdx]
-        const mapFld: MapFldsImage | undefined = (() => {
+        const imageFld: MapFldsImage | undefined = (() => {
           const mapIdx = mapConfig.flds.findIndex(
             ({ dstName, fldType }) => dstName === c[0] && fldType === 'image'
           )
@@ -80,15 +80,18 @@ export async function saveRemoteContents({
           }
           return
         })()
-        if (mapFld) {
-          let imageInfo = await imageInfoFromSrc(c[1], mapFld.setSize || false)
+        if (imageFld) {
+          let imageInfo = await imageInfoFromSrc(
+            c[1],
+            imageFld.setSize || false
+          )
           if (isImageDownload(mapConfig, imageInfo)) {
             imageInfo = await saveImageFile(
               imageInfo,
               dstImagesDir,
               staticRoot,
-              fileNameFromURL(imageInfo.url, 'fileName'),
-              mapFld.setSize || false
+              fileNameFromURL(imageInfo.url, mapConfig, imageFld),
+              imageFld.setSize || false
             )
           }
           c[1] = imageInfo

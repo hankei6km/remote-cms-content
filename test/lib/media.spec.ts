@@ -1,6 +1,5 @@
 import mockAxios from 'jest-mock-axios'
 import {
-  fileNameFromURL,
   imageInfoFromSrc,
   saveImageFile
 } from '../../src/lib/media.js'
@@ -64,45 +63,6 @@ afterEach(() => {
   mockAxios.reset()
   require('fs')._reset()
   require('image-size')._reset()
-})
-
-describe('fileNameFromURL', () => {
-  it('should get fileName from path of src', () => {
-    expect(
-      fileNameFromURL('http://localhost:3000/path/to/image.jpg', '')
-    ).toEqual('image.jpg')
-  })
-  it('should get fileName from filed of src.searchParams', () => {
-    expect(
-      fileNameFromURL(
-        'http://localhost:3000/path/to/?fileName=image.jpg',
-        'fileName'
-      )
-    ).toEqual('image.jpg')
-  })
-  it('should throw error when invalid url passed', () => {
-    expect(() => fileNameFromURL('/path/to/image.jpg', '')).toThrow(
-      'fileNameFromURL: src=/path/to/image.jpg,filedName=: TypeError [ERR_INVALID_URL]: Invalid URL: /path/to/image.jpg'
-    )
-    expect(() => fileNameFromURL('/path/to/image.jpg', 'fileName')).toThrow(
-      'fileNameFromURL: src=/path/to/image.jpg,filedName=fileName: TypeError [ERR_INVALID_URL]: Invalid URL: /path/to/image.jpg'
-    )
-  })
-  it('should throw error when path is blank', () => {
-    expect(() => fileNameFromURL('http://localhost:3000', '')).toThrow(
-      'fileNameFromURL: src=http://localhost:3000,filedName=: image filename is blank'
-    )
-  })
-  it('should throw error when field is not match', () => {
-    expect(() =>
-      fileNameFromURL(
-        'http://localhost:3000/path/to/?fileName=image.jpg',
-        'image'
-      )
-    ).toThrow(
-      'fileNameFromURL: src=http://localhost:3000/path/to/?fileName=image.jpg,filedName=image: image filename is blank'
-    )
-  })
 })
 
 describe('imageInfoFromSrc', () => {

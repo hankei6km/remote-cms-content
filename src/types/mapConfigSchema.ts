@@ -152,6 +152,9 @@ export const mapConfigSchema =
                             "dstName": {
                                 "type": "string"
                             },
+                            "fileNameField": {
+                                "type": "string"
+                            },
                             "fldType": {
                                 "enum": [
                                     "image"
@@ -234,6 +237,9 @@ export const mapConfigSchema =
                     "properties": {
                         "download": {
                             "type": "boolean"
+                        },
+                        "fileNameField": {
+                            "type": "string"
                         },
                         "library": {
                             "items": [

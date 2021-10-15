@@ -30,11 +30,9 @@ jest.mock('fs/promises', () => {
 })
 
 jest.mock('../../src/lib/media', () => {
-  let mockFileNameFromURL = jest.fn()
   let mockImageInfoFromSrc = jest.fn()
   let mockSaveImageFile = jest.fn()
   const reset = (rows: BaseFlds[]) => {
-    mockFileNameFromURL.mockReset().mockReturnValue('test1.jpg')
     mockImageInfoFromSrc
       .mockReset()
       .mockImplementation((...args) => imageInfoFromSrc(...args))
@@ -62,7 +60,6 @@ jest.mock('../../src/lib/media', () => {
   }
   reset([])
   return {
-    fileNameFromURL: mockFileNameFromURL,
     imageInfoFromSrc: mockImageInfoFromSrc,
     saveImageFile: mockSaveImageFile,
     _reset: reset,
@@ -131,7 +128,7 @@ markdown
 describe('saveRemoteContents()', () => {
   it('should get remote content and save as local files', async () => {
     const mapConfig: MapConfig = {
-      media: { image: { download: true } },
+      media: { image: { fileNameField: 'fileName', download: true } },
       flds: [
         { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
         { srcName: '画像', dstName: 'image', fldType: 'image', setSize: true },
@@ -182,7 +179,7 @@ describe('saveRemoteContents()', () => {
       },
       '/path/static/images',
       '/path/static',
-      'test1.jpg',
+      'test1.png',
       true
     ])
     expect(mockSaveImageFile.mock.calls[1]).toEqual([
@@ -193,20 +190,20 @@ describe('saveRemoteContents()', () => {
       },
       '/path/static/images',
       '/path/static',
-      'test1.jpg',
+      'test2.png',
       true
     ])
     const { mockWriteFile } = require('fs/promises')._getMocks()
     expect(mockWriteFile.mock.calls[0][0]).toEqual('/path/content/idstring1.md')
     expect(mockWriteFile.mock.calls[0][1]).toContain('title: Title1')
-    expect(mockWriteFile.mock.calls[0][1]).toContain('url: /images/test1.jpg')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('url: /images/test1.png')
     expect(mockWriteFile.mock.calls[0][1]).toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
     expect(mockWriteFile.mock.calls[0][1]).toContain('position: 0')
     expect(mockWriteFile.mock.calls[0][1]).toContain('markdown1')
     expect(mockWriteFile.mock.calls[1][0]).toEqual('/path/content/idstring2.md')
     expect(mockWriteFile.mock.calls[1][1]).toContain('title: Title2')
-    expect(mockWriteFile.mock.calls[1][1]).toContain('url: /images/test1.jpg')
+    expect(mockWriteFile.mock.calls[1][1]).toContain('url: /images/test2.png')
     expect(mockWriteFile.mock.calls[0][1]).toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
     expect(mockWriteFile.mock.calls[1][1]).toContain('position: 1')
@@ -215,7 +212,7 @@ describe('saveRemoteContents()', () => {
   it('should get remote content and save as local files without setSize options', async () => {
     const mapConfig: MapConfig = {
       media: {
-        image: { download: true }
+        image: { fileNameField: 'fileName', download: true }
       },
       flds: [
         { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
@@ -250,7 +247,7 @@ describe('saveRemoteContents()', () => {
     await expect(res).resolves.toEqual(null)
     const { mockWriteFile } = require('fs/promises')._getMocks()
     expect(mockWriteFile.mock.calls[0][1]).toContain(
-      'url: /path/static/images/test1.jpg'
+      'url: /path/static/images/test1.png'
     )
     expect(mockWriteFile.mock.calls[0][1]).not.toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).not.toContain('height: 100')

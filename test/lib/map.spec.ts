@@ -1,4 +1,5 @@
 import {
+  fileNameFromURL,
   isImageDownload,
   loadMapConfig,
   mappingFlds,
@@ -74,6 +75,86 @@ describe('loadMapConfig', () => {
     ).rejects.toThrowError(/ENOENT/)
   })
 })
+
+describe('fileNameFromURL', () => {
+  it('should get fileName from path of src', () => {
+    expect(
+      fileNameFromURL(
+        'http://localhost:3000/path/to/image.jpg',
+        { flds: [] },
+        { srcName: '', dstName: '', fldType: 'image' }
+      )
+    ).toEqual('image.jpg')
+  })
+  it('should get fileName from filed of src.searchParams', () => {
+    expect(
+      fileNameFromURL(
+        'http://localhost:3000/path/to/?fileName=image.jpg',
+        { media: { image: { fileNameField: 'fileName' } }, flds: [] },
+        { srcName: '', dstName: '', fldType: 'image' }
+      )
+    ).toEqual('image.jpg')
+  })
+  it('should get fileName from filed of src.searchParams(fileNameField by MapFldsImage)', () => {
+    expect(
+      fileNameFromURL(
+        'http://localhost:3000/path/to/?fileName=image.jpg',
+        { flds: [] },
+        {
+          srcName: '',
+          dstName: '',
+          fldType: 'image',
+          fileNameField: 'fileName'
+        }
+      )
+    ).toEqual('image.jpg')
+  })
+  it('should throw error when invalid url passed', () => {
+    expect(() =>
+      fileNameFromURL(
+        '/path/to/image.jpg',
+
+        { flds: [] },
+        { srcName: '', dstName: '', fldType: 'image' }
+      )
+    ).toThrow(
+      'fileNameFromURL: src=/path/to/image.jpg,filedName=: TypeError [ERR_INVALID_URL]: Invalid URL: /path/to/image.jpg'
+    )
+    expect(() =>
+      fileNameFromURL(
+        '/path/to/image.jpg',
+        { media: { image: { fileNameField: 'fileName' } }, flds: [] },
+        { srcName: '', dstName: '', fldType: 'image' }
+      )
+    ).toThrow(
+      'fileNameFromURL: src=/path/to/image.jpg,filedName=fileName: TypeError [ERR_INVALID_URL]: Invalid URL: /path/to/image.jpg'
+    )
+  })
+  it('should throw error when path is blank', () => {
+    expect(() =>
+      fileNameFromURL(
+        'http://localhost:3000',
+
+        { flds: [] },
+        { srcName: '', dstName: '', fldType: 'image' }
+      )
+    ).toThrow(
+      'fileNameFromURL: src=http://localhost:3000,filedName=: image filename is blank'
+    )
+  })
+  it('should throw error when field is not match', () => {
+    expect(() =>
+      fileNameFromURL(
+        'http://localhost:3000/path/to/?fileName=image.jpg',
+        { media: { image: { fileNameField: 'image' } }, flds: [] },
+        { srcName: '', dstName: '', fldType: 'image' }
+      )
+    ).toThrow(
+      'fileNameFromURL: src=http://localhost:3000/path/to/?fileName=image.jpg,filedName=image: image filename is blank'
+    )
+  })
+})
+
 describe('isImageDownload', () => {
   test('should return true', () => {
     expect(

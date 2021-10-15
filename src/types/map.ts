@@ -28,6 +28,7 @@ export type MapFldsDatetime = {
 
 export type MapFldsImage = {
   fldType: 'image'
+  fileNameField?: string
   setSize?: boolean
 } & MapFldsBase
 
@@ -51,6 +52,7 @@ export type MapFlds = (
 export type MapConfig = {
   media?: {
     image?: {
+      fileNameField?: string
       download?: boolean
       library?: [
         {

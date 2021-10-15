@@ -4,30 +4,6 @@ import axios from 'axios'
 import sizeOf from 'image-size'
 import { ImageInfo, ImageSrc } from '../types/media.js'
 
-export function fileNameFromURL(src: string, fieldName: string): string {
-  // client 側の処理にする？
-  let fileName = ''
-  try {
-    if (fieldName) {
-      const q = new URLSearchParams(new URL(src).searchParams)
-      fileName = path.basename(q.get(fieldName) || '')
-    } else {
-      const u = new URL(src)
-      fileName = path.basename(u.pathname)
-    }
-  } catch (err: any) {
-    throw new Error(
-      `fileNameFromURL: src=${src},filedName=${fieldName}: ${err}`
-    )
-  }
-  if (fileName === '') {
-    throw new Error(
-      `fileNameFromURL: src=${src},filedName=${fieldName}: image filename is blank`
-    )
-  }
-  return fileName
-}
-
 export function trimStaticRoot(s: string, staticRoot: string): string {
   if (staticRoot && s.startsWith(staticRoot)) {
     return s.substring(staticRoot.length)

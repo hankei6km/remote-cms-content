@@ -1,6 +1,7 @@
+import path from 'path'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
-import { BaseFlds, MapConfig } from '../types/map.js'
+import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
 import { mapConfigSchema } from '../types/mapConfigSchema.js'
 import { ImageInfo } from '../types/media.js'
 
@@ -26,6 +27,36 @@ export async function loadMapConfig(jsonFile: string): Promise<MapConfig> {
   } catch (err) {
     throw new Error(`loadMapConfig: jsonFile=${jsonFile} ${err}`)
   }
+}
+
+export function fileNameFromURL(
+  src: string,
+  mapConfig: MapConfig,
+  imageFld: MapFldsImage
+): string {
+  // client 側の処理にする？
+  const fieldName =
+    imageFld.fileNameField || mapConfig.media?.image?.fileNameField || ''
+  let fileName = ''
+  try {
+    if (fieldName) {
+      const q = new URLSearchParams(new URL(src).searchParams)
+      fileName = path.basename(q.get(fieldName) || '')
+    } else {
+      const u = new URL(src)
+      fileName = path.basename(u.pathname)
+    }
+  } catch (err: any) {
+    throw new Error(
+      `fileNameFromURL: src=${src},filedName=${fieldName}: ${err}`
+    )
+  }
+  if (fileName === '') {
+    throw new Error(
+      `fileNameFromURL: src=${src},filedName=${fieldName}: image filename is blank`
+    )
+  }
+  return fileName
 }
 
 export function isImageDownload(

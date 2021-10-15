@@ -1,5 +1,14 @@
-import mockAxios from 'jest-mock-axios'
-import { client } from '../../../src/lib/clients/microcms'
+import { jest } from '@jest/globals'
+import mockAxiosDefault from 'jest-mock-axios'
+const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
+
+jest.unstable_mockModule('axios', async () => {
+  return {
+    default: mockAxios
+  }
+})
+
+const { client } = await import('../../../src/lib/clients/microcms')
 
 afterEach(() => {
   mockAxios.reset()
@@ -46,3 +55,5 @@ describe('client_appsheet', () => {
     expect(await res).toEqual({ contents: mockData.contents })
   })
 })
+
+export {}

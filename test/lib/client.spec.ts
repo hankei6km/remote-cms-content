@@ -1,4 +1,3 @@
-import { appendFile } from 'fs'
 import { client } from '../../src/lib/client.js'
 
 describe('client', () => {
@@ -25,3 +24,5 @@ describe('client', () => {
     ).toThrowError('client: unknown kind UNKWON')
   })
 })
+
+export {}

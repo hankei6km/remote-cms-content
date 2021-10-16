@@ -1,5 +1,17 @@
-import mockAxios from 'jest-mock-axios'
-import { apiActionPath, client } from '../../../src/lib/clients/appsheet.js'
+import { jest } from '@jest/globals'
+import mockAxiosDefault from 'jest-mock-axios'
+const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
+
+jest.unstable_mockModule('axios', async () => {
+  return {
+    default: mockAxios
+  }
+})
+
+// await import('axios')
+const { apiActionPath, client } = await import(
+  '../../../src/lib/clients/appsheet.js'
+)
 
 afterEach(() => {
   mockAxios.reset()
@@ -49,3 +61,5 @@ describe('client_appsheet', () => {
     expect(await res).toEqual({ contents: mockData })
   })
 })
+
+export {}

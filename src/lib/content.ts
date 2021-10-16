@@ -1,7 +1,6 @@
 import path from 'path'
-import fs from 'fs/promises'
+import { writeFile } from 'fs/promises'
 import matter from 'gray-matter'
-import { ISize } from 'image-size/dist/types/interface'
 import { BaseFlds, MapFldsImage } from '../types/map.js'
 import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
 import { SaveRemoteContentsOptions } from '../types/content.js'
@@ -23,7 +22,7 @@ export async function saveContentFile(
       ...metaData,
       position
     })
-    await fs.writeFile(savePath, file)
+    await writeFile(savePath, file)
   } catch (err: any) {
     ret = new Error(`saveFile error: ${err}`)
   }

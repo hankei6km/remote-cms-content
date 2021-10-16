@@ -1,10 +1,14 @@
-import mockAxios from 'jest-mock-axios'
-import {
-  imageInfoFromSrc,
-  saveImageFile
-} from '../../src/lib/media.js'
+import { jest } from '@jest/globals'
+import mockAxiosDefault from 'jest-mock-axios'
+const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
 
-jest.mock('fs', () => {
+jest.unstable_mockModule('axios', async () => {
+  return {
+    default: mockAxios
+  }
+})
+
+jest.unstable_mockModule('fs', async () => {
   const mockWrite = jest.fn()
   const mockCreateWriteStream = jest.fn()
   const reset = () => {
@@ -35,8 +39,8 @@ jest.mock('fs', () => {
   }
 })
 
-jest.mock('image-size', () => {
-  const mockSizeOfFn = async (pathName: string) => {
+const m = jest.unstable_mockModule('image-size', async () => {
+  const mockSizeOfFn = async (pathName: any) => {
     if (pathName.match(/error/)) {
       throw new Error('dummy error')
     }
@@ -59,10 +63,18 @@ jest.mock('image-size', () => {
   }
 })
 
+const mockFs = await import('fs')
+const { mockWrite, mockCreateWriteStream } = (mockFs as any)._getMocks()
+const mockImageSize = await import('image-size')
+const { mockSizeOf } = (mockImageSize as any)._getMocks()
+const { imageInfoFromSrc, saveImageFile } = await import(
+  '../../src/lib/media.js'
+)
+
 afterEach(() => {
   mockAxios.reset()
-  require('fs')._reset()
-  require('image-size')._reset()
+  ;(mockFs as any)._reset()
+  ;(mockImageSize as any)._reset()
 })
 
 describe('imageInfoFromSrc', () => {
@@ -122,11 +134,9 @@ describe('saveImageFile', () => {
       meta: {},
       url: '/path/to/image.jpg'
     })
-    const { mockCreateWriteStream } = require('fs')._getMocks()
     expect(mockCreateWriteStream).toHaveBeenLastCalledWith(
       '/static/path/to/image.jpg'
     )
-    const { mockSizeOf } = require('image-size')._getMocks()
     expect(mockSizeOf).toHaveBeenLastCalledWith('/static/path/to/image.jpg')
   })
   it('should get image with out iamge info', async () => {
@@ -238,3 +248,5 @@ describe('saveImageFile', () => {
     )
   })
 })
+
+export {}

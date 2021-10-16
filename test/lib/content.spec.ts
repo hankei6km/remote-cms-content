@@ -1,15 +1,20 @@
+import { jest } from '@jest/globals'
 import { join } from 'path'
-import mockAxios from 'jest-mock-axios'
+import fsPromises from 'fs/promises'
 import { ImageInfo } from '../../src/types/media.js'
 import { BaseFlds, MapConfig } from '../../src/types/map.js'
-import { saveContentFile, saveRemoteContents } from '../../src/lib/content.js'
-import { client } from '../../src/lib/client.js'
-const { trimStaticRoot, imageInfoFromSrc } = jest.requireActual(
-  '../../src/lib/media'
-)
+import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media'
+import mockAxiosDefault from 'jest-mock-axios'
+const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
 
-jest.mock('fs/promises', () => {
-  const mockWriteFileFn = async (pathName: string) => {
+jest.unstable_mockModule('axios', async () => {
+  return {
+    default: mockAxios
+  }
+})
+
+jest.unstable_mockModule('fs/promises', async () => {
+  const mockWriteFileFn = async (pathName: any) => {
     if (pathName.match(/error/)) {
       throw new Error('dummy error')
     }
@@ -22,6 +27,7 @@ jest.mock('fs/promises', () => {
   reset()
   return {
     writeFile: mockWriteFile,
+    readFile: fsPromises.readFile, // map.ts で使っている
     _reset: reset,
     _getMocks: () => ({
       mockWriteFile
@@ -29,22 +35,24 @@ jest.mock('fs/promises', () => {
   }
 })
 
-jest.mock('../../src/lib/media', () => {
+jest.unstable_mockModule('../../src/lib/media', () => {
   let mockImageInfoFromSrc = jest.fn()
   let mockSaveImageFile = jest.fn()
   const reset = (rows: BaseFlds[]) => {
     mockImageInfoFromSrc
       .mockReset()
-      .mockImplementation((...args) => imageInfoFromSrc(...args))
+      .mockImplementation((src: any, setSize: any) =>
+        imageInfoFromSrc(src, setSize)
+      )
     mockSaveImageFile
       .mockReset()
       .mockImplementation(
         async (
-          src: ImageInfo,
-          imagesDir: string,
-          staticRoot: string,
-          imageFileName: string,
-          setSize: boolean
+          src: any,
+          imagesDir: any,
+          staticRoot: any,
+          imageFileName: any,
+          setSize: any
         ): Promise<ImageInfo> => {
           return new Promise((resolve) => {
             process.nextTick(() =>
@@ -69,10 +77,19 @@ jest.mock('../../src/lib/media', () => {
   }
 })
 
+const mockMedia = await import('../../src/lib/media')
+const { mockSaveImageFile } = (mockMedia as any)._getMocks()
+const mockFsPromise = await import('fs/promises')
+const { mockWriteFile } = (mockFsPromise as any)._getMocks()
+const { client } =await import( '../../src/lib/client.js')
+const { saveContentFile, saveRemoteContents } = await import(
+  '../../src/lib/content.js'
+)
+
 afterEach(() => {
   mockAxios.reset()
-  require('fs/promises')._reset()
-  require('../../src/lib/media')._reset()
+  ;(mockFsPromise as any)._reset()
+  ;(mockMedia as any)._reset()
 })
 
 describe('saveContentFile()', () => {
@@ -90,7 +107,6 @@ describe('saveContentFile()', () => {
       0
     )
     await expect(res).resolves.toEqual(null)
-    const { mockWriteFile } = require('fs/promises')._getMocks()
     expect(mockWriteFile).toHaveBeenLastCalledWith(
       '/path/idstring.md',
       `---
@@ -170,7 +186,6 @@ describe('saveRemoteContents()', () => {
       ]
     })
     await expect(res).resolves.toEqual(null)
-    const { mockSaveImageFile } = require('../../src/lib/media')._getMocks()
     expect(mockSaveImageFile.mock.calls[0]).toEqual([
       {
         url: 'http://localhost:3000/path/to/?fileName=test1.png',
@@ -193,7 +208,6 @@ describe('saveRemoteContents()', () => {
       'test2.png',
       true
     ])
-    const { mockWriteFile } = require('fs/promises')._getMocks()
     expect(mockWriteFile.mock.calls[0][0]).toEqual('/path/content/idstring1.md')
     expect(mockWriteFile.mock.calls[0][1]).toContain('title: Title1')
     expect(mockWriteFile.mock.calls[0][1]).toContain('url: /images/test1.png')
@@ -245,7 +259,6 @@ describe('saveRemoteContents()', () => {
       ]
     })
     await expect(res).resolves.toEqual(null)
-    const { mockWriteFile } = require('fs/promises')._getMocks()
     expect(mockWriteFile.mock.calls[0][1]).toContain(
       'url: /path/static/images/test1.png'
     )
@@ -285,9 +298,7 @@ describe('saveRemoteContents()', () => {
       ]
     })
     await expect(res).resolves.toEqual(null)
-    const { mockSaveImageFile } = require('../../src/lib/media')._getMocks()
     expect(mockSaveImageFile).toBeCalledTimes(0)
-    const { mockWriteFile } = require('fs/promises')._getMocks()
     expect(mockWriteFile.mock.calls[0][1]).toContain(
       `url: 'http://localhost:3000/path/to/?fileName=test1.png'`
     )

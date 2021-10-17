@@ -59,14 +59,15 @@ export async function saveRemoteContents({
   let ret: Error | null = null
   try {
     const res = await client.request().api(apiName).fetch()
-    const contens = res.contents.map((content) =>
-      mappingFlds(content, mapConfig)
-    )
+    const len = res.contents.length
+    const contents: BaseFlds[] = new Array(len) as BaseFlds[]
+    for (let idx = 0; idx < len; idx++) {
+      contents[idx] = await mappingFlds(res.contents[idx], mapConfig)
+    }
     // 途中で field の入れ替えがごちゃっとしている.
     // 新しい配列に map する処理に変更を検討.
-    const len = contens.length
     for (let idx = 0; idx < len; idx++) {
-      const fldsArray: [string, any][] = Object.entries(contens[idx])
+      const fldsArray: [string, any][] = Object.entries(contents[idx])
       const fldsLen = fldsArray.length
       for (let fldsIdx = 0; fldsIdx < fldsLen; fldsIdx++) {
         const c = fldsArray[fldsIdx]
@@ -96,7 +97,7 @@ export async function saveRemoteContents({
           c[1] = imageInfo
         }
       }
-      const flds: BaseFlds = { ...contens[idx] }
+      const flds: BaseFlds = { ...contents[idx] }
       fldsArray.forEach(([k, v]) => (flds[k] = v))
       ret = await saveContentFile(flds, dstContentsDir, idx)
       if (ret) {

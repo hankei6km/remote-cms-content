@@ -4,6 +4,7 @@ import Ajv from 'ajv'
 import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
 import { mapConfigSchema } from '../types/mapConfigSchema.js'
 import { ImageInfo } from '../types/media.js'
+import { htmlToMarkdown } from './html.js'
 
 const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
@@ -109,10 +110,10 @@ function throwInvalidType(
   )
 }
 
-export function mappingFlds(
+export async function mappingFlds(
   s: Record<string, unknown>,
   mapConfig: MapConfig
-): BaseFlds {
+): Promise<BaseFlds> {
   const { _RowNumber, id, createdAt, updatedAt, ...src } = s
   const n = new Date()
   const ret: BaseFlds = {
@@ -126,7 +127,9 @@ export function mappingFlds(
   } else {
     throwInvalidId(id, 'id', 'id', 'id')
   }
-  mapConfig.flds.forEach((m) => {
+  const mapFldsLen = mapConfig.flds.length
+  for (let mapFldsIdx = 0; mapFldsIdx < mapFldsLen; mapFldsIdx++) {
+    const m = mapConfig.flds[mapFldsIdx]
     if (src.hasOwnProperty(m.srcName)) {
       const srcFldType = typeof src[m.srcName]
       switch (m.fldType) {
@@ -181,12 +184,19 @@ export function mappingFlds(
             ret[m.dstName] = str
           }
           break
+        case 'html':
+          if (srcFldType === 'string') {
+            ret[m.dstName] = await htmlToMarkdown(src[m.srcName] as string)
+          } else {
+            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
+          }
+          break
       }
       if (ret.hasOwnProperty(m.dstName)) {
         delete src[m.srcName]
       }
     }
-  })
+  }
   if (mapConfig.passthruUnmapped) {
     Object.entries(src).forEach(([k, v]) => {
       if (!ret.hasOwnProperty(k)) {

@@ -40,6 +40,10 @@ export type MapFldsEnum = {
   }[]
 } & MapFldsBase
 
+export type MapFldsHtml = {
+  fldType: 'html'
+} & MapFldsBase
+
 export type MapFlds = (
   | MapFldsId
   | MapFldsNumber
@@ -47,6 +51,7 @@ export type MapFlds = (
   | MapFldsDatetime
   | MapFldsImage
   | MapFldsEnum
+  | MapFldsHtml
 )[]
 
 export type MapConfig = {

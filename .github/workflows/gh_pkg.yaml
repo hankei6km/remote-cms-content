@@ -46,6 +46,8 @@ jobs:
 
     - name: Install modules
       run: npm ci
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run tests
       run: npm run test

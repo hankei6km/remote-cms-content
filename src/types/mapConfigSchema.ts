@@ -231,6 +231,21 @@ export const mapConfigSchema =
                             "dstName": {
                                 "type": "string"
                             },
+                            "embedImgAttrs": {
+                                "additionalProperties": false,
+                                "properties": {
+                                    "baseURL": {
+                                        "type": "string"
+                                    },
+                                    "pickAttrs": {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    }
+                                },
+                                "type": "object"
+                            },
                             "fldType": {
                                 "enum": [
                                     "html"

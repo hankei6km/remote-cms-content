@@ -91,7 +91,7 @@ describe('htmlToMarkdown()', () => {
         }
       )
     ).toEqual(
-      '# head1\n\ntest1\n\n![image#width="300" height="200"#](https://localhost:3000/path/to/image.jpg)\n\n## head2\n\ntest2\n'
+      '# head1\n\ntest1\n\n![image##width="300" height="200"##](https://localhost:3000/path/to/image.jpg)\n\n## head2\n\ntest2\n'
     )
   })
 })

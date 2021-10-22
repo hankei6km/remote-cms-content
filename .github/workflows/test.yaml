@@ -38,6 +38,10 @@ jobs:
 
     - name: Install modules
       run: npm install
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run tests
       run: npm run test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

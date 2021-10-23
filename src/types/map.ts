@@ -43,6 +43,7 @@ export type MapFldsEnum = {
 export type HtmlToMarkdownOpts = {
   embedImgAttrs?: {
     baseURL?: string
+    embedTo?: 'alt' | 'block'
     pickAttrs?: string[]
   }
 }

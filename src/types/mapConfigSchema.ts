@@ -237,6 +237,13 @@ export const mapConfigSchema =
                                     "baseURL": {
                                         "type": "string"
                                     },
+                                    "embedTo": {
+                                        "enum": [
+                                            "alt",
+                                            "block"
+                                        ],
+                                        "type": "string"
+                                    },
                                     "pickAttrs": {
                                         "items": {
                                             "type": "string"

@@ -114,6 +114,7 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
       command: 'embed',
       baseURL: opts.embedImgAttrs?.baseURL,
       embed: {
+        embedTo: opts.embedImgAttrs?.embedTo,
         pickAttrs: opts.embedImgAttrs?.pickAttrs
       }
     })

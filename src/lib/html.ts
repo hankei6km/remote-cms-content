@@ -107,7 +107,6 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
   let ret = unified()
     .use(rehypeParse, { fragment: true })
     .use(firstParagraphAsCodeDockTransformer)
-    .use(splitParagraph)
 
   if (opts.embedImgAttrs) {
     ret = ret.use(imageSalt, {
@@ -120,6 +119,7 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     })
   }
   return ret
+    .use(splitParagraph)
     .use(rehypeSanitize, { allowComments: true })
     .use(rehype2Remark, {
       handlers: { pre: codeDockHandler, br: brHandler }

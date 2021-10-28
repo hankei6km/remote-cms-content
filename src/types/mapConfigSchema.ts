@@ -232,26 +232,55 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "embedImgAttrs": {
-                                "additionalProperties": false,
-                                "properties": {
-                                    "baseURL": {
-                                        "type": "string"
+                                "anyOf": [
+                                    {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "baseURL": {
+                                                "type": "string"
+                                            },
+                                            "embedTo": {
+                                                "enum": [
+                                                    "alt",
+                                                    "block"
+                                                ],
+                                                "type": "string"
+                                            },
+                                            "pickAttrs": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
                                     },
-                                    "embedTo": {
-                                        "enum": [
-                                            "alt",
-                                            "block"
-                                        ],
-                                        "type": "string"
-                                    },
-                                    "pickAttrs": {
+                                    {
                                         "items": {
-                                            "type": "string"
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "baseURL": {
+                                                    "type": "string"
+                                                },
+                                                "embedTo": {
+                                                    "enum": [
+                                                        "alt",
+                                                        "block"
+                                                    ],
+                                                    "type": "string"
+                                                },
+                                                "pickAttrs": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
                                         },
                                         "type": "array"
                                     }
-                                },
-                                "type": "object"
+                                ]
                             },
                             "fldType": {
                                 "enum": [

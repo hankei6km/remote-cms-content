@@ -109,4 +109,26 @@ describe('htmlToMarkdown()', () => {
       '# head1\n\ntest1\n\n![image](https://localhost:3000/path/to/image.jpg){width="300" height="200"}\n\n## head2\n\ntest2\n'
     )
   })
+  it('should accept opts array', async () => {
+    expect(
+      await htmlToMarkdown(
+        '<h1>head1</h1><p>test1</p><p><img src="https://localhost:3000/path/to/image.jpg" alt="image" width="300" height="200"></p><h2>head2</h2><p>test2</p><p><img src="https://localhost:3001/path/to/image.jpg" alt="image" width="300" height="200"></p>',
+        {
+          embedImgAttrs: [
+            {
+              baseURL: 'https://localhost:3000/path/to/image.jpg',
+              embedTo: 'block'
+            },
+            {
+              baseURL: 'https://localhost:3001/path/to/image.jpg',
+              embedTo: 'block',
+              pickAttrs: ['width']
+            }
+          ]
+        }
+      )
+    ).toEqual(
+      '# head1\n\ntest1\n\n![image](https://localhost:3000/path/to/image.jpg){width="300" height="200"}\n\n## head2\n\ntest2\n\n![image](https://localhost:3001/path/to/image.jpg){width="300"}\n'
+    )
+  })
 })

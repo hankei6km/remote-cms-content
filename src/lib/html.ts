@@ -109,14 +109,19 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(firstParagraphAsCodeDockTransformer)
 
   if (opts.embedImgAttrs) {
-    ret = ret.use(imageSalt, {
+    const o: Parameters<typeof imageSalt>[0] = (
+      Array.isArray(opts.embedImgAttrs)
+        ? opts.embedImgAttrs
+        : [opts.embedImgAttrs]
+    ).map((v) => ({
       command: 'embed',
-      baseURL: opts.embedImgAttrs?.baseURL,
+      baseURL: v.baseURL,
       embed: {
-        embedTo: opts.embedImgAttrs?.embedTo,
-        pickAttrs: opts.embedImgAttrs?.pickAttrs
+        embedTo: v.embedTo,
+        pickAttrs: v.pickAttrs
       }
-    })
+    }))
+    ret = ret.use(imageSalt, o)
   }
   return ret
     .use(splitParagraph)

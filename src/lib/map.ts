@@ -131,14 +131,15 @@ export async function mappingFlds(
   for (let mapFldsIdx = 0; mapFldsIdx < mapFldsLen; mapFldsIdx++) {
     const m = mapConfig.flds[mapFldsIdx]
     if (src.hasOwnProperty(m.srcName)) {
-      const srcFldType = typeof src[m.srcName]
+      const srcValue = src[m.srcName]
+      const srcFldType = typeof srcValue
       switch (m.fldType) {
         case 'id':
           if (srcFldType === 'number' || srcFldType === 'string') {
-            if (validId(src[m.srcName])) {
-              ret[m.dstName] = `${src[m.srcName]}`
+            if (validId(srcValue)) {
+              ret[m.dstName] = `${srcValue}`
             } else {
-              throwInvalidId(src[m.srcName], m.srcName, m.dstName, m.fldType)
+              throwInvalidId(srcValue, m.srcName, m.dstName, m.fldType)
             }
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
@@ -146,32 +147,32 @@ export async function mappingFlds(
           break
         case 'number':
           if (srcFldType === 'number') {
-            ret[m.dstName] = src[m.srcName]
+            ret[m.dstName] = srcValue
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
           break
         case 'string':
           if (srcFldType === 'string' || srcFldType === 'number') {
-            ret[m.dstName] = `${src[m.srcName]}`
+            ret[m.dstName] = `${srcValue}`
           } else {
-            ret[m.dstName] = `${src[m.srcName] || ''}`
+            ret[m.dstName] = `${srcValue || ''}`
           }
           break
         case 'image': // この時点では文字列として扱う(保存時にファイルをダウンロードする).
           if (srcFldType === 'string' || srcFldType === 'number') {
-            ret[m.dstName] = `${src[m.srcName]}`
+            ret[m.dstName] = `${srcValue}`
           } else if (srcFldType === 'object') {
-            ret[m.dstName] = src[m.srcName]
+            ret[m.dstName] = srcValue
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
           break
         case 'datetime':
-          ret[m.dstName] = new Date(`${src[m.srcName]}`)
+          ret[m.dstName] = new Date(`${srcValue}`)
           break
         case 'enum':
-          const str = `${src[m.srcName]}`
+          const str = `${srcValue}`
           const matchIdx = m.replace.findIndex(({ pattern }) =>
             str.match(pattern)
           )
@@ -186,7 +187,7 @@ export async function mappingFlds(
           break
         case 'html':
           if (srcFldType === 'string') {
-            ret[m.dstName] = await htmlToMarkdown(src[m.srcName] as string, {
+            ret[m.dstName] = await htmlToMarkdown(srcValue as string, {
               embedImgAttrs: m.embedImgAttrs
             })
           } else {

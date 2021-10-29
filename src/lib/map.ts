@@ -186,7 +186,9 @@ export async function mappingFlds(
           break
         case 'html':
           if (srcFldType === 'string') {
-            ret[m.dstName] = await htmlToMarkdown(src[m.srcName] as string)
+            ret[m.dstName] = await htmlToMarkdown(src[m.srcName] as string, {
+              embedImgAttrs: m.embedImgAttrs
+            })
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }

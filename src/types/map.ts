@@ -40,8 +40,19 @@ export type MapFldsEnum = {
   }[]
 } & MapFldsBase
 
+type HtmlToMarkdownOptsEmbedImgAttrs = {
+  baseURL?: string
+  embedTo?: 'alt' | 'block'
+  pickAttrs?: string[]
+}
+export type HtmlToMarkdownOpts = {
+  embedImgAttrs?:
+    | HtmlToMarkdownOptsEmbedImgAttrs
+    | HtmlToMarkdownOptsEmbedImgAttrs[]
+}
 export type MapFldsHtml = {
   fldType: 'html'
+  embedImgAttrs?: HtmlToMarkdownOpts['embedImgAttrs']
 } & MapFldsBase
 
 export type MapFlds = (

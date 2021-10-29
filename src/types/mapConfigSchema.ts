@@ -231,6 +231,57 @@ export const mapConfigSchema =
                             "dstName": {
                                 "type": "string"
                             },
+                            "embedImgAttrs": {
+                                "anyOf": [
+                                    {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "baseURL": {
+                                                "type": "string"
+                                            },
+                                            "embedTo": {
+                                                "enum": [
+                                                    "alt",
+                                                    "block"
+                                                ],
+                                                "type": "string"
+                                            },
+                                            "pickAttrs": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "items": {
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "baseURL": {
+                                                    "type": "string"
+                                                },
+                                                "embedTo": {
+                                                    "enum": [
+                                                        "alt",
+                                                        "block"
+                                                    ],
+                                                    "type": "string"
+                                                },
+                                                "pickAttrs": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "type": "array"
+                                    }
+                                ]
+                            },
                             "fldType": {
                                 "enum": [
                                     "html"

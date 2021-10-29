@@ -7,7 +7,9 @@ import stringify from 'remark-stringify'
 import { Node, Element } from 'hast'
 // import visit from 'unist-util-visit';
 import splitParagraph from 'rehype-split-paragraph'
+import imageSalt from '@hankei6km/rehype-image-salt'
 import { codeDockHandler } from './codedock.js'
+import { HtmlToMarkdownOpts } from '../types/map.js'
 
 export function extractFrontMatter(
   p: Element
@@ -101,21 +103,43 @@ const brHandler = (h: any, node: any): any => {
   return h(node, 'text', ' ')
 }
 
-const htmlToMarkdownProcessor = unified()
-  .use(rehypeParse, { fragment: true })
-  .use(firstParagraphAsCodeDockTransformer)
-  .use(splitParagraph)
-  .use(rehypeSanitize, { allowComments: true })
-  .use(rehype2Remark, {
-    handlers: { pre: codeDockHandler, br: brHandler }
-  } as unknown as Options)
-  .use(stringify)
-  .freeze()
+const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
+  let ret = unified()
+    .use(rehypeParse, { fragment: true })
+    .use(firstParagraphAsCodeDockTransformer)
 
-export async function pageHtmlMarkdown(html: string): Promise<string> {
+  if (opts.embedImgAttrs) {
+    const o: Parameters<typeof imageSalt>[0] = (
+      Array.isArray(opts.embedImgAttrs)
+        ? opts.embedImgAttrs
+        : [opts.embedImgAttrs]
+    ).map((v) => ({
+      command: 'embed',
+      baseURL: v.baseURL,
+      embed: {
+        embedTo: v.embedTo,
+        pickAttrs: v.pickAttrs
+      }
+    }))
+    ret = ret.use(imageSalt, o)
+  }
+  return ret
+    .use(splitParagraph)
+    .use(rehypeSanitize, { allowComments: true })
+    .use(rehype2Remark, {
+      handlers: { pre: codeDockHandler, br: brHandler }
+    } as unknown as Options)
+    .use(stringify)
+    .freeze()
+}
+
+export async function pageHtmlMarkdown(
+  html: string,
+  opts: HtmlToMarkdownOpts
+): Promise<string> {
   return new Promise((resolve, reject) => {
     if (html) {
-      htmlToMarkdownProcessor.process(html, function (err, file) {
+      htmlToMarkdownProcessor(opts).process(html, function (err, file) {
         if (err) {
           console.error(err)
           reject(err)
@@ -134,8 +158,11 @@ export async function pageHtmlMarkdown(html: string): Promise<string> {
   })
 }
 
-export async function htmlToMarkdown(html: string): Promise<string> {
-  const md = await pageHtmlMarkdown(html)
+export async function htmlToMarkdown(
+  html: string,
+  opts: HtmlToMarkdownOpts
+): Promise<string> {
+  const md = await pageHtmlMarkdown(html, opts)
   // return await qrcodeToDataUrl(md);
   return md
 }

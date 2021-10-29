@@ -288,6 +288,8 @@ describe('mappingFlds', () => {
           },
           色: '赤',
           背景色: '青',
+          オブジェクト: { key: 'value' },
+          配列: [10, 20, 30],
           本文: '<p>test html1</p><p>test html2</p>'
         },
         {
@@ -333,6 +335,16 @@ describe('mappingFlds', () => {
               ]
             },
             {
+              srcName: 'オブジェクト',
+              dstName: 'obj',
+              fldType: 'object'
+            },
+            {
+              srcName: '配列',
+              dstName: 'arr',
+              fldType: 'object'
+            },
+            {
               srcName: '本文',
               dstName: 'content',
               fldType: 'html'
@@ -356,6 +368,8 @@ describe('mappingFlds', () => {
       },
       color: '赤',
       bgColor: 'blue',
+      obj: { key: 'value' },
+      arr: [10, 20, 30],
       content: 'test html1\n\ntest html2\n'
     })
   })

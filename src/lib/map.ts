@@ -215,6 +215,9 @@ export async function mappingFlds(
             ret[m.dstName] = str
           }
           break
+        case 'object':
+          ret[m.dstName] = srcValue
+          break
         case 'html':
           if (srcFldType === 'string') {
             ret[m.dstName] = await htmlToMarkdown(srcValue as string, {

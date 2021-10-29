@@ -1,4 +1,3 @@
-import { JSONPath } from 'jsonpath-plus'
 import {
   fileNameFromURL,
   isImageDownload,
@@ -7,14 +6,6 @@ import {
   validateMapConfig,
   validId
 } from '../../src/lib/map.js'
-
-let consoleLog: typeof console.log //jsonpath のエラーテスト時に出力されるので抑止用
-beforeAll(() => {
-  consoleLog = console.log
-})
-afterEach(() => {
-  console.log = consoleLog
-})
 
 describe('validateMapConfig', () => {
   test('should return MapConfig', () => {
@@ -373,7 +364,7 @@ describe('mappingFlds', () => {
       content: 'test html1\n\ntest html2\n'
     })
   })
-  test('should select value from object by jsonpath', async () => {
+  test('should select value from object by jsonata', async () => {
     const n = new Date().toUTCString()
     expect(
       await mappingFlds(
@@ -419,13 +410,13 @@ describe('mappingFlds', () => {
               srcName: 'images',
               dstName: 'image',
               fldType: 'image',
-              jsonPath: '$[?(@.title=="1234")].image'
+              jsonata: '*[title="1234"].image'
             },
             {
               srcName: 'content',
               dstName: 'content',
               fldType: 'html',
-              jsonPath: '$.html'
+              jsonata: 'html'
             }
           ]
         }
@@ -558,8 +549,7 @@ describe('mappingFlds', () => {
       `mappingFlds: invalid type: actually type = number, params = 本文, content, html`
     )
   })
-  test('should throw invalid jsonpath error ', async () => {
-    console.log = () => {} // エラーメッセージ出力の抑止.
+  test('should throw invalid jsonata error ', async () => {
     const n = new Date().toUTCString()
     await expect(
       mappingFlds(
@@ -579,13 +569,13 @@ describe('mappingFlds', () => {
               srcName: 'content',
               dstName: 'content',
               fldType: 'html',
-              jsonPath: '$[?(title=="1234")].image'
+              jsonata: '{html'
             }
           ]
         }
       )
     ).rejects.toThrowError(
-      `selectFldValue: Error: jsonPath: title is not defined: title=="1234"`
+      'transformFldValue: jsonata={html, message=Expected ":" before end of expression'
     )
   })
   test('should skip no exist flds', async () => {

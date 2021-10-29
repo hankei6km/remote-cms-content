@@ -1,3 +1,4 @@
+import { JSONPath } from 'jsonpath-plus'
 import {
   fileNameFromURL,
   isImageDownload,
@@ -6,6 +7,14 @@ import {
   validateMapConfig,
   validId
 } from '../../src/lib/map.js'
+
+let consoleLog: typeof console.log //jsonpath のエラーテスト時に出力されるので抑止用
+beforeAll(() => {
+  consoleLog = console.log
+})
+afterEach(() => {
+  console.log = consoleLog
+})
 
 describe('validateMapConfig', () => {
   test('should return MapConfig', () => {
@@ -350,6 +359,76 @@ describe('mappingFlds', () => {
       content: 'test html1\n\ntest html2\n'
     })
   })
+  test('should select value from object by jsonpath', async () => {
+    const n = new Date().toUTCString()
+    expect(
+      await mappingFlds(
+        {
+          _RowNumber: 1,
+          id: 'idstring',
+          createdAt: n,
+          updatedAt: n,
+          images: [
+            {
+              title: '1234',
+              image: {
+                url: 'http://localhost:3000/path/to/image-1234.jpg',
+                width: 200,
+                height: 100
+              }
+            },
+            {
+              title: 'abcd',
+              image: {
+                url: 'http://localhost:3000/path/to/image_abcd.jpg',
+                width: 100,
+                height: 200
+              }
+            },
+            {
+              title: '4567',
+              image: {
+                url: 'http://localhost:3000/path/to/image-4567.jpg',
+                width: 300,
+                height: 200
+              }
+            }
+          ],
+          content: {
+            title: 'test',
+            html: '<p>test html1</p><p>test html2</p>'
+          }
+        },
+        {
+          flds: [
+            {
+              srcName: 'images',
+              dstName: 'image',
+              fldType: 'image',
+              jsonPath: '$[?(@.title=="1234")].image'
+            },
+            {
+              srcName: 'content',
+              dstName: 'content',
+              fldType: 'html',
+              jsonPath: '$.html'
+            }
+          ]
+        }
+      )
+    ).toEqual({
+      _RowNumber: 1,
+      id: 'idstring',
+      createdAt: new Date(n),
+      updatedAt: new Date(n),
+      image: {
+        url: 'http://localhost:3000/path/to/image-1234.jpg',
+        width: 200,
+        height: 100
+      },
+      content: 'test html1\n\ntest html2\n'
+    })
+  })
   test('should throw invalid id error ', async () => {
     const n = new Date().toUTCString()
     await expect(
@@ -463,6 +542,36 @@ describe('mappingFlds', () => {
       )
     ).rejects.toThrowError(
       `mappingFlds: invalid type: actually type = number, params = 本文, content, html`
+    )
+  })
+  test('should throw invalid jsonpath error ', async () => {
+    console.log = () => {} // エラーメッセージ出力の抑止.
+    const n = new Date().toUTCString()
+    await expect(
+      mappingFlds(
+        {
+          _RowNumber: 1,
+          id: 'idstring',
+          createdAt: n,
+          updatedAt: n,
+          content: {
+            title: 'test',
+            html: '<p>test html1</p><p>test html2</p>'
+          }
+        },
+        {
+          flds: [
+            {
+              srcName: 'content',
+              dstName: 'content',
+              fldType: 'html',
+              jsonPath: '$[?(title=="1234")].image'
+            }
+          ]
+        }
+      )
+    ).rejects.toThrowError(
+      `selectFldValue: Error: jsonPath: title is not defined: title=="1234"`
     )
   })
   test('should skip no exist flds', async () => {

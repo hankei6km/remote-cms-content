@@ -1,10 +1,11 @@
 import path from 'path'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
-import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
+import { BaseFlds, MapConfig, MapFld, MapFldsImage } from '../types/map.js'
 import { mapConfigSchema } from '../types/mapConfigSchema.js'
 import { ImageInfo } from '../types/media.js'
 import { htmlToMarkdown } from './html.js'
+import { JSONPath } from 'jsonpath-plus'
 
 const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
@@ -110,6 +111,35 @@ function throwInvalidType(
   )
 }
 
+function selectFldValue(m: MapFld, value: unknown): any {
+  const valueType = typeof value
+  if (
+    (valueType === 'number' ||
+      valueType === 'string' ||
+      valueType === 'object') &&
+    m.jsonPath
+  ) {
+    try {
+      const s = JSONPath({
+        path: m.jsonPath,
+        json: value as object,
+        wrap: true
+      })
+      if (!m.wrapArray && s.length <= 1) {
+        // wrapArray 独自処理.
+        // - wrap とは逆
+        // - wrap は以下の状況(実際に試したが ['foo'] のようにしかならない)
+        //     https://github.com/JSONPath-Plus/JSONPath/issues/86
+        return s[0]
+      }
+      return s
+    } catch (err: any) {
+      throw new Error(`selectFldValue: ${err}`)
+    }
+  }
+  return value
+}
+
 export async function mappingFlds(
   s: Record<string, unknown>,
   mapConfig: MapConfig
@@ -131,14 +161,15 @@ export async function mappingFlds(
   for (let mapFldsIdx = 0; mapFldsIdx < mapFldsLen; mapFldsIdx++) {
     const m = mapConfig.flds[mapFldsIdx]
     if (src.hasOwnProperty(m.srcName)) {
-      const srcFldType = typeof src[m.srcName]
+      const srcValue = selectFldValue(m, src[m.srcName])
+      const srcFldType = typeof srcValue
       switch (m.fldType) {
         case 'id':
           if (srcFldType === 'number' || srcFldType === 'string') {
-            if (validId(src[m.srcName])) {
-              ret[m.dstName] = `${src[m.srcName]}`
+            if (validId(srcValue)) {
+              ret[m.dstName] = `${srcValue}`
             } else {
-              throwInvalidId(src[m.srcName], m.srcName, m.dstName, m.fldType)
+              throwInvalidId(srcValue, m.srcName, m.dstName, m.fldType)
             }
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
@@ -146,32 +177,32 @@ export async function mappingFlds(
           break
         case 'number':
           if (srcFldType === 'number') {
-            ret[m.dstName] = src[m.srcName]
+            ret[m.dstName] = srcValue
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
           break
         case 'string':
           if (srcFldType === 'string' || srcFldType === 'number') {
-            ret[m.dstName] = `${src[m.srcName]}`
+            ret[m.dstName] = `${srcValue}`
           } else {
-            ret[m.dstName] = `${src[m.srcName] || ''}`
+            ret[m.dstName] = `${srcValue || ''}`
           }
           break
         case 'image': // この時点では文字列として扱う(保存時にファイルをダウンロードする).
           if (srcFldType === 'string' || srcFldType === 'number') {
-            ret[m.dstName] = `${src[m.srcName]}`
+            ret[m.dstName] = `${srcValue}`
           } else if (srcFldType === 'object') {
-            ret[m.dstName] = src[m.srcName]
+            ret[m.dstName] = srcValue
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
           break
         case 'datetime':
-          ret[m.dstName] = new Date(`${src[m.srcName]}`)
+          ret[m.dstName] = new Date(`${srcValue}`)
           break
         case 'enum':
-          const str = `${src[m.srcName]}`
+          const str = `${srcValue}`
           const matchIdx = m.replace.findIndex(({ pattern }) =>
             str.match(pattern)
           )
@@ -186,7 +217,7 @@ export async function mappingFlds(
           break
         case 'html':
           if (srcFldType === 'string') {
-            ret[m.dstName] = await htmlToMarkdown(src[m.srcName] as string, {
+            ret[m.dstName] = await htmlToMarkdown(srcValue as string, {
               embedImgAttrs: m.embedImgAttrs
             })
           } else {

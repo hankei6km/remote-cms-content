@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import {
   Client,
   ClientChain,
@@ -12,6 +12,9 @@ export const client: Client = function client({
   apiName: inApiName,
   credential
 }: ClientOpts): ClientInstance {
+  if (credential[0] !== 'X-API-KEY' && credential[0] !== 'X-MICROCMS-API-KEY') {
+    throw new Error(`client: the headers key is invalid: ${credential[0]}`)
+  }
   const request = () => {
     let apiName: string | undefined = inApiName
     let skip: number | undefined = undefined
@@ -31,9 +34,11 @@ export const client: Client = function client({
         return clientChain
       },
       async fetch(): Promise<FetchResult> {
+        const headers: AxiosRequestConfig['headers'] = {}
+        headers[credential[0]] = credential[1]
         const res = await axios
           .get(`${apiBaseURL}${apiName || ''}`, {
-            headers: { 'X-API-KEY': credential[1] }
+            headers
           })
           .catch((err) => {
             throw new Error(

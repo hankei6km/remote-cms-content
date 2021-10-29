@@ -47,9 +47,8 @@ describe('cli()', () => {
       stderr,
       clientKind: 'appsheet',
       apiBaseURL: 'http://localhost:3000',
-      appId: 'appid',
+      credential: ['appid', 'secret'],
       mapConfig: 'test/assets/mapconfig.json',
-      accessKey: 'secret',
       saveOpts: {
         apiName: 'tbl',
         dstContentsDir: '/contents/tbl',
@@ -102,9 +101,8 @@ describe('cli()', () => {
       stderr,
       clientKind: 'appsheet',
       apiBaseURL: 'http://localhost:3000',
-      appId: 'appid',
+      credential: ['appid', 'secret'],
       mapConfig: 'test/assets/mapconfig.json',
-      accessKey: 'secret',
       saveOpts: {
         apiName: 'tbl',
         dstContentsDir: '/error',

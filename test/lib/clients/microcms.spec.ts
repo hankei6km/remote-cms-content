@@ -21,7 +21,7 @@ describe('client_appsheet', () => {
     const res = client({
       apiBaseURL: 'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/',
       apiName: 'tbl',
-      credential: ['', 'secret']
+      credential: ['X-API-KEY', 'secret']
     })
       .request()
       .fetch()

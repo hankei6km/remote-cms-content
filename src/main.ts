@@ -2,7 +2,7 @@
 import yargs from 'yargs'
 
 import { hideBin } from 'yargs/helpers'
-import {cli} from './cli.js'
+import { cli } from './cli.js'
 import { ClientKindValues } from './types/client.js'
 ;(async () => {
   const argv = await yargs(hideBin(process.argv))
@@ -48,20 +48,34 @@ import { ClientKindValues } from './types/client.js'
         required: true,
         description: 'Base URL to API endpoint'
       },
-      'app-id': {
+      credential: {
         type: 'string',
+        array: true,
         required: false,
-        description: 'app id to API endpoint'
+        description: 'credential to API endpoint',
+        coerce: (arg: any) => {
+          // https://github.com/yargs/yargs/issues/821
+          if (!Array.isArray(arg)) {
+            const arr: any[] = []
+            for (const [key, value] of Object.entries(arg)) {
+              const idx = Number.parseInt(key, 10)
+              if (!Number.isNaN(idx)) {
+                arr[idx] = value
+              } else {
+                throw new Error(
+                  `credential: index of credential is not number: ${key}`
+                )
+              }
+            }
+            return arr
+          }
+          return arg
+        }
       },
       'map-config': {
         type: 'string',
         required: true,
         description: 'json file name that contain mapping fields etc.'
-      },
-      'access-key': {
-        type: 'string',
-        require: true,
-        description: 'access key to get contents'
       }
     })
     .help().argv
@@ -72,9 +86,8 @@ import { ClientKindValues } from './types/client.js'
       stderr: process.stderr,
       clientKind: argv['client-kind'],
       apiBaseURL: argv['api-base-url'],
-      appId: argv['app-id'] || '',
+      credential: argv['credential'] || [],
       mapConfig: argv['map-config'],
-      accessKey: argv['access-key'],
       saveOpts: {
         apiName: argv.apiName,
         dstContentsDir: argv.dstContentsDir,

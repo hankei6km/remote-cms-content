@@ -11,7 +11,7 @@ describe('client', () => {
   it('should return microcms client instanse', () => {
     const c = client('microcms', {
       apiBaseURL: 'http://localhost:3000',
-      credential: ['', 'secret']
+      credential: ['X-MICROCMS-API-KEY', 'secret']
     })
     expect(c.kind()).toEqual('appsheet')
   })

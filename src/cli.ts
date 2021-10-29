@@ -17,9 +17,8 @@ type Opts = {
   stderr: Writable
   clientKind: ClientKind
   apiBaseURL: string
-  appId: string
+  credential: string[]
   mapConfig: string
-  accessKey: string
   saveOpts: SaveOpts
 }
 export const cli = async ({
@@ -28,9 +27,8 @@ export const cli = async ({
   stderr,
   clientKind,
   apiBaseURL,
-  appId,
+  credential,
   mapConfig,
-  accessKey,
   saveOpts
 }: Opts): Promise<number> => {
   let cliErr: Error | null = null
@@ -40,7 +38,7 @@ export const cli = async ({
         cliErr = await saveRemoteContents({
           client: client(clientKind, {
             apiBaseURL,
-            credential: [appId, accessKey]
+            credential: [...credential]
           }),
           mapConfig: await loadMapConfig(mapConfig),
           ...saveOpts

@@ -1,4 +1,3 @@
-import fs from 'fs/promises'
 import { Writable } from 'stream'
 import { client } from './lib/client.js'
 import { saveRemoteContents } from './lib/content.js'

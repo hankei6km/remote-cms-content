@@ -66,8 +66,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
+                            "jsonPath": {
+                                "type": "string"
+                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "wrapArray": {
+                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -89,8 +95,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
+                            "jsonPath": {
+                                "type": "string"
+                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "wrapArray": {
+                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -112,8 +124,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
+                            "jsonPath": {
+                                "type": "string"
+                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "wrapArray": {
+                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -135,8 +153,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
+                            "jsonPath": {
+                                "type": "string"
+                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "wrapArray": {
+                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -161,11 +185,17 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
+                            "jsonPath": {
+                                "type": "string"
+                            },
                             "setSize": {
                                 "type": "boolean"
                             },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "wrapArray": {
+                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -185,6 +215,9 @@ export const mapConfigSchema =
                                 "enum": [
                                     "enum"
                                 ],
+                                "type": "string"
+                            },
+                            "jsonPath": {
                                 "type": "string"
                             },
                             "replace": {
@@ -215,6 +248,9 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "wrapArray": {
+                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -288,8 +324,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
+                            "jsonPath": {
+                                "type": "string"
+                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "wrapArray": {
+                                "type": "boolean"
                             }
                         },
                         "required": [

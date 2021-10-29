@@ -8,6 +8,8 @@ export type BaseFlds = {
 export type MapFldsBase = {
   srcName: string
   dstName: string
+  jsonPath?: string
+  wrapArray?: boolean
 }
 
 export type MapFldsId = {
@@ -54,6 +56,15 @@ export type MapFldsHtml = {
   fldType: 'html'
   embedImgAttrs?: HtmlToMarkdownOpts['embedImgAttrs']
 } & MapFldsBase
+
+export type MapFld =
+  | MapFldsId
+  | MapFldsNumber
+  | MapFldsString
+  | MapFldsDatetime
+  | MapFldsImage
+  | MapFldsEnum
+  | MapFldsHtml
 
 export type MapFlds = (
   | MapFldsId

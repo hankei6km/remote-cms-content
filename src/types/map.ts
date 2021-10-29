@@ -42,6 +42,10 @@ export type MapFldsEnum = {
   }[]
 } & MapFldsBase
 
+export type MapFldsObject = {
+  fldType: 'object' // 実質 any
+} & MapFldsBase
+
 type HtmlToMarkdownOptsEmbedImgAttrs = {
   baseURL?: string
   embedTo?: 'alt' | 'block'
@@ -64,17 +68,10 @@ export type MapFld =
   | MapFldsDatetime
   | MapFldsImage
   | MapFldsEnum
+  | MapFldsObject
   | MapFldsHtml
 
-export type MapFlds = (
-  | MapFldsId
-  | MapFldsNumber
-  | MapFldsString
-  | MapFldsDatetime
-  | MapFldsImage
-  | MapFldsEnum
-  | MapFldsHtml
-)[]
+export type MapFlds = MapFld[]
 
 export type MapConfig = {
   media?: {

@@ -267,6 +267,35 @@ export const mapConfigSchema =
                             "dstName": {
                                 "type": "string"
                             },
+                            "fldType": {
+                                "enum": [
+                                    "object"
+                                ],
+                                "type": "string"
+                            },
+                            "jsonPath": {
+                                "type": "string"
+                            },
+                            "srcName": {
+                                "type": "string"
+                            },
+                            "wrapArray": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "dstName",
+                            "fldType",
+                            "srcName"
+                        ],
+                        "type": "object"
+                    },
+                    {
+                        "additionalProperties": false,
+                        "properties": {
+                            "dstName": {
+                                "type": "string"
+                            },
                             "embedImgAttrs": {
                                 "anyOf": [
                                     {

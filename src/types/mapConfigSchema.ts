@@ -66,14 +66,11 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonPath": {
+                            "jsonata": {
                                 "type": "string"
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "wrapArray": {
-                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -95,14 +92,11 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonPath": {
+                            "jsonata": {
                                 "type": "string"
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "wrapArray": {
-                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -124,14 +118,11 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonPath": {
+                            "jsonata": {
                                 "type": "string"
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "wrapArray": {
-                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -153,14 +144,11 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonPath": {
+                            "jsonata": {
                                 "type": "string"
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "wrapArray": {
-                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -185,7 +173,7 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonPath": {
+                            "jsonata": {
                                 "type": "string"
                             },
                             "setSize": {
@@ -193,9 +181,6 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "wrapArray": {
-                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -217,7 +202,7 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonPath": {
+                            "jsonata": {
                                 "type": "string"
                             },
                             "replace": {
@@ -248,9 +233,6 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "wrapArray": {
-                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -273,14 +255,11 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonPath": {
+                            "jsonata": {
                                 "type": "string"
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "wrapArray": {
-                                "type": "boolean"
                             }
                         },
                         "required": [
@@ -353,14 +332,11 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonPath": {
+                            "jsonata": {
                                 "type": "string"
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "wrapArray": {
-                                "type": "boolean"
                             }
                         },
                         "required": [

@@ -8,8 +8,7 @@ export type BaseFlds = {
 export type MapFldsBase = {
   srcName: string
   dstName: string
-  jsonPath?: string
-  wrapArray?: boolean
+  jsonata?: string
 }
 
 export type MapFldsId = {

@@ -1,11 +1,11 @@
 import path from 'path'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
+import jsonata from 'jsonata'
 import { BaseFlds, MapConfig, MapFld, MapFldsImage } from '../types/map.js'
 import { mapConfigSchema } from '../types/mapConfigSchema.js'
 import { ImageInfo } from '../types/media.js'
 import { htmlToMarkdown } from './html.js'
-import { JSONPath } from 'jsonpath-plus'
 
 const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
@@ -111,30 +111,21 @@ function throwInvalidType(
   )
 }
 
-function selectFldValue(m: MapFld, value: unknown): any {
+function transformFldValue(m: MapFld, value: unknown): any {
   const valueType = typeof value
   if (
     (valueType === 'number' ||
       valueType === 'string' ||
       valueType === 'object') &&
-    m.jsonPath
+    m.jsonata
   ) {
     try {
-      const s = JSONPath({
-        path: m.jsonPath,
-        json: value as object,
-        wrap: true
-      })
-      if (!m.wrapArray && s.length <= 1) {
-        // wrapArray 独自処理.
-        // - wrap とは逆
-        // - wrap は以下の状況(実際に試したが ['foo'] のようにしかならない)
-        //     https://github.com/JSONPath-Plus/JSONPath/issues/86
-        return s[0]
-      }
-      return s
+      const expression = jsonata(m.jsonata)
+      return expression.evaluate(value)
     } catch (err: any) {
-      throw new Error(`selectFldValue: ${err}`)
+      throw new Error(
+        `transformFldValue: jsonata=${m.jsonata}, message=${err.message}`
+      )
     }
   }
   return value
@@ -161,7 +152,7 @@ export async function mappingFlds(
   for (let mapFldsIdx = 0; mapFldsIdx < mapFldsLen; mapFldsIdx++) {
     const m = mapConfig.flds[mapFldsIdx]
     if (src.hasOwnProperty(m.srcName)) {
-      const srcValue = selectFldValue(m, src[m.srcName])
+      const srcValue = transformFldValue(m, src[m.srcName])
       const srcFldType = typeof srcValue
       switch (m.fldType) {
         case 'id':

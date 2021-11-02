@@ -1,6 +1,6 @@
 {
   "name": "remote-cms-contents",
-  "version": "0.1.1-pre.14",
+  "version": "0.1.1-pre.15",
   "description": "Mirror contents of remote cms to local files for nuxt-content",
   "author": "hankei6km <hankei6km@gmail.com> (https://github.com/hankei6km)",
   "license": "MIT",
@@ -36,7 +36,7 @@
     "mapconfig-schema:build": "sh scripts/mapconfig-schema-build.sh"
   },
   "dependencies": {
-    "@hankei6km/rehype-image-salt": "^0.1.1-pre.21",
+    "@hankei6km/rehype-image-salt": "^0.1.1-pre.23",
     "ajv": "^8.6.3",
     "axios": "^0.21.4",
     "gray-matter": "^4.0.3",

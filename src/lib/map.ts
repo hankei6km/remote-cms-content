@@ -166,6 +166,13 @@ export async function mappingFlds(
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
           }
           break
+        case 'boolean':
+          if (srcFldType === 'boolean') {
+            ret[m.dstName] = srcValue
+          } else {
+            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
+          }
+          break
         case 'number':
           if (srcFldType === 'number') {
             ret[m.dstName] = srcValue

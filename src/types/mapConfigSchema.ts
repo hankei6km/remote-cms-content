@@ -88,6 +88,32 @@ export const mapConfigSchema =
                             },
                             "fldType": {
                                 "enum": [
+                                    "boolean"
+                                ],
+                                "type": "string"
+                            },
+                            "jsonata": {
+                                "type": "string"
+                            },
+                            "srcName": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "dstName",
+                            "fldType",
+                            "srcName"
+                        ],
+                        "type": "object"
+                    },
+                    {
+                        "additionalProperties": false,
+                        "properties": {
+                            "dstName": {
+                                "type": "string"
+                            },
+                            "fldType": {
+                                "enum": [
                                     "number"
                                 ],
                                 "type": "string"

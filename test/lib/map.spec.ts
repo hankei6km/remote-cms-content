@@ -6,29 +6,81 @@ import {
   validateMapConfig,
   validId
 } from '../../src/lib/map.js'
+import { MapConfig } from '../../src/types/map.js'
 
 describe('validateMapConfig', () => {
   test('should return MapConfig', () => {
     expect(validateMapConfig({ flds: [] })).toEqual({ flds: [] })
-    expect(
-      validateMapConfig({
-        flds: [
-          {
-            srcName: 'タイトル',
-            dstName: 'title',
-            fldType: 'string'
-          }
-        ]
-      })
-    ).toEqual({
+    // const mapConfig: MapConfig = {
+    const mapConfig = {
+      passthruUnmapped: false,
+      media: {
+        image: {
+          fileNameField: 'name',
+          download: false,
+          library: [{ src: 'https://', kind: 'imgix', download: false }]
+        }
+      },
       flds: [
         {
-          srcName: 'タイトル',
-          dstName: 'title',
+          srcName: 'idFld',
+          dstName: 'idfld',
+          fldType: 'id'
+        },
+        {
+          srcName: 'booleanFld',
+          dstName: 'booleanFld',
+          fldType: 'boolean'
+        },
+        {
+          srcName: 'numberFld',
+          dstName: 'numberFld',
+          fldType: 'number'
+        },
+        {
+          srcName: 'stringFld',
+          dstName: 'stringFld',
           fldType: 'string'
+        },
+        {
+          srcName: 'datetimeFld',
+          dstName: 'datetimeFld',
+          fldType: 'datetime'
+        },
+        {
+          srcName: 'imageFld',
+          dstName: 'imageFld',
+          fldType: 'image',
+          fileNameField: 'name',
+          setSize: false
+        },
+        {
+          srcName: 'enumFld',
+          dstName: 'enumFld',
+          fldType: 'enum',
+          replace: [
+            { pattern: 'p', replacement: 'r' },
+            { pattern: /e/, replacement: 'r' }
+          ]
+        },
+        {
+          srcName: 'objectFld',
+          dstName: 'objectFld',
+          fldType: 'object'
+        },
+        {
+          srcName: 'htmlFld',
+          dstName: 'htmlFld',
+          fldType: 'html',
+          embedImgAttrs: {
+            baseURL: '/',
+            embedTo: 'block',
+            pickAttrs: ['class']
+          }
         }
       ]
-    })
+    }
+    expect(validateMapConfig(mapConfig)).toEqual(mapConfig)
     expect(validateMapConfig({ passthruUnmapped: true, flds: [] })).toEqual({
       passthruUnmapped: true,
       flds: []

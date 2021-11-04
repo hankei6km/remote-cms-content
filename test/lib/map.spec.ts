@@ -11,7 +11,7 @@ import { MapConfig } from '../../src/types/map.js'
 describe('validateMapConfig', () => {
   test('should return MapConfig', () => {
     expect(validateMapConfig({ flds: [] })).toEqual({ flds: [] })
-    // const mapConfig: MapConfig = {
+    //const mapConfig: MapConfig = {
     const mapConfig = {
       passthruUnmapped: false,
       media: {
@@ -72,10 +72,14 @@ describe('validateMapConfig', () => {
           srcName: 'htmlFld',
           dstName: 'htmlFld',
           fldType: 'html',
-          embedImgAttrs: {
-            baseURL: '/',
-            embedTo: 'block',
-            pickAttrs: ['class']
+          convert: 'markdown',
+          toHtmlOpts: { frontMatter: false, splitParagraph: false },
+          toMarkdownOpts: {
+            embedImgAttrs: {
+              baseURL: '/',
+              embedTo: 'block',
+              pickAttrs: ['class']
+            }
           }
         }
       ]
@@ -396,7 +400,8 @@ describe('mappingFlds', () => {
             {
               srcName: '本文',
               dstName: 'content',
-              fldType: 'html'
+              fldType: 'html',
+              convert: 'markdown'
             }
           ]
         }
@@ -475,7 +480,8 @@ describe('mappingFlds', () => {
               srcName: 'content',
               dstName: 'content',
               fldType: 'html',
-              jsonata: 'html'
+              jsonata: 'html',
+              convert: 'markdown'
             }
           ]
         }

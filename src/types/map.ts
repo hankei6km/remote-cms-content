@@ -49,6 +49,11 @@ export type MapFldsObject = {
   fldType: 'object' // 実質 any
 } & MapFldsBase
 
+export type HtmlToHtmlOpts = {
+  frontMatter?: boolean
+  splitParagraph?: boolean
+}
+
 type HtmlToMarkdownOptsEmbedImgAttrs = {
   baseURL?: string
   embedTo?: 'alt' | 'block'
@@ -59,9 +64,16 @@ export type HtmlToMarkdownOpts = {
     | HtmlToMarkdownOptsEmbedImgAttrs
     | HtmlToMarkdownOptsEmbedImgAttrs[]
 }
+export type MapFldsHtmlOpts = {
+  convert?: 'none' | 'html' | 'markdown'
+  toHtmlOpts?: HtmlToHtmlOpts
+  toMarkdownOpts?: HtmlToMarkdownOpts
+}
 export type MapFldsHtml = {
   fldType: 'html'
-  embedImgAttrs?: HtmlToMarkdownOpts['embedImgAttrs']
+  convert?: MapFldsHtmlOpts['convert']
+  toHtmlOpts?: MapFldsHtmlOpts['toHtmlOpts']
+  toMarkdownOpts?: MapFldsHtmlOpts['toMarkdownOpts']
 } & MapFldsBase
 
 export type MapFld =

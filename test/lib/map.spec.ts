@@ -269,6 +269,7 @@ describe('mappingFlds', () => {
           createdAt: n,
           updatedAt: n,
           タイトル: 'Title',
+          有効: false,
           回数: 21,
           タイムスタンプ: n,
           画像: 'アプリ_Images/test.png',
@@ -289,6 +290,11 @@ describe('mappingFlds', () => {
               srcName: 'タイトル',
               dstName: 'title',
               fldType: 'string'
+            },
+            {
+              srcName: '有効',
+              dstName: 'enabled',
+              fldType: 'boolean'
             },
             {
               srcName: '回数',
@@ -349,6 +355,7 @@ describe('mappingFlds', () => {
       createdAt: new Date(n),
       updatedAt: new Date(n),
       title: 'Title',
+      enabled: false,
       count: 21,
       timestamp: new Date(n),
       image: 'アプリ_Images/test.png',
@@ -504,6 +511,28 @@ describe('mappingFlds', () => {
   })
   test('should throw invalid type error ', async () => {
     const n = new Date().toUTCString()
+    await expect(
+      mappingFlds(
+        {
+          _RowNumber: 1,
+          id: 'idstring',
+          createdAt: n,
+          updatedAt: n,
+          有効: ''
+        },
+        {
+          flds: [
+            {
+              srcName: '有効',
+              dstName: 'enabled',
+              fldType: 'boolean'
+            }
+          ]
+        }
+      )
+    ).rejects.toThrowError(
+      `mappingFlds: invalid type: actually type = string, params = 有効, enabled, boolean`
+    )
     await expect(
       mappingFlds(
         {

@@ -15,6 +15,10 @@ export type MapFldsId = {
   fldType: 'id'
 } & MapFldsBase
 
+export type MapFldsBoolean = {
+  fldType: 'boolean'
+} & MapFldsBase
+
 export type MapFldsNumber = {
   fldType: 'number'
 } & MapFldsBase
@@ -62,6 +66,7 @@ export type MapFldsHtml = {
 
 export type MapFld =
   | MapFldsId
+  | MapFldsBoolean
   | MapFldsNumber
   | MapFldsString
   | MapFldsDatetime

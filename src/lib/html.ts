@@ -128,10 +128,7 @@ const htmlToHtmlProcessor = (opts: HtmlToHtmlOpts) => {
       firstParagraphAsCodeDockTransformer,
       opts.frontMatter || false ? { textNode: true } : false
     )
-    .use(
-      splitParagraph,
-      opts.frontMatter || false || opts.splitParagraph || false
-    )
+    .use(splitParagraph, opts.splitParagraph || false)
     .use(rehypeStringify)
     .freeze()
 }

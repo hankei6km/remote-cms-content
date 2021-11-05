@@ -163,6 +163,8 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .freeze()
 }
 
+const htmlToHtmlFrontMatterRegExp = /^\s*(---\n.+\n---\n+){0,1}.*$/ms
+const htmlToHtmlLfRegExp = /\n/g
 export async function htmlToHtml(
   html: string,
   opts: HtmlToHtmlOpts
@@ -174,7 +176,17 @@ export async function htmlToHtml(
           console.error(err)
           reject(err)
         } else {
-          const converted = `${file}`
+          let converted = `${file}`
+          const lfTo = opts.lfTo === undefined ? '&#x000a;' : opts.lfTo
+          if (lfTo) {
+            // 空行あると HTML の終端となってしまうので &#x000a; に置き換える.
+            // processor 側で変換したかったが & がエスケープされたりで断念.
+            const matter = converted.replace(htmlToHtmlFrontMatterRegExp, '$1')
+            const content = converted
+              .slice(matter.length)
+              .replace(htmlToHtmlLfRegExp, lfTo)
+            converted = `${matter}${content}`
+          }
           if (converted && converted[converted.length - 1] === '\n') {
             resolve(converted)
             return

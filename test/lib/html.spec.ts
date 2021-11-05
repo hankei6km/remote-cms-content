@@ -137,6 +137,45 @@ describe('htmlTo() html', () => {
       '<h1>head1</h1><p>test1-1<br><br>test1-2</p><h2>head2</h2><p>test2</p>\n'
     )
   })
+  it('should replace lf', async () => {
+    expect(
+      await htmlTo(
+        '<h1>head1</h1><p>test1-1\ntest1-2</p><h2>head2</h2><p>test2-1\ntest2-2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: {}
+        }
+      )
+    ).toEqual(
+      '<h1>head1</h1><p>test1-1&#x000a;test1-2</p><h2>head2</h2><p>test2-1&#x000a;test2-2</p>\n'
+    )
+  })
+  it('should not replace lf', async () => {
+    expect(
+      await htmlTo(
+        '<h1>head1</h1><p>test1-1\ntest1-2</p><h2>head2</h2><p>test2-1\ntest2-2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: { lfTo: '' }
+        }
+      )
+    ).toEqual(
+      '<h1>head1</h1><p>test1-1\ntest1-2</p><h2>head2</h2><p>test2-1\ntest2-2</p>\n'
+    )
+  })
+  it('should replace lf without front matter', async () => {
+    expect(
+      await htmlTo(
+        '<p>---<br>title: test1<br>---<br></p><h1>head1</h1><p>test1-1\ntest1-2</p><h2>head2</h2><p>test2-1\ntest2-2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: { frontMatter: true }
+        }
+      )
+    ).toEqual(
+      '---\ntitle: test1\n\n---\n\n<h1>head1</h1><p>test1-1&#x000a;test1-2</p><h2>head2</h2><p>test2-1&#x000a;test2-2</p>\n'
+    )
+  })
 })
 
 describe('htmlTo() markdown', () => {

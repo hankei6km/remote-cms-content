@@ -52,6 +52,7 @@ export type MapFldsObject = {
 export type HtmlToHtmlOpts = {
   frontMatter?: boolean
   splitParagraph?: boolean
+  lfTo?: string
 }
 
 type HtmlToMarkdownOptsEmbedImgAttrs = {

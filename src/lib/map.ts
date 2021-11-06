@@ -5,7 +5,7 @@ import jsonata from 'jsonata'
 import { BaseFlds, MapConfig, MapFld, MapFldsImage } from '../types/map.js'
 import { mapConfigSchema } from '../types/mapConfigSchema.js'
 import { ImageInfo } from '../types/media.js'
-import { htmlToMarkdown } from './html.js'
+import { htmlTo } from './html.js'
 
 const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
@@ -218,8 +218,11 @@ export async function mappingFlds(
           break
         case 'html':
           if (srcFldType === 'string') {
-            ret[m.dstName] = await htmlToMarkdown(srcValue as string, {
-              embedImgAttrs: m.embedImgAttrs
+            const { convert, toHtmlOpts, toMarkdownOpts } = m
+            ret[m.dstName] = await htmlTo(srcValue as string, {
+              convert,
+              toHtmlOpts,
+              toMarkdownOpts
             })
           } else {
             throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)

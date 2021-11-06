@@ -3,7 +3,7 @@ import rehypeParse from 'rehype-parse'
 import stringify from 'rehype-stringify'
 import {
   firstParagraphAsCodeDockTransformer,
-  htmlToMarkdown
+  htmlTo
 } from '../../src/lib/html.js'
 
 describe('firstParagraphAsCodeDockTransformer()', () => {
@@ -63,31 +63,154 @@ describe('firstParagraphAsCodeDockTransformer()', () => {
   })
 })
 
-describe('htmlToMarkdown()', () => {
-  it('should convert html to markdown', async () => {
-    expect(await htmlToMarkdown('<p>test1</p>', {})).toEqual('test1\n')
+describe('htmlTo() none', () => {
+  it('should retrun html as it is', async () => {
+    expect(await htmlTo('<p>test1</p>', {})).toEqual('<p>test1</p>')
     expect(
-      await htmlToMarkdown(
-        '<h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>',
-        {}
+      await htmlTo('<h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>', {
+        convert: 'none'
+      })
+    ).toEqual('<h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>')
+  })
+})
+
+describe('htmlTo() html', () => {
+  it('should convert html to html', async () => {
+    expect(await htmlTo('<p>test1</p>', { convert: 'html' })).toEqual(
+      '<p>test1</p>\n'
+    )
+    expect(
+      await htmlTo('<h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>', {
+        convert: 'html'
+      })
+    ).toEqual('<h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>\n')
+  })
+  it('should convert front matter', async () => {
+    expect(
+      await htmlTo(
+        '<p>---<br>title: test1<br>---<br></p><h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: { frontMatter: true }
+        }
       )
+    ).toEqual(
+      '---\ntitle: test1\n\n---\n\n<h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>\n'
+    )
+  })
+  it('should not convert front matter', async () => {
+    expect(
+      await htmlTo(
+        '<p>---<br>title: test1<br>---<br></p><h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: {}
+        }
+      )
+    ).toEqual(
+      '<p>---<br>title: test1<br>---<br></p><h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>\n'
+    )
+  })
+  it('should split paragraph', async () => {
+    expect(
+      await htmlTo(
+        '<h1>head1</h1><p>test1-1<br><br>test1-2</p><h2>head2</h2><p>test2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: { splitParagraph: true }
+        }
+      )
+    ).toEqual(
+      '<h1>head1</h1><p>test1-1</p><p>test1-2</p><h2>head2</h2><p>test2</p>\n'
+    )
+  })
+  it('should not split paragraph', async () => {
+    expect(
+      await htmlTo(
+        '<h1>head1</h1><p>test1-1<br><br>test1-2</p><h2>head2</h2><p>test2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: {}
+        }
+      )
+    ).toEqual(
+      '<h1>head1</h1><p>test1-1<br><br>test1-2</p><h2>head2</h2><p>test2</p>\n'
+    )
+  })
+  it('should replace lf', async () => {
+    expect(
+      await htmlTo(
+        '<h1>head1</h1><p>test1-1\ntest1-2</p><h2>head2</h2><p>test2-1\ntest2-2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: {}
+        }
+      )
+    ).toEqual(
+      '<h1>head1</h1><p>test1-1&#x000a;test1-2</p><h2>head2</h2><p>test2-1&#x000a;test2-2</p>\n'
+    )
+  })
+  it('should not replace lf', async () => {
+    expect(
+      await htmlTo(
+        '<h1>head1</h1><p>test1-1\ntest1-2</p><h2>head2</h2><p>test2-1\ntest2-2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: { lfTo: '' }
+        }
+      )
+    ).toEqual(
+      '<h1>head1</h1><p>test1-1\ntest1-2</p><h2>head2</h2><p>test2-1\ntest2-2</p>\n'
+    )
+  })
+  it('should replace lf without front matter', async () => {
+    expect(
+      await htmlTo(
+        '<p>---<br>title: test1<br>---<br></p><h1>head1</h1><p>test1-1\ntest1-2</p><h2>head2</h2><p>test2-1\ntest2-2</p>',
+        {
+          convert: 'html',
+          toHtmlOpts: { frontMatter: true }
+        }
+      )
+    ).toEqual(
+      '---\ntitle: test1\n\n---\n\n<h1>head1</h1><p>test1-1&#x000a;test1-2</p><h2>head2</h2><p>test2-1&#x000a;test2-2</p>\n'
+    )
+  })
+})
+
+describe('htmlTo() markdown', () => {
+  it('should convert html to markdown', async () => {
+    expect(await htmlTo('<p>test1</p>', { convert: 'markdown' })).toEqual(
+      'test1\n'
+    )
+    expect(
+      await htmlTo('<h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>', {
+        convert: 'markdown'
+      })
     ).toEqual('# head1\n\ntest1\n\n## head2\n\ntest2\n')
   })
   it('should convert html embed codedock to markdown', async () => {
-    expect(await htmlToMarkdown('<p>test1</p>', {})).toEqual('test1\n')
+    expect(await htmlTo('<p>test1</p>', { convert: 'markdown' })).toEqual(
+      'test1\n'
+    )
     expect(
-      await htmlToMarkdown(
+      await htmlTo(
         '<h1>head1</h1><p>test1</p><pre><code>===md\n[foo](/bar)</code></pre>',
-        {}
+        { convert: 'markdown' }
       )
     ).toEqual('# head1\n\ntest1\n\n[foo](/bar)\n')
   })
   it('should embed attrs of img to alt', async () => {
     expect(
-      await htmlToMarkdown(
+      await htmlTo(
         '<h1>head1</h1><p>test1</p><p><img src="https://localhost:3000/path/to/image.jpg" alt="image" width="300" height="200"></p><h2>head2</h2><p>test2</p>',
         {
-          embedImgAttrs: { baseURL: 'https://localhost:3000/path/to/image.jpg' }
+          convert: 'markdown',
+          toMarkdownOpts: {
+            embedImgAttrs: {
+              baseURL: 'https://localhost:3000/path/to/image.jpg'
+            }
+          }
         }
       )
     ).toEqual(
@@ -96,12 +219,15 @@ describe('htmlToMarkdown()', () => {
   })
   it('should embed attrs of img to block', async () => {
     expect(
-      await htmlToMarkdown(
+      await htmlTo(
         '<h1>head1</h1><p>test1</p><p><img src="https://localhost:3000/path/to/image.jpg" alt="image" width="300" height="200"></p><h2>head2</h2><p>test2</p>',
         {
-          embedImgAttrs: {
-            baseURL: 'https://localhost:3000/path/to/image.jpg',
-            embedTo: 'block'
+          convert: 'markdown',
+          toMarkdownOpts: {
+            embedImgAttrs: {
+              baseURL: 'https://localhost:3000/path/to/image.jpg',
+              embedTo: 'block'
+            }
           }
         }
       )
@@ -111,13 +237,16 @@ describe('htmlToMarkdown()', () => {
   })
   it('should embed custom attrs', async () => {
     expect(
-      await htmlToMarkdown(
+      await htmlTo(
         '<h1>head1</h1><p>test1</p><p><img src="https://localhost:3000/path/to/image.jpg" alt="image" width="300" height="200" data-salt-thumb></p><h2>head2</h2><p>test2</p>',
         {
-          embedImgAttrs: {
-            baseURL: 'https://localhost:3000/path/to/image.jpg',
-            embedTo: 'block',
-            pickAttrs: ['width', 'height', 'dataSaltThumb']
+          convert: 'markdown',
+          toMarkdownOpts: {
+            embedImgAttrs: {
+              baseURL: 'https://localhost:3000/path/to/image.jpg',
+              embedTo: 'block',
+              pickAttrs: ['width', 'height', 'dataSaltThumb']
+            }
           }
         }
       )
@@ -127,20 +256,23 @@ describe('htmlToMarkdown()', () => {
   })
   it('should accept opts array', async () => {
     expect(
-      await htmlToMarkdown(
+      await htmlTo(
         '<h1>head1</h1><p>test1</p><p><img src="https://localhost:3000/path/to/image.jpg" alt="image" width="300" height="200"></p><h2>head2</h2><p>test2</p><p><img src="https://localhost:3001/path/to/image.jpg" alt="image" width="300" height="200"></p>',
         {
-          embedImgAttrs: [
-            {
-              baseURL: 'https://localhost:3000/path/to/image.jpg',
-              embedTo: 'block'
-            },
-            {
-              baseURL: 'https://localhost:3001/path/to/image.jpg',
-              embedTo: 'block',
-              pickAttrs: ['width']
-            }
-          ]
+          convert: 'markdown',
+          toMarkdownOpts: {
+            embedImgAttrs: [
+              {
+                baseURL: 'https://localhost:3000/path/to/image.jpg',
+                embedTo: 'block'
+              },
+              {
+                baseURL: 'https://localhost:3001/path/to/image.jpg',
+                embedTo: 'block',
+                pickAttrs: ['width']
+              }
+            ]
+          }
         }
       )
     ).toEqual(

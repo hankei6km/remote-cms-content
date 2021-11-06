@@ -1,15 +1,20 @@
-import { unified, Transformer } from 'unified'
+import { unified, Plugin, Transformer } from 'unified'
 import rehypeParse from 'rehype-parse'
 import rehype2Remark, { Options } from 'rehype-remark'
 import rehypeSanitize from 'rehype-sanitize'
 // import { Handle } from 'hast-util-to-mdast';
-import stringify from 'remark-stringify'
-import { Node, Element } from 'hast'
+import rehypeStringify from 'rehype-stringify'
+import remarkStringify from 'remark-stringify'
+import { Root, Node, Element, Text } from 'hast'
 // import visit from 'unist-util-visit';
 import splitParagraph from 'rehype-split-paragraph'
 import imageSalt from '@hankei6km/rehype-image-salt'
 import { codeDockHandler } from './codedock.js'
-import { HtmlToMarkdownOpts } from '../types/map.js'
+import {
+  MapFldsHtmlOpts,
+  HtmlToMarkdownOpts,
+  HtmlToHtmlOpts
+} from '../types/map.js'
 
 export function extractFrontMatter(
   p: Element
@@ -51,8 +56,16 @@ export function extractFrontMatter(
   return [matter, matterRange]
 }
 
+type FirstParagraphAsCodeDockTransformerOpts = { textNode: boolean }
 const fenceToFrontMatterRegExp = /^---\n(.+)\n---\n*.*$/s
-export function firstParagraphAsCodeDockTransformer(): Transformer {
+export const firstParagraphAsCodeDockTransformer: Plugin<
+  [FirstParagraphAsCodeDockTransformerOpts] | [],
+  string,
+  Root
+> = function firstParagraphAsCodeDockTransformer(
+  opts?: FirstParagraphAsCodeDockTransformerOpts
+): Transformer {
+  const { textNode } = opts || {}
   return function transformer(tree: Node): void {
     const elm = tree as Element
     if (tree.type === 'root' && Array.isArray(elm.children)) {
@@ -63,26 +76,31 @@ export function firstParagraphAsCodeDockTransformer(): Transformer {
         const cElm = elm.children[0] as Element
         const [matter, matterRange] = extractFrontMatter(cElm)
         if (matter) {
-          const matterElm: Element = {
-            type: 'element',
-            tagName: 'pre',
-            children: [
-              {
+          const matterElm: Element | Text = textNode
+            ? {
+                type: 'text',
+                value: `---\n${matter}\n---\n\n`
+              }
+            : {
                 type: 'element',
-                tagName: 'code',
+                tagName: 'pre',
                 children: [
                   {
-                    type: 'text',
-                    // value: text
-                    // ---\nfoo:bar\n--- だと qrcode 変換でつかっている
-                    // mdast-util-from-markdown で heading として扱われる。
-                    // この辺がうまくいかない場合、mdast-util-frontmattera も検討
-                    value: `===md\n---\n\n${matter}\n---\n`
+                    type: 'element',
+                    tagName: 'code',
+                    children: [
+                      {
+                        type: 'text',
+                        // value: text
+                        // ---\nfoo:bar\n--- だと qrcode 変換でつかっている
+                        // mdast-util-from-markdown で heading として扱われる。
+                        // この辺がうまくいかない場合、mdast-util-frontmattera も検討
+                        value: `===md\n---\n\n${matter}\n---\n`
+                      }
+                    ]
                   }
                 ]
               }
-            ]
-          }
           const pElm: Element = {
             ...cElm,
             children: cElm.children.slice(matterRange + 1)
@@ -101,6 +119,18 @@ export function firstParagraphAsCodeDockTransformer(): Transformer {
 const brHandler = (h: any, node: any): any => {
   // <br> が `/` になってしまうので暫定対応
   return h(node, 'text', ' ')
+}
+
+const htmlToHtmlProcessor = (opts: HtmlToHtmlOpts) => {
+  return unified()
+    .use(rehypeParse, { fragment: true })
+    .use(
+      firstParagraphAsCodeDockTransformer,
+      opts.frontMatter || false ? { textNode: true } : false
+    )
+    .use(splitParagraph, opts.splitParagraph || false)
+    .use(rehypeStringify)
+    .freeze()
 }
 
 const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
@@ -129,11 +159,47 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(rehype2Remark, {
       handlers: { pre: codeDockHandler, br: brHandler }
     } as unknown as Options)
-    .use(stringify)
+    .use(remarkStringify)
     .freeze()
 }
 
-export async function pageHtmlMarkdown(
+const htmlToHtmlFrontMatterRegExp = /^\s*(---\n.+\n---\n+){0,1}.*$/ms
+const htmlToHtmlLfRegExp = /\n/g
+export async function htmlToHtml(
+  html: string,
+  opts: HtmlToHtmlOpts
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (html) {
+      htmlToHtmlProcessor(opts).process(html, function (err, file) {
+        if (err) {
+          console.error(err)
+          reject(err)
+        } else {
+          let converted = `${file}`
+          const lfTo = opts.lfTo === undefined ? '&#x000a;' : opts.lfTo
+          if (lfTo) {
+            // 空行あると HTML の終端となってしまうので &#x000a; に置き換える.
+            // processor 側で変換したかったが & がエスケープされたりで断念.
+            const matter = converted.replace(htmlToHtmlFrontMatterRegExp, '$1')
+            const content = converted
+              .slice(matter.length)
+              .replace(htmlToHtmlLfRegExp, lfTo)
+            converted = `${matter}${content}`
+          }
+          if (converted && converted[converted.length - 1] === '\n') {
+            resolve(converted)
+            return
+          }
+          resolve(`${converted}\n`)
+        }
+      })
+    }
+    resolve('')
+  })
+}
+
+export async function htmlToMarkdown(
   html: string,
   opts: HtmlToMarkdownOpts
 ): Promise<string> {
@@ -158,11 +224,17 @@ export async function pageHtmlMarkdown(
   })
 }
 
-export async function htmlToMarkdown(
+export async function htmlTo(
   html: string,
-  opts: HtmlToMarkdownOpts
+  opts: MapFldsHtmlOpts
 ): Promise<string> {
-  const md = await pageHtmlMarkdown(html, opts)
-  // return await qrcodeToDataUrl(md);
-  return md
+  let ret = ''
+  if (opts.convert === undefined || opts.convert === 'none') {
+    ret = html
+  } else if (opts.convert === 'html') {
+    ret = await htmlToHtml(html, opts.toHtmlOpts || {})
+  } else if (opts.convert === 'markdown') {
+    ret = await htmlToMarkdown(html, opts.toMarkdownOpts || {})
+  }
+  return ret
 }

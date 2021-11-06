@@ -1,7 +1,6 @@
 import { unified, Plugin, Transformer } from 'unified'
 import rehypeParse from 'rehype-parse'
 import rehype2Remark, { Options } from 'rehype-remark'
-import rehypeSanitize from 'rehype-sanitize'
 // import { Handle } from 'hast-util-to-mdast';
 import rehypeStringify from 'rehype-stringify'
 import remarkStringify from 'remark-stringify'
@@ -153,7 +152,6 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(firstParagraphAsCodeDockTransformer)
     .use(imageSalt, imageSaltOpts)
     .use(splitParagraph)
-    .use(rehypeSanitize, { allowComments: true })
     .use(rehype2Remark, {
       handlers: { pre: codeDockHandler, br: brHandler }
     } as unknown as Options)

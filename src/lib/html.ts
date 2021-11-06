@@ -1,7 +1,6 @@
 import { unified, Plugin, Transformer } from 'unified'
 import rehypeParse from 'rehype-parse'
 import rehype2Remark, { Options } from 'rehype-remark'
-import rehypeSanitize from 'rehype-sanitize'
 // import { Handle } from 'hast-util-to-mdast';
 import rehypeStringify from 'rehype-stringify'
 import remarkStringify from 'remark-stringify'
@@ -134,28 +133,25 @@ const htmlToHtmlProcessor = (opts: HtmlToHtmlOpts) => {
 }
 
 const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
-  let ret = unified()
+  const imageSaltOpts: boolean | Parameters<typeof imageSalt>[0] =
+    opts.embedImgAttrs !== undefined
+      ? (Array.isArray(opts.embedImgAttrs)
+          ? opts.embedImgAttrs
+          : [opts.embedImgAttrs]
+        ).map((v) => ({
+          command: 'embed',
+          baseURL: v.baseURL,
+          embed: {
+            embedTo: v.embedTo,
+            pickAttrs: v.pickAttrs
+          }
+        }))
+      : false
+  return unified()
     .use(rehypeParse, { fragment: true })
     .use(firstParagraphAsCodeDockTransformer)
-
-  if (opts.embedImgAttrs) {
-    const o: Parameters<typeof imageSalt>[0] = (
-      Array.isArray(opts.embedImgAttrs)
-        ? opts.embedImgAttrs
-        : [opts.embedImgAttrs]
-    ).map((v) => ({
-      command: 'embed',
-      baseURL: v.baseURL,
-      embed: {
-        embedTo: v.embedTo,
-        pickAttrs: v.pickAttrs
-      }
-    }))
-    ret = ret.use(imageSalt, o)
-  }
-  return ret
+    .use(imageSalt, imageSaltOpts)
     .use(splitParagraph)
-    .use(rehypeSanitize, { allowComments: true })
     .use(rehype2Remark, {
       handlers: { pre: codeDockHandler, br: brHandler }
     } as unknown as Options)

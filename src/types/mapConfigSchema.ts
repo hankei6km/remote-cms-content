@@ -5,6 +5,10 @@ export const mapConfigSchema =
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "definitions": {
+        "Expression": {
+            "additionalProperties": false,
+            "type": "object"
+        },
         "RegExp": {
             "additionalProperties": false,
             "properties": {
@@ -66,11 +70,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "type": "string"
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -92,11 +99,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "type": "string"
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -118,11 +128,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "type": "string"
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -144,11 +157,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "type": "string"
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -170,11 +186,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "type": "string"
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -199,14 +218,17 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "type": "string"
-                            },
                             "setSize": {
                                 "type": "boolean"
                             },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -226,9 +248,6 @@ export const mapConfigSchema =
                                 "enum": [
                                     "enum"
                                 ],
-                                "type": "string"
-                            },
-                            "jsonata": {
                                 "type": "string"
                             },
                             "replace": {
@@ -259,6 +278,12 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -281,11 +306,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "type": "string"
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -315,9 +343,6 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "type": "string"
-                            },
                             "srcName": {
                                 "type": "string"
                             },
@@ -326,6 +351,9 @@ export const mapConfigSchema =
                                 "properties": {
                                     "frontMatter": {
                                         "type": "boolean"
+                                    },
+                                    "lfTo": {
+                                        "type": "string"
                                     },
                                     "splitParagraph": {
                                         "type": "boolean"
@@ -389,6 +417,12 @@ export const mapConfigSchema =
                                     }
                                 },
                                 "type": "object"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [

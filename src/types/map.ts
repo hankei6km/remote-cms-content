@@ -1,3 +1,5 @@
+import { Expression } from 'jsonata'
+
 export type BaseFlds = {
   _RowNumber: number
   id: string
@@ -8,7 +10,8 @@ export type BaseFlds = {
 export type MapFldsBase = {
   srcName: string
   dstName: string
-  jsonata?: string
+  transform?: string
+  transformJsonata?: Expression
 }
 
 export type MapFldsId = {

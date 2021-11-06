@@ -10,7 +10,7 @@ import { htmlTo } from './html.js'
 const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
 
-export function validateMapConfig(mapConfig: any): MapConfig {
+export function compileMapConfig(mapConfig: any): MapConfig {
   if (!validate(mapConfig) && validate.errors) {
     // allErrors false 前提.
     throw new Error(
@@ -19,13 +19,25 @@ export function validateMapConfig(mapConfig: any): MapConfig {
       } params=${JSON.stringify(validate.errors[0]?.params)}`
     )
   }
-  return mapConfig as MapConfig
+  const ret = mapConfig as MapConfig
+  ret.flds.forEach((m) => {
+    if (typeof m.transform === 'string') {
+      try {
+        m.transformJsonata = jsonata(m.transform)
+      } catch (err: any) {
+        throw new Error(
+          `compileMapConfig: compile jsonata: transform=${m.transform}, message=${err.message}`
+        )
+      }
+    }
+  })
+  return ret
 }
 
 export async function loadMapConfig(jsonFile: string): Promise<MapConfig> {
   try {
     const s = await readFile(jsonFile)
-    return validateMapConfig(JSON.parse(s.toString()))
+    return compileMapConfig(JSON.parse(s.toString()))
   } catch (err) {
     throw new Error(`loadMapConfig: jsonFile=${jsonFile} ${err}`)
   }
@@ -117,14 +129,15 @@ function transformFldValue(m: MapFld, value: unknown): any {
     (valueType === 'number' ||
       valueType === 'string' ||
       valueType === 'object') &&
-    m.jsonata
+    m.transformJsonata
   ) {
     try {
-      const expression = jsonata(m.jsonata)
-      return expression.evaluate(value)
+      return m.transformJsonata.evaluate(value)
     } catch (err: any) {
       throw new Error(
-        `transformFldValue: jsonata=${m.jsonata}, message=${err.message}`
+        `transformFldValue: transform=${m.transform} message=${
+          err.message
+        } value=${JSON.stringify(value)}`
       )
     }
   }

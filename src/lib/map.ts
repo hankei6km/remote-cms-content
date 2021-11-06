@@ -21,12 +21,12 @@ export function compileMapConfig(mapConfig: any): MapConfig {
   }
   const ret = mapConfig as MapConfig
   ret.flds.forEach((m) => {
-    if (typeof m.jsonata === 'string') {
+    if (typeof m.transform === 'string') {
       try {
-        m.jsonata = jsonata(m.jsonata)
+        m.transformJsonata = jsonata(m.transform)
       } catch (err: any) {
         throw new Error(
-          `compileMapConfig: compile jsonata: jsonata=${m.jsonata}, message=${err.message}`
+          `compileMapConfig: compile jsonata: transform=${m.transform}, message=${err.message}`
         )
       }
     }
@@ -129,15 +129,15 @@ function transformFldValue(m: MapFld, value: unknown): any {
     (valueType === 'number' ||
       valueType === 'string' ||
       valueType === 'object') &&
-    typeof m.jsonata === 'object'
+    m.transformJsonata
   ) {
     try {
-      return m.jsonata.evaluate(value)
+      return m.transformJsonata.evaluate(value)
     } catch (err: any) {
       throw new Error(
-        `transformFldValue: message=${err.message} value=${JSON.stringify(
-          value
-        )}`
+        `transformFldValue: transform=${m.transform} message=${
+          err.message
+        } value=${JSON.stringify(value)}`
       )
     }
   }

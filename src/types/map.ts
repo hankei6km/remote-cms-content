@@ -10,7 +10,8 @@ export type BaseFlds = {
 export type MapFldsBase = {
   srcName: string
   dstName: string
-  jsonata?: string | Expression
+  transform?: string
+  transformJsonata?: Expression
 }
 
 export type MapFldsId = {

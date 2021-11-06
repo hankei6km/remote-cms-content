@@ -82,27 +82,22 @@ describe('compileMapConfig', () => {
               pickAttrs: ['class']
             }
           }
-        },
-        {
-          srcName: 'objectwithJsonataFld',
-          dstName: 'objectwithJsonataFld',
-          fldType: 'object',
-          jsonata: '*[title="1234"].image'
         }
       ]
     }
-    const compiled = compileMapConfig(mapConfig)
-    expect(compiled).toEqual(mapConfig)
+    expect(compileMapConfig(mapConfig)).toStrictEqual(mapConfig)
     expect(
-      compiled.flds.filter(({ jsonata }) => jsonata !== undefined).length
-    ).toBeGreaterThan(0)
-    compiled.flds.forEach(({ jsonata }) => {
-      if (jsonata !== undefined) {
-        if (typeof jsonata === 'string') {
-          throw new Error(`${jsonata} not compiled`)
-        }
-      }
-    })
+      typeof compileMapConfig({
+        flds: [
+          {
+            srcName: 'objectwithJsonataFld',
+            dstName: 'objectwithJsonataFld',
+            fldType: 'object',
+            transform: '*[title="1234"].image'
+          }
+        ]
+      }).flds[0].transformJsonata
+    ).toEqual('object')
     expect(compileMapConfig({ passthruUnmapped: true, flds: [] })).toEqual({
       passthruUnmapped: true,
       flds: []
@@ -120,12 +115,12 @@ describe('compileMapConfig', () => {
             srcName: 'test',
             dstName: 'test',
             fldType: 'object',
-            jsonata: '$$.{'
+            transform: '$$.{'
           }
         ]
       })
     ).toThrowError(
-      'compileMapConfig: compile jsonata: jsonata=$$.{, message=Expected ":" before end of expression'
+      'compileMapConfig: compile jsonata: transform=$$.{, message=Expected ":" before end of expression'
     )
   })
 })
@@ -506,13 +501,13 @@ describe('mappingFlds', () => {
               srcName: 'images',
               dstName: 'image',
               fldType: 'image',
-              jsonata: jsonata('*[title="1234"].image')
+              transformJsonata: jsonata('*[title="1234"].image')
             },
             {
               srcName: 'content',
               dstName: 'content',
               fldType: 'html',
-              jsonata: jsonata('html'),
+              transformJsonata: jsonata('html'),
               convert: 'markdown'
             }
           ]
@@ -694,12 +689,15 @@ describe('mappingFlds', () => {
               srcName: 'list',
               dstName: 'list',
               fldType: 'object',
-              jsonata: jsonata('$${name:title}')
+              transform: '$${name:title}',
+              transformJsonata: jsonata('$${name:title}')
             }
           ]
         }
       )
-    ).rejects.toThrowError(/^transformFldValue: message=Key/)
+    ).rejects.toThrowError(
+      /^transformFldValue: transform=\$\${name:title} message=Key/
+    )
   })
   test('should skip no exist flds', async () => {
     const n = new Date().toUTCString()

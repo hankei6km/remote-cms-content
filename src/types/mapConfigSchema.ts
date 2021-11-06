@@ -70,18 +70,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -103,18 +99,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -136,18 +128,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -169,18 +157,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -202,18 +186,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -238,21 +218,17 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
                             "setSize": {
                                 "type": "boolean"
                             },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -273,16 +249,6 @@ export const mapConfigSchema =
                                     "enum"
                                 ],
                                 "type": "string"
-                            },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
                             },
                             "replace": {
                                 "items": {
@@ -312,6 +278,12 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -334,18 +306,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
-                            },
                             "srcName": {
                                 "type": "string"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -374,16 +342,6 @@ export const mapConfigSchema =
                                     "html"
                                 ],
                                 "type": "string"
-                            },
-                            "jsonata": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/definitions/Expression"
-                                    },
-                                    {
-                                        "type": "string"
-                                    }
-                                ]
                             },
                             "srcName": {
                                 "type": "string"
@@ -459,6 +417,12 @@ export const mapConfigSchema =
                                     }
                                 },
                                 "type": "object"
+                            },
+                            "transform": {
+                                "type": "string"
+                            },
+                            "transformJsonata": {
+                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [

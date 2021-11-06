@@ -5,6 +5,10 @@ export const mapConfigSchema =
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "definitions": {
+        "Expression": {
+            "additionalProperties": false,
+            "type": "object"
+        },
         "RegExp": {
             "additionalProperties": false,
             "properties": {
@@ -67,7 +71,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "srcName": {
                                 "type": "string"
@@ -93,7 +104,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "srcName": {
                                 "type": "string"
@@ -119,7 +137,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "srcName": {
                                 "type": "string"
@@ -145,7 +170,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "srcName": {
                                 "type": "string"
@@ -171,7 +203,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "srcName": {
                                 "type": "string"
@@ -200,7 +239,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "setSize": {
                                 "type": "boolean"
@@ -229,7 +275,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "replace": {
                                 "items": {
@@ -282,7 +335,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "srcName": {
                                 "type": "string"
@@ -316,7 +376,14 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "jsonata": {
-                                "type": "string"
+                                "anyOf": [
+                                    {
+                                        "$ref": "#/definitions/Expression"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
                             },
                             "srcName": {
                                 "type": "string"
@@ -326,6 +393,9 @@ export const mapConfigSchema =
                                 "properties": {
                                     "frontMatter": {
                                         "type": "boolean"
+                                    },
+                                    "lfTo": {
+                                        "type": "string"
                                     },
                                     "splitParagraph": {
                                         "type": "boolean"

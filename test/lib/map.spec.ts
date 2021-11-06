@@ -1,16 +1,17 @@
+import jsonata from 'jsonata'
 import {
   fileNameFromURL,
   isImageDownload,
   loadMapConfig,
   mappingFlds,
-  validateMapConfig,
+  compileMapConfig,
   validId
 } from '../../src/lib/map.js'
 import { MapConfig } from '../../src/types/map.js'
 
-describe('validateMapConfig', () => {
+describe('compileMapConfig', () => {
   test('should return MapConfig', () => {
-    expect(validateMapConfig({ flds: [] })).toEqual({ flds: [] })
+    expect(compileMapConfig({ flds: [] })).toEqual({ flds: [] })
     //const mapConfig: MapConfig = {
     const mapConfig = {
       passthruUnmapped: false,
@@ -81,19 +82,50 @@ describe('validateMapConfig', () => {
               pickAttrs: ['class']
             }
           }
+        },
+        {
+          srcName: 'objectwithJsonataFld',
+          dstName: 'objectwithJsonataFld',
+          fldType: 'object',
+          jsonata: '*[title="1234"].image'
         }
       ]
     }
-    expect(validateMapConfig(mapConfig)).toEqual(mapConfig)
-    expect(validateMapConfig({ passthruUnmapped: true, flds: [] })).toEqual({
+    const compiled = compileMapConfig(mapConfig)
+    expect(compiled).toEqual(mapConfig)
+    expect(
+      compiled.flds.filter(({ jsonata }) => jsonata !== undefined).length
+    ).toBeGreaterThan(0)
+    compiled.flds.forEach(({ jsonata }) => {
+      if (jsonata !== undefined) {
+        if (typeof jsonata === 'string') {
+          throw new Error(`${jsonata} not compiled`)
+        }
+      }
+    })
+    expect(compileMapConfig({ passthruUnmapped: true, flds: [] })).toEqual({
       passthruUnmapped: true,
       flds: []
     })
   })
   test('should throw error when invalid data passed', () => {
-    expect(() => validateMapConfig({})).toThrowError(/flds/)
-    expect(() => validateMapConfig({ flds: [], dirty: true })).toThrowError(
+    expect(() => compileMapConfig({})).toThrowError(/flds/)
+    expect(() => compileMapConfig({ flds: [], dirty: true })).toThrowError(
       /additional/
+    )
+    expect(() =>
+      compileMapConfig({
+        flds: [
+          {
+            srcName: 'test',
+            dstName: 'test',
+            fldType: 'object',
+            jsonata: '$$.{'
+          }
+        ]
+      })
+    ).toThrowError(
+      'compileMapConfig: compile jsonata: jsonata=$$.{, message=Expected ":" before end of expression'
     )
   })
 })
@@ -474,13 +506,13 @@ describe('mappingFlds', () => {
               srcName: 'images',
               dstName: 'image',
               fldType: 'image',
-              jsonata: '*[title="1234"].image'
+              jsonata: jsonata('*[title="1234"].image')
             },
             {
               srcName: 'content',
               dstName: 'content',
               fldType: 'html',
-              jsonata: 'html',
+              jsonata: jsonata('html'),
               convert: 'markdown'
             }
           ]
@@ -645,25 +677,29 @@ describe('mappingFlds', () => {
           id: 'idstring',
           createdAt: n,
           updatedAt: n,
-          content: {
-            title: 'test',
-            html: '<p>test html1</p><p>test html2</p>'
-          }
+          list: [
+            {
+              id: 'id1',
+              title: 'test1'
+            },
+            {
+              id: 'id2',
+              title: 'test2'
+            }
+          ]
         },
         {
           flds: [
             {
-              srcName: 'content',
-              dstName: 'content',
-              fldType: 'html',
-              jsonata: '{html'
+              srcName: 'list',
+              dstName: 'list',
+              fldType: 'object',
+              jsonata: jsonata('$${name:title}')
             }
           ]
         }
       )
-    ).rejects.toThrowError(
-      'transformFldValue: jsonata={html, message=Expected ":" before end of expression'
-    )
+    ).rejects.toThrowError(/^transformFldValue: message=Key/)
   })
   test('should skip no exist flds', async () => {
     const n = new Date().toUTCString()

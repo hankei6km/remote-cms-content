@@ -83,10 +83,12 @@ export const firstParagraphAsCodeDockTransformer: Plugin<
             : {
                 type: 'element',
                 tagName: 'pre',
+                properties: {}, // rehype-remark で children の text node 内が変換されることを防ぐ("\n" が " " となる).
                 children: [
                   {
                     type: 'element',
                     tagName: 'code',
+                    properties: {}, // 上の propeties と同じ目的で記述.
                     children: [
                       {
                         type: 'text',

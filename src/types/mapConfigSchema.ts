@@ -5,10 +5,6 @@ export const mapConfigSchema =
     "$schema": "http://json-schema.org/draft-07/schema#",
     "additionalProperties": false,
     "definitions": {
-        "Expression": {
-            "additionalProperties": false,
-            "type": "object"
-        },
         "RegExp": {
             "additionalProperties": false,
             "properties": {
@@ -75,9 +71,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -104,9 +97,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -133,9 +123,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -162,9 +149,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -191,9 +175,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -226,9 +207,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -281,9 +259,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -311,9 +286,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [
@@ -420,9 +392,6 @@ export const mapConfigSchema =
                             },
                             "transform": {
                                 "type": "string"
-                            },
-                            "transformJsonata": {
-                                "$ref": "#/definitions/Expression"
                             }
                         },
                         "required": [

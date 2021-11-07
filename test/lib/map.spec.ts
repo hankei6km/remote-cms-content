@@ -115,6 +115,18 @@ describe('compileMapConfig', () => {
             srcName: 'test',
             dstName: 'test',
             fldType: 'object',
+            transformJsonata: '*[title="1234"].image'
+          }
+        ]
+      })
+    ).toThrowError(/additional/)
+    expect(() =>
+      compileMapConfig({
+        flds: [
+          {
+            srcName: 'test',
+            dstName: 'test',
+            fldType: 'object',
             transform: '$$.{'
           }
         ]

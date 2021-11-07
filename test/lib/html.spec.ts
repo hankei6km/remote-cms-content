@@ -189,6 +189,18 @@ describe('htmlTo() markdown', () => {
       })
     ).toEqual('# head1\n\ntest1\n\n## head2\n\ntest2\n')
   })
+  it('should convert front matter', async () => {
+    expect(
+      await htmlTo(
+        '<p>---<br>title: test1<br>---<br></p><h1>head1</h1><p>test1</p><h2>head2</h2><p>test2</p>',
+        {
+          convert: 'markdown'
+        }
+      )
+    ).toEqual(
+      '---\n\ntitle: test1\n\n---\n\n\n\n# head1\n\ntest1\n\n## head2\n\ntest2\n'
+    )
+  })
   it('should convert html embed codedock to markdown', async () => {
     expect(await htmlTo('<p>test1</p>', { convert: 'markdown' })).toEqual(
       'test1\n'

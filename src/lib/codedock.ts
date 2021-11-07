@@ -1,6 +1,5 @@
 import { Element, Text } from 'hast'
 import { code as preHandler } from 'hast-util-to-mdast/lib/handlers/code.js'
-import { toHtml } from 'hast-util-to-html'
 
 export const CodeDockKindValues = ['markdown'] as const
 export type CodeDockKind = typeof CodeDockKindValues[number]

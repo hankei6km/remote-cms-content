@@ -11,6 +11,9 @@ export type MapFldsBase = {
   srcName: string
   dstName: string
   transform?: string
+  /**
+   * @ignore
+   */
   transformJsonata?: Expression
 }
 

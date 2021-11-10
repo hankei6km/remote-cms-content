@@ -467,6 +467,41 @@ describe('mappingFlds', () => {
       content: 'test html1\n\ntest html2\n'
     })
   })
+  test('should map flds multiple', async () => {
+    const n = new Date().toUTCString()
+    expect(
+      await mappingFlds(
+        {
+          _RowNumber: 1,
+          id: 'idstring',
+          createdAt: n,
+          updatedAt: n,
+          タイトル: 'Title'
+        },
+        {
+          flds: [
+            {
+              srcName: 'タイトル',
+              dstName: 'title1',
+              fldType: 'string'
+            },
+            {
+              srcName: 'タイトル',
+              dstName: 'title2',
+              fldType: 'string'
+            }
+          ]
+        }
+      )
+    ).toEqual({
+      _RowNumber: 1,
+      id: 'idstring',
+      createdAt: new Date(n),
+      updatedAt: new Date(n),
+      title1: 'Title',
+      title2: 'Title'
+    })
+  })
   test('should select value from object by jsonata', async () => {
     const n = new Date().toUTCString()
     expect(

@@ -161,6 +161,7 @@ export async function mappingFlds(
   } else {
     throwInvalidId(id, 'id', 'id', 'id')
   }
+  const mapped: Record<string, boolean> = {}
   const mapFldsLen = mapConfig.flds.length
   for (let mapFldsIdx = 0; mapFldsIdx < mapFldsLen; mapFldsIdx++) {
     const m = mapConfig.flds[mapFldsIdx]
@@ -243,13 +244,13 @@ export async function mappingFlds(
           break
       }
       if (ret.hasOwnProperty(m.dstName)) {
-        delete src[m.srcName]
+        mapped[m.srcName] = true
       }
     }
   }
   if (mapConfig.passthruUnmapped) {
     Object.entries(src).forEach(([k, v]) => {
-      if (!ret.hasOwnProperty(k)) {
+      if (!mapped[k] && !ret.hasOwnProperty(k)) {
         ret[k] = v
       }
     })

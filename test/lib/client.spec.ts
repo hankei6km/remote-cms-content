@@ -1,4 +1,15 @@
-import { client } from '../../src/lib/client.js'
+import { jest } from '@jest/globals'
+
+// > ENOENT: no such file or directory, open 'zlib'
+// になる対応.
+// contentful を import すると発生するが原理は不明.
+jest.unstable_mockModule('contentful', async () => {
+  return {
+    default: jest.fn()
+  }
+})
+
+const { client } = await import('../../src/lib/client.js')
 
 describe('client', () => {
   it('should return appsheet client instanse', () => {
@@ -7,6 +18,13 @@ describe('client', () => {
       credential: ['id', 'secret']
     })
     expect(c.kind()).toEqual('appsheet')
+  })
+  it('should return contentful client instanse', () => {
+    const c = client('contentful', {
+      apiBaseURL: '',
+      credential: ['spaceId', 'cda_token']
+    })
+    expect(c.kind()).toEqual('contentful')
   })
   it('should return microcms client instanse', () => {
     const c = client('microcms', {

@@ -7,6 +7,15 @@ import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media'
 import mockAxiosDefault from 'jest-mock-axios'
 const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
 
+// > ENOENT: no such file or directory, open 'zlib'
+// になる対応.
+// contentful を import すると発生するが原理は不明.
+jest.unstable_mockModule('contentful', async () => {
+  return {
+    default: jest.fn()
+  }
+})
+
 jest.unstable_mockModule('axios', async () => {
   return {
     default: mockAxios
@@ -81,7 +90,7 @@ const mockMedia = await import('../../src/lib/media')
 const { mockSaveImageFile } = (mockMedia as any)._getMocks()
 const mockFsPromise = await import('fs/promises')
 const { mockWriteFile } = (mockFsPromise as any)._getMocks()
-const { client } =await import( '../../src/lib/client.js')
+const { client } = await import('../../src/lib/client.js')
 const { saveContentFile, saveRemoteContents } = await import(
   '../../src/lib/content.js'
 )

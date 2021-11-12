@@ -3,6 +3,15 @@ import { jest } from '@jest/globals'
 // import { cli } from '../src/cli.js'
 import { SaveRemoteContentsOptions } from '../src/types/content.js'
 
+// > ENOENT: no such file or directory, open 'zlib'
+// になる対応.
+// contentful を import すると発生するが原理は不明.
+jest.unstable_mockModule('contentful', async () => {
+  return {
+    default: jest.fn()
+  }
+})
+
 jest.unstable_mockModule('../src/lib/content.js', async () => {
   const mockSaveRemoteContents = jest.fn()
   const reset = () => {

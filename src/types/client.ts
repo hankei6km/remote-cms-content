@@ -1,4 +1,4 @@
-export const ClientKindValues = ['appsheet', 'microcms'] as const
+export const ClientKindValues = ['appsheet', 'contentful', 'microcms'] as const
 export type ClientKind = typeof ClientKindValues[number]
 
 export type FetchResult = {

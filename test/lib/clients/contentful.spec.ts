@@ -109,10 +109,27 @@ jest.unstable_mockModule('contentful', async () => {
 
 const mockCtf = await import('contentful')
 const { mockCreateClient, mockGetEntries } = (mockCtf as any)._getMocks()
-const { client } = await import('../../../src/lib/clients/contentful.js')
+const { queryEquality, client } = await import(
+  '../../../src/lib/clients/contentful.js'
+)
 
 afterEach(async () => {
   ;(mockCtf as any)._reset()
+})
+
+describe('getEntries', () => {
+  it('should return filter expression', () => {
+    expect(queryEquality([['eq', 'k1', 'v1']])).toEqual({ k1: 'v1' })
+    expect(
+      queryEquality([
+        ['eq', 'k1', 'v1'],
+        ['eq', 'k2', 'v2']
+      ])
+    ).toEqual({ k1: 'v1', k2: 'v2' })
+  })
+  it('should return empty object', () => {
+    expect(queryEquality([])).toEqual({})
+  })
 })
 
 describe('client_contentful', () => {
@@ -167,6 +184,63 @@ describe('client_contentful', () => {
     })
     expect(mockGetEntries).toHaveBeenLastCalledWith({
       content_type: 'contentmodel'
+    })
+  })
+  it('should get rendered contents from Contentful space with filter', async () => {
+    const n = new Date().toUTCString()
+
+    const res = client({
+      apiBaseURL: '',
+      apiName: 'contentmodel',
+      credential: ['spcaeId', 'cda_token']
+    })
+      .request()
+      .filter([['eq', 'fields.k1', 'v1']])
+      .filter([['eq', 'fields.k2', 'v2']])
+      .fetch()
+    expect(mockCreateClient).toHaveBeenLastCalledWith({
+      space: 'spcaeId',
+      accessToken: 'cda_token'
+    })
+    expect(await res).toEqual({
+      contents: [
+        {
+          id: 'id1',
+          createdAt: '2021-11-10T07:47:13.673Z',
+          updatedAt: '2021-11-10T10:29:51.095Z',
+          sys: {
+            id: 'id1',
+            createdAt: '2021-11-10T07:47:13.673Z',
+            updatedAt: '2021-11-10T10:29:51.095Z'
+          },
+          fields: {
+            id: 'fid1',
+            title: 'title1',
+            richt: '<p>Hello world!</p>'
+          }
+        },
+        {
+          id: 'id2',
+          createdAt: '2021-11-10T07:47:13.673Z',
+          updatedAt: '2021-11-10T10:29:51.095Z',
+          sys: {
+            id: 'id2',
+            createdAt: '2021-11-10T07:47:13.673Z',
+            updatedAt: '2021-11-10T10:29:51.095Z'
+          },
+          fields: {
+            id: 'fid2',
+            title: 'title2',
+            richt:
+              '<p>Hello world!</p><p><img alt="image1" src="//images.ctfassets.net/image1.jpg" width="600" height="400"></p>'
+          }
+        }
+      ]
+    })
+    expect(mockGetEntries).toHaveBeenLastCalledWith({
+      content_type: 'contentmodel',
+      'fields.k1': 'v1',
+      'fields.k2': 'v2'
     })
   })
 })

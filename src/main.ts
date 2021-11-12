@@ -18,6 +18,30 @@ import { ClientKindValues } from './types/client.js'
               type: 'string',
               defult: 'static/',
               description: 'root of static path to trim image path'
+            },
+            filter: {
+              type: 'string',
+              array: true,
+              required: false,
+              description: 'filter operators',
+              coerce: (arg: any) => {
+                // https://github.com/yargs/yargs/issues/821
+                if (typeof arg === 'object' && !Array.isArray(arg)) {
+                  const arr: any[] = []
+                  for (const [key, value] of Object.entries(arg)) {
+                    const idx = Number.parseInt(key, 10)
+                    if (!Number.isNaN(idx)) {
+                      arr[idx] = value
+                    } else {
+                      throw new Error(
+                        `filter: index of filter is not number: ${key}`
+                      )
+                    }
+                  }
+                  return arr
+                }
+                return arg
+              }
             }
           })
           .positional('apiName', {
@@ -92,7 +116,8 @@ import { ClientKindValues } from './types/client.js'
         apiName: argv.apiName,
         dstContentsDir: argv.dstContentsDir,
         dstImagesDir: argv.dstImagesDir,
-        staticRoot: argv['static-root'] || 'static/'
+        staticRoot: argv['static-root'] || 'static/',
+        filter: argv['filter'] || []
       }
     })
   )

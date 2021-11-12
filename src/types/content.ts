@@ -1,4 +1,4 @@
-import { ClientInstance } from './client.js'
+import { ClientInstance, OpValue } from './client.js'
 import { MapConfig } from './map.js'
 
 export type SaveRemoteContentsOptions = {
@@ -8,4 +8,5 @@ export type SaveRemoteContentsOptions = {
   dstContentsDir: string
   dstImagesDir: string
   staticRoot: string
+  filter: OpValue[]
 }

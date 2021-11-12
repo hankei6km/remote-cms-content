@@ -54,11 +54,12 @@ export async function saveRemoteContents({
   mapConfig,
   dstContentsDir,
   dstImagesDir,
-  staticRoot
+  staticRoot,
+  filter
 }: SaveRemoteContentsOptions): Promise<Error | null> {
   let ret: Error | null = null
   try {
-    const res = await client.request().api(apiName).fetch()
+    const res = await client.request().api(apiName).filter(filter).fetch()
     const len = res.contents.length
     const contents: BaseFlds[] = new Array(len) as BaseFlds[]
     for (let idx = 0; idx < len; idx++) {

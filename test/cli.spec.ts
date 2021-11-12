@@ -62,7 +62,8 @@ describe('cli()', () => {
         apiName: 'tbl',
         dstContentsDir: '/contents/tbl',
         dstImagesDir: '/static/tbl',
-        staticRoot: '/static'
+        staticRoot: '/static',
+        filter: []
       }
     })
     expect(await res).toEqual(0)
@@ -88,7 +89,62 @@ describe('cli()', () => {
         },
         dstContentsDir: '/contents/tbl',
         dstImagesDir: '/static/tbl',
-        staticRoot: '/static'
+        staticRoot: '/static',
+        filter: []
+      }
+    ])
+    expect(outData).toEqual('')
+    expect(errData).toEqual('')
+  })
+  it('should return stdout with exitcode=0 from save command with filter', async () => {
+    const stdout = new PassThrough()
+    const stderr = new PassThrough()
+    let outData = ''
+    stdout.on('data', (d) => (outData = outData + d))
+    let errData = ''
+    stderr.on('data', (d) => (errData = errData + d))
+
+    const res = cli({
+      command: 'save',
+      stdout,
+      stderr,
+      clientKind: 'appsheet',
+      apiBaseURL: 'http://localhost:3000',
+      credential: ['appid', 'secret'],
+      mapConfig: 'test/assets/mapconfig.json',
+      saveOpts: {
+        apiName: 'tbl',
+        dstContentsDir: '/contents/tbl',
+        dstImagesDir: '/static/tbl',
+        staticRoot: '/static',
+        filter: ['k=v']
+      }
+    })
+    expect(await res).toEqual(0)
+    //const { mockSaveRemoteContents } = require('../src/lib/content')._getMocks()
+    const { mockSaveRemoteContents } = (mockContent as any)._getMocks()
+    expect(mockSaveRemoteContents.mock.calls[0]).toEqual([
+      {
+        client: expect.any(Object),
+        apiName: 'tbl',
+        mapConfig: {
+          flds: [
+            {
+              srcName: 'タイトル',
+              dstName: 'title',
+              fldType: 'string'
+            },
+            {
+              srcName: '画像',
+              dstName: 'image',
+              fldType: 'image'
+            }
+          ]
+        },
+        dstContentsDir: '/contents/tbl',
+        dstImagesDir: '/static/tbl',
+        staticRoot: '/static',
+        filter: [['eq', 'k', 'v']]
       }
     ])
     expect(outData).toEqual('')
@@ -116,7 +172,8 @@ describe('cli()', () => {
         apiName: 'tbl',
         dstContentsDir: '/error',
         dstImagesDir: '/static/tbl',
-        staticRoot: '/static'
+        staticRoot: '/static',
+        filter: []
       }
     })
     expect(await res).toEqual(1)

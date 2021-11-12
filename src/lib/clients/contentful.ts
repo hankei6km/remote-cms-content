@@ -11,7 +11,8 @@ import {
   ClientChain,
   ClientInstance,
   ClientOpts,
-  FetchResult
+  FetchResult,
+  OpValue
 } from '../../types/client.js'
 
 const nodeRendererAsset: NodeRenderer = (node) => {
@@ -65,6 +66,16 @@ export async function richTextToHtml(
   return
 }
 
+export function queryEquality(filter: OpValue[]): Record<string, any> {
+  const ret: Record<string, any> = {}
+  filter
+    .filter(([o]) => o === 'eq')
+    .forEach(([_o, k, v]) => {
+      ret[k] = v
+    })
+  return ret
+}
+
 export const client: Client = function client({
   apiName: inApiName,
   credential
@@ -75,12 +86,17 @@ export const client: Client = function client({
       accessToken: credential[1]
     })
     let apiName: string | undefined = inApiName
+    const filter: OpValue[] = []
     let skip: number | undefined = undefined
     let limit: number | undefined = undefined
 
     const clientChain: ClientChain = {
       api(name: string) {
         apiName = name
+        return clientChain
+      },
+      filter(o: OpValue[]) {
+        filter.push(...o)
         return clientChain
       },
       limit(n: number) {
@@ -94,6 +110,7 @@ export const client: Client = function client({
       async fetch(): Promise<FetchResult> {
         const res = await ctfClient
           .getEntries<Record<string, any>>({
+            ...queryEquality(filter),
             content_type: apiName
           })
           .catch((err) => {

@@ -17,6 +17,13 @@ export async function saveContentFile(
 
   try {
     const { content, ...metaData } = flds
+    if (typeof metaData === 'object') {
+      Object.entries(metaData).forEach(([k, v]) => {
+        if (v === undefined) {
+          delete metaData[k]
+        }
+      })
+    }
     // content は string を期待しているが、異なる場合もある、かな.
     const file = matter.stringify(content !== undefined ? `${content}` : '', {
       ...metaData,

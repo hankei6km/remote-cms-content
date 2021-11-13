@@ -4,12 +4,13 @@ import {
   ClientChain,
   ClientInstance,
   ClientOpts,
-  FetchResult
+  FetchResult,
+  OpValue
 } from '../../types/client.js'
 
 export type APIActionBody = {
   Action: 'Find'
-  Properties: any
+  Properties: Record<string, any>
   Rows: any[]
 }
 
@@ -26,14 +27,55 @@ export function apiActionPath(
   )}/Action?${q.toString()}`
 }
 
+export function validateSelctorValue(s: string) {
+  // '"' をエスケースする方法が不明だったので(\\ではダメぽい)、
+  // 式に影響がありそうな文字があればエラーとする.
+  if (
+    s.includes('(') ||
+    s.includes(')') ||
+    s.includes('[') ||
+    s.includes(']') ||
+    s.includes('"') ||
+    s.includes("'")
+  ) {
+    throw new Error(
+      `validateSelctorValue: can't handle "()[]"'" AppSheet client: value: ${s}`
+    )
+  }
+}
+
+export function apiActionBodySelector(
+  apiName: string,
+  filter: OpValue[]
+): string {
+  if (filter.length > 0) {
+    const t = filter
+      .filter(([o]) => o === 'eq')
+      .map(([_o, k, v]) => {
+        validateSelctorValue(k)
+        validateSelctorValue(v)
+        return `[${k}]="${v}"`
+      })
+    const s = t.length > 1 ? `And(${t.join(',')})` : t[0]
+    return `Filter("${apiName}",${s})`
+  }
+  return ''
+}
+
 export function apiActionBodyFind(
-  props?: Record<string, string>
+  props: Record<string, any> = {}
 ): APIActionBody {
-  return {
-    Action: 'Find',
-    Properties: props || {},
+  const ret: APIActionBody = {
+    Action: 'Find' as const,
+    Properties: {},
     Rows: []
   }
+  Object.entries(props).forEach(([k, v]) => {
+    if (v) {
+      ret.Properties[k] = v
+    }
+  })
+  return ret
 }
 
 export const client: Client = function client({
@@ -42,13 +84,18 @@ export const client: Client = function client({
   credential
 }: ClientOpts): ClientInstance {
   const request = () => {
-    let apiName: string | undefined = inApiName
+    let apiName: string = inApiName || ''
+    const filter: OpValue[] = []
     let skip: number | undefined = undefined
     let limit: number | undefined = undefined
 
     const clientChain: ClientChain = {
       api(name: string) {
         apiName = name
+        return clientChain
+      },
+      filter(o: OpValue[]) {
+        filter.push(...o)
         return clientChain
       },
       limit(n: number) {
@@ -64,10 +111,14 @@ export const client: Client = function client({
           .post(
             `${apiBaseURL}${apiActionPath(
               credential[0],
-              apiName || '',
+              apiName,
               credential[1]
             )}`,
-            JSON.stringify(apiActionBodyFind({})), // TODO: props の扱い.
+            JSON.stringify(
+              apiActionBodyFind({
+                Selector: apiActionBodySelector(apiName, filter)
+              })
+            ),
             {
               headers: { 'Content-Type': ' application/json' }
             }

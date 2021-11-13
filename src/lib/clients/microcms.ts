@@ -4,8 +4,32 @@ import {
   ClientChain,
   ClientInstance,
   ClientOpts,
-  FetchResult
+  FetchResult,
+  OpValue
 } from '../../types/client.js'
+
+export function validateQueryFilterValue(s: string) {
+  // '[' をエスケースする方法が不明だったので
+  // 式に影響がありそうな文字があればエラーとする.
+  // q はマルチバイト文字を URL エンコードしろとあったので
+  // 試しに二重にエンコードしてみたが効果はなさそう.
+  if (s.includes('[') || s.includes(']')) {
+    throw new Error(
+      `validateSelctorValue: can't handle "()[]"'" AppSheet client: value: ${s}`
+    )
+  }
+}
+
+export function queryFilters(filter: OpValue[]): string {
+  return filter
+    .filter(([o]) => o === 'eq')
+    .map(([_o, k, v]) => {
+      validateQueryFilterValue(k)
+      validateQueryFilterValue(v)
+      return `${k}[equals]${v}`
+    })
+    .join('[and]')
+}
 
 export const client: Client = function client({
   apiBaseURL,
@@ -17,12 +41,17 @@ export const client: Client = function client({
   }
   const request = () => {
     let apiName: string | undefined = inApiName
+    const filter: OpValue[] = []
     let skip: number | undefined = undefined
     let limit: number | undefined = undefined
 
     const clientChain: ClientChain = {
       api(name: string) {
         apiName = name
+        return clientChain
+      },
+      filter(o: OpValue[]) {
+        filter.push(...o)
         return clientChain
       },
       limit(n: number) {
@@ -36,9 +65,15 @@ export const client: Client = function client({
       async fetch(): Promise<FetchResult> {
         const headers: AxiosRequestConfig['headers'] = {}
         headers[credential[0]] = credential[1]
+        const params: Record<string, any> = {}
+        const filterString = queryFilters(filter)
+        if (filterString) {
+          params['filters'] = filterString
+        }
         const res = await axios
           .get(`${apiBaseURL}${apiName || ''}`, {
-            headers
+            headers,
+            params
           })
           .catch((err) => {
             throw new Error(

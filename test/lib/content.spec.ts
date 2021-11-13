@@ -3,7 +3,7 @@ import { join } from 'path'
 import fsPromises from 'fs/promises'
 import { ImageInfo } from '../../src/types/media.js'
 import { BaseFlds, MapConfig } from '../../src/types/map.js'
-import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media'
+import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media.js'
 import mockAxiosDefault from 'jest-mock-axios'
 const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
 
@@ -44,7 +44,7 @@ jest.unstable_mockModule('fs/promises', async () => {
   }
 })
 
-jest.unstable_mockModule('../../src/lib/media', () => {
+jest.unstable_mockModule('../../src/lib/media.js', () => {
   let mockImageInfoFromSrc = jest.fn()
   let mockSaveImageFile = jest.fn()
   const reset = (rows: BaseFlds[]) => {
@@ -170,7 +170,8 @@ describe('saveRemoteContents()', () => {
       mapConfig,
       dstContentsDir: '/path/content',
       dstImagesDir: '/path/static/images',
-      staticRoot: '/path/static'
+      staticRoot: '/path/static',
+      filter: []
     })
     mockAxios.mockResponse({
       data: [
@@ -252,7 +253,8 @@ describe('saveRemoteContents()', () => {
       mapConfig,
       dstContentsDir: '/path/content',
       dstImagesDir: '/path/static/images',
-      staticRoot: ''
+      staticRoot: '',
+      filter: []
     })
     mockAxios.mockResponse({
       data: [
@@ -291,7 +293,8 @@ describe('saveRemoteContents()', () => {
       mapConfig,
       dstContentsDir: '/path/content',
       dstImagesDir: '/path/static/images',
-      staticRoot: ''
+      staticRoot: '',
+      filter: []
     })
     mockAxios.mockResponse({
       data: [
@@ -323,7 +326,8 @@ describe('saveRemoteContents()', () => {
       mapConfig: { flds: [] },
       dstContentsDir: '/error',
       dstImagesDir: '/path/static/images',
-      staticRoot: '/path/static'
+      staticRoot: '/path/static',
+      filter: []
     })
     mockAxios.mockError({
       response: { status: 404, statusText: 'dummy error' }
@@ -341,7 +345,8 @@ describe('saveRemoteContents()', () => {
       mapConfig: { flds: [] },
       dstContentsDir: '/error',
       dstImagesDir: '/path/static/images',
-      staticRoot: '/path/static'
+      staticRoot: '/path/static',
+      filter: []
     })
     mockAxios.mockResponse({
       data: [

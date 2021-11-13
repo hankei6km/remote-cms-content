@@ -2,13 +2,14 @@ import { Writable } from 'stream'
 import { client } from './lib/client.js'
 import { saveRemoteContents } from './lib/content.js'
 import { loadMapConfig } from './lib/map.js'
-import { ClientKind } from './types/client.js'
+import { ClientKind, OpValue } from './types/client.js'
 
 type SaveOpts = {
   apiName: string
   dstContentsDir: string
   dstImagesDir: string
   staticRoot: string
+  filter: string[]
 }
 
 type Opts = {
@@ -21,6 +22,20 @@ type Opts = {
   mapConfig: string
   saveOpts: SaveOpts
 }
+
+export function decodeFilter(filter: string[]): OpValue[] {
+  return filter
+    .map((f) => {
+      const t = f.split('=', 2)
+      if (t.length === 2) {
+        return ['=', ...t]
+      }
+      return []
+    })
+    .filter(([o]) => o === '=')
+    .map(([_o, k, v]) => ['eq', k, v])
+}
+
 export const cli = async ({
   command,
   stdout,
@@ -35,13 +50,15 @@ export const cli = async ({
   try {
     switch (command) {
       case 'save':
+        const filter: OpValue[] = decodeFilter(saveOpts.filter)
         cliErr = await saveRemoteContents({
           client: client(clientKind, {
             apiBaseURL,
             credential: [...credential]
           }),
           mapConfig: await loadMapConfig(mapConfig),
-          ...saveOpts
+          ...saveOpts,
+          filter
         })
         break
     }

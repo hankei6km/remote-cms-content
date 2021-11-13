@@ -17,17 +17,23 @@ import {
 
 const nodeRendererAsset: NodeRenderer = (node) => {
   // console.log(JSON.stringify(node.data.target.fields, null, ' '))
-  const { title, file } = node.data.target.fields
+  const { title, file, description } = node.data.target.fields
   if (
     typeof file.contentType === 'string' &&
     file.contentType.startsWith('image') &&
     file.url
   ) {
     // この時点で rehype-image-salt で展開させる?
+    let alt = title || ''
+    const m = (description || '').match(/.*({.+}).*/ms)
+    if (m) {
+      const attr = m[1].replace(/\n/g, ' ')
+      alt = `${alt}${attr}`
+    }
     const imgProperties: Properties = {
-      alt: title || '',
-      //src: `https:${file.url}`
-      src: file.url,
+      alt,
+      src: `https:${file.url}`,
+      // src: file.url, // http://localhost:3000 などで http になる、nuxt-image で扱いにくい.
       width: file.details?.image?.width,
       height: file.details?.image?.height
     }

@@ -110,7 +110,8 @@ describe('saveContentFile()', () => {
         createdAt: new Date('2021-09-17T16:50:56.000Z'),
         updatedAt: new Date('2021-09-17T17:50:56.000Z'),
         title: 'Title',
-        content: 'markdown'
+        content: 'markdown',
+        list: undefined
       },
       '/path',
       0

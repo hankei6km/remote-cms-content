@@ -79,6 +79,31 @@ jest.unstable_mockModule('contentful', async () => {
                       }
                     }
                   }
+                },
+                {
+                  nodeType: 'embedded-asset-block',
+                  content: [],
+                  data: {
+                    target: {
+                      fields: {
+                        title: 'image2',
+                        description:
+                          'image2 description\n{\n  width="400"\n  height="300"\n}',
+                        file: {
+                          url: '//images.ctfassets.net/image2.jpg',
+                          details: {
+                            size: 100,
+                            image: {
+                              width: 600,
+                              height: 400
+                            }
+                          },
+                          fileName: 'image1.jpg',
+                          contentType: 'image/jpeg'
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -177,7 +202,7 @@ describe('client_contentful', () => {
             id: 'fid2',
             title: 'title2',
             richt:
-              '<p>Hello world!</p><p><img alt="image1" src="//images.ctfassets.net/image1.jpg" width="600" height="400"></p>'
+              '<p>Hello world!</p><p><img alt="image1" src="https://images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="https://images.ctfassets.net/image2.jpg" width="600" height="400"></p>'
           }
         }
       ]
@@ -189,7 +214,7 @@ describe('client_contentful', () => {
   it('should get rendered contents from Contentful space with filter', async () => {
     const n = new Date().toUTCString()
 
-    const res = client({
+    const res = await client({
       apiBaseURL: '',
       apiName: 'contentmodel',
       credential: ['spcaeId', 'cda_token']
@@ -201,41 +226,6 @@ describe('client_contentful', () => {
     expect(mockCreateClient).toHaveBeenLastCalledWith({
       space: 'spcaeId',
       accessToken: 'cda_token'
-    })
-    expect(await res).toEqual({
-      contents: [
-        {
-          id: 'id1',
-          createdAt: '2021-11-10T07:47:13.673Z',
-          updatedAt: '2021-11-10T10:29:51.095Z',
-          sys: {
-            id: 'id1',
-            createdAt: '2021-11-10T07:47:13.673Z',
-            updatedAt: '2021-11-10T10:29:51.095Z'
-          },
-          fields: {
-            id: 'fid1',
-            title: 'title1',
-            richt: '<p>Hello world!</p>'
-          }
-        },
-        {
-          id: 'id2',
-          createdAt: '2021-11-10T07:47:13.673Z',
-          updatedAt: '2021-11-10T10:29:51.095Z',
-          sys: {
-            id: 'id2',
-            createdAt: '2021-11-10T07:47:13.673Z',
-            updatedAt: '2021-11-10T10:29:51.095Z'
-          },
-          fields: {
-            id: 'fid2',
-            title: 'title2',
-            richt:
-              '<p>Hello world!</p><p><img alt="image1" src="//images.ctfassets.net/image1.jpg" width="600" height="400"></p>'
-          }
-        }
-      ]
     })
     expect(mockGetEntries).toHaveBeenLastCalledWith({
       content_type: 'contentmodel',

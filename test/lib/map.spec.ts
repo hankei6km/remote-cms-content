@@ -22,6 +22,7 @@ describe('compileMapConfig', () => {
           library: [{ src: 'https://', kind: 'imgix', download: false }]
         }
       },
+      transform: 'Account.Order',
       flds: [
         {
           srcName: 'idFld',
@@ -88,6 +89,12 @@ describe('compileMapConfig', () => {
     expect(compileMapConfig(mapConfig)).toStrictEqual(mapConfig)
     expect(
       typeof compileMapConfig({
+        transform: 'Account.Order',
+        flds: []
+      }).transformJsonata
+    ).toEqual('object')
+    expect(
+      typeof compileMapConfig({
         flds: [
           {
             srcName: 'objectwithJsonataFld',
@@ -132,7 +139,7 @@ describe('compileMapConfig', () => {
         ]
       })
     ).toThrowError(
-      'compileMapConfig: compile jsonata: transform=$$.{, message=Expected ":" before end of expression'
+      'compileMapConfig: compile jsonata: srcName=test, transform=$$.{, message=Expected ":" before end of expression'
     )
   })
 })

@@ -91,6 +91,7 @@ const { mockSaveImageFile } = (mockMedia as any)._getMocks()
 const mockFsPromise = await import('fs/promises')
 const { mockWriteFile } = (mockFsPromise as any)._getMocks()
 const { client } = await import('../../src/lib/client.js')
+const { compileMapConfig } = await import('../../src/lib/map.js')
 const { saveContentFile, saveRemoteContents } = await import(
   '../../src/lib/content.js'
 )
@@ -153,14 +154,14 @@ markdown
 
 describe('saveRemoteContents()', () => {
   it('should get remote content and save as local files', async () => {
-    const mapConfig: MapConfig = {
+    const mapConfig: MapConfig = compileMapConfig({
       media: { image: { fileNameField: 'fileName', download: true } },
       flds: [
         { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
         { srcName: '画像', dstName: 'image', fldType: 'image', setSize: true },
         { srcName: 'content', dstName: 'content', fldType: 'string' }
       ]
-    }
+    })
     const res = saveRemoteContents({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
@@ -234,8 +235,99 @@ describe('saveRemoteContents()', () => {
     expect(mockWriteFile.mock.calls[1][1]).toContain('position: 1')
     expect(mockWriteFile.mock.calls[1][1]).toContain('markdown2')
   })
+  it('should get remote content and save as local files with transform content', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      media: { image: { fileNameField: 'fileName', download: true } },
+      transform: 'recs',
+      flds: [
+        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
+        { srcName: '画像', dstName: 'image', fldType: 'image', setSize: true },
+        { srcName: 'content', dstName: 'content', fldType: 'string' }
+      ]
+    })
+    const res = saveRemoteContents({
+      client: client('appsheet', {
+        apiBaseURL: 'https://api.appsheet.com/api/v2/',
+        apiName: 'tbl',
+        credential: ['appId', 'secret']
+      }),
+      apiName: 'tbl',
+      mapConfig,
+      dstContentsDir: '/path/content',
+      dstImagesDir: '/path/static/images',
+      staticRoot: '/path/static',
+      filter: []
+    })
+    mockAxios.mockResponse({
+      data: [
+        {
+          recs: [
+            {
+              _RowNumber: 1,
+              id: 'idstring1',
+              createdAt: new Date('2021-09-17T16:50:56.000Z'),
+              updatedAt: new Date('2021-09-17T17:50:56.000Z'),
+              タイトル: 'Title1',
+              画像: 'http://localhost:3000/path/to/?fileName=test1.png',
+              content: 'markdown1'
+            }
+          ]
+        },
+        {
+          recs: [
+            {
+              _RowNumber: 2,
+              id: 'idstring2',
+              createdAt: new Date('2022-09-27T16:50:56.000Z'),
+              updatedAt: new Date('2022-09-27T17:50:56.000Z'),
+              タイトル: 'Title2',
+              画像: 'http://localhost:3000/path/to/?fileName=test2.png',
+              content: 'markdown2'
+            }
+          ]
+        }
+      ]
+    })
+    await expect(res).resolves.toEqual(null)
+    expect(mockSaveImageFile.mock.calls[0]).toEqual([
+      {
+        url: 'http://localhost:3000/path/to/?fileName=test1.png',
+        size: {},
+        meta: {}
+      },
+      '/path/static/images',
+      '/path/static',
+      'test1.png',
+      true
+    ])
+    expect(mockSaveImageFile.mock.calls[1]).toEqual([
+      {
+        url: 'http://localhost:3000/path/to/?fileName=test2.png',
+        size: {},
+        meta: {}
+      },
+      '/path/static/images',
+      '/path/static',
+      'test2.png',
+      true
+    ])
+    expect(mockWriteFile.mock.calls[0][0]).toEqual('/path/content/idstring1.md')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('title: Title1')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('url: /images/test1.png')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('width: 200')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('position: 0')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('markdown1')
+    expect(mockWriteFile.mock.calls[1][0]).toEqual('/path/content/idstring2.md')
+    expect(mockWriteFile.mock.calls[1][1]).toContain('title: Title2')
+    expect(mockWriteFile.mock.calls[1][1]).toContain('url: /images/test2.png')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('width: 200')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
+    expect(mockWriteFile.mock.calls[1][1]).toContain('position: 1')
+    expect(mockWriteFile.mock.calls[1][1]).toContain('markdown2')
+  })
   it('should get remote content and save as local files without setSize options', async () => {
-    const mapConfig: MapConfig = {
+    const mapConfig: MapConfig = compileMapConfig({
       media: {
         image: { fileNameField: 'fileName', download: true }
       },
@@ -243,7 +335,7 @@ describe('saveRemoteContents()', () => {
         { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
         { srcName: '画像', dstName: 'image', fldType: 'image' }
       ]
-    }
+    })
     const res = saveRemoteContents({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
@@ -278,12 +370,12 @@ describe('saveRemoteContents()', () => {
     expect(mockWriteFile.mock.calls[0][1]).not.toContain('height: 100')
   })
   it('should get remote content and save as local files without downloading images', async () => {
-    const mapConfig: MapConfig = {
+    const mapConfig: MapConfig = compileMapConfig({
       flds: [
         { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
         { srcName: '画像', dstName: 'image', fldType: 'image' }
       ]
-    }
+    })
     const res = saveRemoteContents({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
@@ -315,6 +407,39 @@ describe('saveRemoteContents()', () => {
     expect(mockWriteFile.mock.calls[0][1]).toContain(
       `url: 'http://localhost:3000/path/to/?fileName=test1.png'`
     )
+  })
+  it('should return error when compile transform has failed', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      transform: 'recs',
+      flds: []
+    })
+    const res = saveRemoteContents({
+      client: client('appsheet', {
+        apiBaseURL: 'https://api.appsheet.com/api/v2/',
+        apiName: 'tbl',
+        credential: ['appId', 'secret']
+      }),
+      apiName: 'tbl',
+      mapConfig,
+      dstContentsDir: '/error',
+      dstImagesDir: '/path/static/images',
+      staticRoot: '/path/static',
+      filter: []
+    })
+    mockAxios.mockResponse({
+      data: [
+        {
+          _RowNumber: 1,
+          id: 'idstring1',
+          createdAt: new Date('2021-09-17T16:50:56.000Z'),
+          updatedAt: new Date('2021-09-17T17:50:56.000Z'),
+          タイトル: 'Title1',
+          画像: 'http://localhost:3000/path/to/?fileName=test1.png',
+          content: 'markdown1'
+        }
+      ]
+    })
+    expect(String(await res)).toMatch(/not array/)
   })
   it('should return error when fetch has failed', async () => {
     const res = saveRemoteContents({

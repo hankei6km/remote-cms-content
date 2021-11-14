@@ -454,6 +454,9 @@ export const mapConfigSchema =
         },
         "passthruUnmapped": {
             "type": "boolean"
+        },
+        "transform": {
+            "type": "string"
         }
     },
     "required": [

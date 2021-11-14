@@ -15,7 +15,7 @@ jest.unstable_mockModule('contentful', async () => {
             updatedAt: '2021-11-10T10:29:51.095Z'
           },
           fields: {
-            id: 'fid1',
+            id: 'fld1',
             title: 'title1',
             richt: {
               nodeType: 'document',
@@ -41,7 +41,7 @@ jest.unstable_mockModule('contentful', async () => {
             updatedAt: '2021-11-10T10:29:51.095Z'
           },
           fields: {
-            id: 'fid2',
+            id: 'fld2',
             title: 'title2',
             richt: {
               nodeType: 'document',
@@ -184,10 +184,27 @@ describe('client_contentful', () => {
             updatedAt: '2021-11-10T10:29:51.095Z'
           },
           fields: {
-            id: 'fid1',
+            id: 'fld1',
             title: 'title1',
-            richt: '<p>Hello world!</p>'
-          }
+            richt: {
+              nodeType: 'document',
+              content: [
+                {
+                  nodeType: 'paragraph',
+                  content: [
+                    {
+                      nodeType: 'text',
+                      value: 'Hello world!',
+                      marks: []
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          'fields.id': 'fld1',
+          'fields.title': 'title1',
+          'fields.richt': '<p>Hello world!</p>'
         },
         {
           id: 'id2',
@@ -199,11 +216,77 @@ describe('client_contentful', () => {
             updatedAt: '2021-11-10T10:29:51.095Z'
           },
           fields: {
-            id: 'fid2',
+            id: 'fld2',
             title: 'title2',
-            richt:
-              '<p>Hello world!</p><p><img alt="image1" src="https://images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="https://images.ctfassets.net/image2.jpg" width="600" height="400"></p>'
-          }
+            richt: {
+              nodeType: 'document',
+              content: [
+                {
+                  nodeType: 'paragraph',
+                  content: [
+                    {
+                      nodeType: 'text',
+                      value: 'Hello world!',
+                      marks: []
+                    }
+                  ]
+                },
+                {
+                  nodeType: 'embedded-asset-block',
+                  content: [],
+                  data: {
+                    target: {
+                      fields: {
+                        title: 'image1',
+                        description: 'image1 description',
+                        file: {
+                          url: '//images.ctfassets.net/image1.jpg',
+                          details: {
+                            size: 100,
+                            image: {
+                              width: 600,
+                              height: 400
+                            }
+                          },
+                          fileName: 'image1.jpg',
+                          contentType: 'image/jpeg'
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  nodeType: 'embedded-asset-block',
+                  content: [],
+                  data: {
+                    target: {
+                      fields: {
+                        title: 'image2',
+                        description:
+                          'image2 description\n{\n  width="400"\n  height="300"\n}',
+                        file: {
+                          url: '//images.ctfassets.net/image2.jpg',
+                          details: {
+                            size: 100,
+                            image: {
+                              width: 600,
+                              height: 400
+                            }
+                          },
+                          fileName: 'image1.jpg',
+                          contentType: 'image/jpeg'
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          'fields.id': 'fld2',
+          'fields.title': 'title2',
+          'fields.richt':
+            '<p>Hello world!</p><p><img alt="image1" src="https://images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="https://images.ctfassets.net/image2.jpg" width="600" height="400"></p>'
         }
       ]
     })

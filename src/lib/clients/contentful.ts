@@ -57,11 +57,36 @@ const nodeRendererAsset: NodeRenderer = (node) => {
   return ''
 }
 
+const nodeRendererEntry: NodeRenderer = (node) => {
+  // console.log(JSON.stringify(node.data.target.fields, null, ' '))
+  if (
+    node.data.target.sys.contentType.sys.id === 'fragmentCodeblock' &&
+    node.data.target.fields.content
+  ) {
+    const pre: Element = {
+      type: 'element',
+      tagName: 'pre',
+      properties: {},
+      children: [
+        {
+          type: 'element',
+          tagName: 'code',
+          properties: {},
+          children: [{ type: 'text', value: node.data.target.fields.content }]
+        }
+      ]
+    }
+    return toHtml(pre)
+  }
+  return ''
+}
+
 export function richTextToHtml(v: Document): string {
   // async は一旦やめておく.
   return documentToHtmlString(v, {
     renderNode: {
-      [BLOCKS.EMBEDDED_ASSET]: nodeRendererAsset
+      [BLOCKS.EMBEDDED_ASSET]: nodeRendererAsset,
+      [BLOCKS.EMBEDDED_ENTRY]: nodeRendererEntry
     }
   })
 }

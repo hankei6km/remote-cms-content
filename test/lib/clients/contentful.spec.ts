@@ -104,6 +104,31 @@ jest.unstable_mockModule('contentful', async () => {
                       }
                     }
                   }
+                },
+                {
+                  nodeType: 'embedded-entry-block',
+                  content: [],
+                  data: {
+                    target: {
+                      metadata: {
+                        tags: []
+                      },
+                      sys: {
+                        type: 'Entry',
+                        contentType: {
+                          sys: {
+                            type: 'Link',
+                            linkType: 'ContentType',
+                            id: 'fragmentCodeblock'
+                          }
+                        },
+                        locale: 'ja'
+                      },
+                      fields: {
+                        content: 'console.log(123)'
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -279,6 +304,31 @@ describe('client_contentful', () => {
                       }
                     }
                   }
+                },
+                {
+                  nodeType: 'embedded-entry-block',
+                  content: [],
+                  data: {
+                    target: {
+                      metadata: {
+                        tags: []
+                      },
+                      sys: {
+                        type: 'Entry',
+                        contentType: {
+                          sys: {
+                            type: 'Link',
+                            linkType: 'ContentType',
+                            id: 'fragmentCodeblock'
+                          }
+                        },
+                        locale: 'ja'
+                      },
+                      fields: {
+                        content: 'console.log(123)'
+                      }
+                    }
+                  }
                 }
               ]
             }
@@ -286,7 +336,7 @@ describe('client_contentful', () => {
           'fields.id': 'fld2',
           'fields.title': 'title2',
           'fields.richt':
-            '<p>Hello world!</p><p><img alt="image1" src="https://images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="https://images.ctfassets.net/image2.jpg" width="600" height="400"></p>'
+            '<p>Hello world!</p><p><img alt="image1" src="https://images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="https://images.ctfassets.net/image2.jpg" width="600" height="400"></p><pre><code>console.log(123)</code></pre>'
         }
       ]
     })

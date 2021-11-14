@@ -1,5 +1,5 @@
 import contentful from 'contentful'
-import { BLOCKS } from '@contentful/rich-text-types'
+import { BLOCKS, Document } from '@contentful/rich-text-types'
 import { Element, Properties } from 'hast'
 import { toHtml } from 'hast-util-to-html'
 import {
@@ -12,8 +12,10 @@ import {
   ClientInstance,
   ClientOpts,
   FetchResult,
-  OpValue
+  OpValue,
+  TransformContents
 } from '../../types/client.js'
+import { validateAdditionalItems } from 'ajv/dist/vocabularies/applicator/additionalItems'
 
 const nodeRendererAsset: NodeRenderer = (node) => {
   // console.log(JSON.stringify(node.data.target.fields, null, ' '))
@@ -55,21 +57,13 @@ const nodeRendererAsset: NodeRenderer = (node) => {
   return ''
 }
 
-export async function richTextToHtml(
-  c: contentful.EntryCollection<Record<string, any>>
-): Promise<void> {
-  c.items.forEach((i) =>
-    Object.entries(i.fields).forEach(([k, v]) => {
-      if (typeof v === 'object' && v.nodeType === 'document') {
-        i.fields[k] = documentToHtmlString(v, {
-          renderNode: {
-            [BLOCKS.EMBEDDED_ASSET]: nodeRendererAsset
-          }
-        })
-      }
-    })
-  )
-  return
+export function richTextToHtml(v: Document): string {
+  // async は一旦やめておく.
+  return documentToHtmlString(v, {
+    renderNode: {
+      [BLOCKS.EMBEDDED_ASSET]: nodeRendererAsset
+    }
+  })
 }
 
 export function queryEquality(filter: OpValue[]): Record<string, any> {
@@ -95,6 +89,7 @@ export const client: Client = function client({
     const filter: OpValue[] = []
     let skip: number | undefined = undefined
     let limit: number | undefined = undefined
+    let transformer: TransformContents | undefined = undefined
 
     const clientChain: ClientChain = {
       api(name: string) {
@@ -111,6 +106,10 @@ export const client: Client = function client({
       },
       skip(n: number) {
         skip = n
+        return clientChain
+      },
+      transform(t: TransformContents) {
+        transformer = t
         return clientChain
       },
       async fetch(): Promise<FetchResult> {
@@ -131,14 +130,37 @@ export const client: Client = function client({
             )
           })
         // console.log(JSON.stringify(res, null, '  '))
-        richTextToHtml(res)
-        const contents = res.items.map((item) => ({
-          id: item.sys.id,
-          createdAt: item.sys.createdAt,
-          updatedAt: item.sys.updatedAt,
-          sys: item.sys,
-          fields: item.fields
-        }))
+        const contentsRaw = transformer
+          ? transformer(res.items as unknown as Record<string, unknown>[])
+          : res.items
+        const contents = contentsRaw.map((item) => {
+          const sys: Record<string, unknown> =
+            typeof item.sys === 'object' ? item.sys : ({} as any)
+          const fields: Record<string, unknown> =
+            typeof item.fields === 'object' ? item.fields : ({} as any)
+          const ret: Record<string, unknown> = {
+            id: sys.id,
+            createdAt: sys.createdAt,
+            updatedAt: sys.updatedAt,
+            sys: sys,
+            fields: fields
+          }
+          Object.entries(fields).forEach(([k, v]) => {
+            const n = `fields.${k}`
+            if (ret[n] === undefined) {
+              if (
+                v &&
+                typeof v === 'object' &&
+                (v as any).nodeType === 'document'
+              ) {
+                ret[n] = richTextToHtml(v as Document)
+              } else {
+                ret[n] = v
+              }
+            }
+          })
+          return ret
+        })
         return { contents }
       }
     }

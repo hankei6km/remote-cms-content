@@ -9,11 +9,16 @@ export const OpKindValues = ['eq'] as const
 export type OpKind = typeof OpKindValues[number]
 export type OpValue = [OpKind, string, any]
 
+export type TransformContents = (
+  contents: FetchResult['contents']
+) => FetchResult['contents']
+
 export type ClientChain = {
   api: (name: string) => ClientChain
   filter: (o: OpValue[]) => ClientChain
   limit: (n: number) => ClientChain
   skip: (n: number) => ClientChain
+  transform: (t: TransformContents) => ClientChain
   fetch: () => Promise<FetchResult>
 }
 

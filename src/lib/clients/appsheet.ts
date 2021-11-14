@@ -5,7 +5,8 @@ import {
   ClientInstance,
   ClientOpts,
   FetchResult,
-  OpValue
+  OpValue,
+  TransformContents
 } from '../../types/client.js'
 
 export type APIActionBody = {
@@ -88,6 +89,7 @@ export const client: Client = function client({
     const filter: OpValue[] = []
     let skip: number | undefined = undefined
     let limit: number | undefined = undefined
+    let transformer: TransformContents | undefined = undefined
 
     const clientChain: ClientChain = {
       api(name: string) {
@@ -104,6 +106,10 @@ export const client: Client = function client({
       },
       skip(n: number) {
         skip = n
+        return clientChain
+      },
+      transform(t: TransformContents) {
+        transformer = t
         return clientChain
       },
       async fetch(): Promise<FetchResult> {
@@ -134,7 +140,7 @@ export const client: Client = function client({
           )
         }
 
-        return { contents: res.data }
+        return { contents: transformer ? transformer(res.data) : res.data }
       }
     }
     return clientChain

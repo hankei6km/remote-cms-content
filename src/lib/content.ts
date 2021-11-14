@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises'
 import matter from 'gray-matter'
 import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
 import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
-import { FetchResult } from '../types/client.js'
+import { FetchResult, TransformContents } from '../types/client.js'
 import { SaveRemoteContentsOptions } from '../types/content.js'
 import { imageInfoFromSrc, saveImageFile } from './media.js'
 
@@ -56,34 +56,33 @@ export async function saveContentFile(
 //   return ret
 // }
 
-function transformContents(
-  m: MapConfig,
-  contents: FetchResult['contents']
-): FetchResult['contents'] {
-  const valueType = typeof contents
-  if (
-    (valueType === 'number' ||
-      valueType === 'string' ||
-      valueType === 'object') &&
-    m.transformJsonata
-  ) {
-    try {
-      const ret = m.transformJsonata.evaluate(contents)
-      if (!Array.isArray(ret)) {
+function transformContents(m: MapConfig): TransformContents {
+  return (contents: FetchResult['contents']) => {
+    const valueType = typeof contents
+    if (
+      (valueType === 'number' ||
+        valueType === 'string' ||
+        valueType === 'object') &&
+      m.transformJsonata
+    ) {
+      try {
+        const ret = m.transformJsonata.evaluate(contents)
+        if (!Array.isArray(ret)) {
+          throw new Error(
+            `transformFldValue: result is not array: transform=${m.transform}`
+          )
+        }
+        return ret
+      } catch (err: any) {
         throw new Error(
-          `transformFldValue: result is not array: transform=${m.transform}`
+          `transformFldValue: transform=${m.transform} message=${
+            err.message
+          } value=${JSON.stringify(contents)}`
         )
       }
-      return ret
-    } catch (err: any) {
-      throw new Error(
-        `transformFldValue: transform=${m.transform} message=${
-          err.message
-        } value=${JSON.stringify(contents)}`
-      )
     }
+    return contents
   }
-  return contents
 }
 
 export async function saveRemoteContents({
@@ -97,8 +96,13 @@ export async function saveRemoteContents({
 }: SaveRemoteContentsOptions): Promise<Error | null> {
   let ret: Error | null = null
   try {
-    const res = await client.request().api(apiName).filter(filter).fetch()
-    const contentSrc = transformContents(mapConfig, res.contents)
+    const res = await client
+      .request()
+      .api(apiName)
+      .filter(filter)
+      .transform(transformContents(mapConfig))
+      .fetch()
+    const contentSrc = res.contents
     const len = contentSrc.length
     const contents: BaseFlds[] = new Array(len) as BaseFlds[]
     for (let idx = 0; idx < len; idx++) {

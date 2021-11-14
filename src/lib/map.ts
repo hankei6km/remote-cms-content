@@ -20,13 +20,22 @@ export function compileMapConfig(mapConfig: any): MapConfig {
     )
   }
   const ret = mapConfig as MapConfig
+  if (typeof ret.transform === 'string') {
+    try {
+      ret.transformJsonata = jsonata(ret.transform)
+    } catch (err: any) {
+      throw new Error(
+        `compileMapConfig: compile jsonata: transform=${ret.transform}, message=${err.message}`
+      )
+    }
+  }
   ret.flds.forEach((m) => {
     if (typeof m.transform === 'string') {
       try {
         m.transformJsonata = jsonata(m.transform)
       } catch (err: any) {
         throw new Error(
-          `compileMapConfig: compile jsonata: transform=${m.transform}, message=${err.message}`
+          `compileMapConfig: compile jsonata: srcName=${m.srcName}, transform=${m.transform}, message=${err.message}`
         )
       }
     }

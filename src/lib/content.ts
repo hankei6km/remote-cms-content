@@ -1,8 +1,9 @@
 import path from 'path'
 import { writeFile } from 'fs/promises'
 import matter from 'gray-matter'
-import { BaseFlds, MapFldsImage } from '../types/map.js'
+import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
 import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
+import { FetchResult } from '../types/client.js'
 import { SaveRemoteContentsOptions } from '../types/content.js'
 import { imageInfoFromSrc, saveImageFile } from './media.js'
 
@@ -55,6 +56,36 @@ export async function saveContentFile(
 //   return ret
 // }
 
+function transformContents(
+  m: MapConfig,
+  contents: FetchResult['contents']
+): FetchResult['contents'] {
+  const valueType = typeof contents
+  if (
+    (valueType === 'number' ||
+      valueType === 'string' ||
+      valueType === 'object') &&
+    m.transformJsonata
+  ) {
+    try {
+      const ret = m.transformJsonata.evaluate(contents)
+      if (!Array.isArray(ret)) {
+        throw new Error(
+          `transformFldValue: result is not array: transform=${m.transform}`
+        )
+      }
+      return ret
+    } catch (err: any) {
+      throw new Error(
+        `transformFldValue: transform=${m.transform} message=${
+          err.message
+        } value=${JSON.stringify(contents)}`
+      )
+    }
+  }
+  return contents
+}
+
 export async function saveRemoteContents({
   client,
   apiName,
@@ -67,10 +98,11 @@ export async function saveRemoteContents({
   let ret: Error | null = null
   try {
     const res = await client.request().api(apiName).filter(filter).fetch()
-    const len = res.contents.length
+    const contentSrc = transformContents(mapConfig, res.contents)
+    const len = contentSrc.length
     const contents: BaseFlds[] = new Array(len) as BaseFlds[]
     for (let idx = 0; idx < len; idx++) {
-      contents[idx] = await mappingFlds(res.contents[idx], mapConfig)
+      contents[idx] = await mappingFlds(contentSrc[idx], mapConfig)
     }
     // 途中で field の入れ替えがごちゃっとしている.
     // 新しい配列に map する処理に変更を検討.

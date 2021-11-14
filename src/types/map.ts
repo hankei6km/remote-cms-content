@@ -111,5 +111,10 @@ export type MapConfig = {
     }
   }
   passthruUnmapped?: boolean
+  transform?: string
+  /**
+   * @ignore
+   */
+  transformJsonata?: Expression
   flds: MapFlds
 }

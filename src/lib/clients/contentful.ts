@@ -19,40 +19,44 @@ import { validateAdditionalItems } from 'ajv/dist/vocabularies/applicator/additi
 
 const nodeRendererAsset: NodeRenderer = (node) => {
   // console.log(JSON.stringify(node.data.target.fields, null, ' '))
-  const { title, file, description } = node.data.target.fields
-  if (
-    typeof file.contentType === 'string' &&
-    file.contentType.startsWith('image') &&
-    file.url
-  ) {
-    // この時点で rehype-image-salt で展開させる?
-    let alt = title || ''
-    const m = (description || '').match(/.*({.+}).*/ms)
-    if (m) {
-      const attr = m[1].replace(/\n/g, ' ')
-      alt = `${alt}${attr}`
+  if (node.data?.target?.fields) {
+    // multiple locales のとき file が存在しない asset が渡されるときがある.
+    const { title, file, description } = node.data.target.fields
+    if (
+      file !== undefined &&
+      typeof file.contentType === 'string' &&
+      file.contentType.startsWith('image') &&
+      file.url
+    ) {
+      // この時点で rehype-image-salt で展開させる?
+      let alt = title || ''
+      const m = (description || '').match(/.*({.+}).*/ms)
+      if (m) {
+        const attr = m[1].replace(/\n/g, ' ')
+        alt = `${alt}${attr}`
+      }
+      const imgProperties: Properties = {
+        alt,
+        src: `https:${file.url}`,
+        // src: file.url, // http://localhost:3000 などで http になる、nuxt-image で扱いにくい.
+        width: file.details?.image?.width,
+        height: file.details?.image?.height
+      }
+      const p: Element = {
+        type: 'element',
+        tagName: 'p',
+        properties: {},
+        children: [
+          {
+            type: 'element',
+            tagName: 'img',
+            properties: imgProperties,
+            children: []
+          }
+        ]
+      }
+      return toHtml(p)
     }
-    const imgProperties: Properties = {
-      alt,
-      src: `https:${file.url}`,
-      // src: file.url, // http://localhost:3000 などで http になる、nuxt-image で扱いにくい.
-      width: file.details?.image?.width,
-      height: file.details?.image?.height
-    }
-    const p: Element = {
-      type: 'element',
-      tagName: 'p',
-      properties: {},
-      children: [
-        {
-          type: 'element',
-          tagName: 'img',
-          properties: imgProperties,
-          children: []
-        }
-      ]
-    }
-    return toHtml(p)
   }
   return ''
 }
@@ -60,8 +64,8 @@ const nodeRendererAsset: NodeRenderer = (node) => {
 const nodeRendererEntry: NodeRenderer = (node) => {
   // console.log(JSON.stringify(node.data.target.fields, null, ' '))
   if (
-    node.data.target.sys.contentType.sys.id === 'fragmentCodeblock' &&
-    node.data.target.fields.content
+    node.data?.target?.sys?.contentType?.sys?.id === 'fragmentCodeblock' &&
+    node.data?.target?.fields?.content
   ) {
     const pre: Element = {
       type: 'element',

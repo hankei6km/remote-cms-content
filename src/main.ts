@@ -9,8 +9,8 @@ import { ClientKindValues } from './types/client.js'
     .scriptName('rcc')
     .env('RCC')
     .command(
-      'save <apiName> <dstContentsDir> <dstImagesDir>',
-      'save remote contents to local directory',
+      'save <apiName> <dstContentDir> <dstImagesDir>',
+      'save remote content to local directory',
       (yargs) => {
         return yargs
           .options({
@@ -45,10 +45,10 @@ import { ClientKindValues } from './types/client.js'
             }
           })
           .positional('apiName', {
-            describe: 'api name to get contents',
+            describe: 'api name to get content',
             type: 'string'
           })
-          .positional('dstContentsDir', {
+          .positional('dstContentDir', {
             describe: 'contens directory',
             type: 'string'
           })
@@ -57,7 +57,7 @@ import { ClientKindValues } from './types/client.js'
             type: 'string'
           })
           .demandOption(['apiName'])
-          .demandOption(['dstContentsDir'])
+          .demandOption(['dstContentDir'])
           .demandOption(['dstImagesDir'])
       }
     )
@@ -114,7 +114,7 @@ import { ClientKindValues } from './types/client.js'
       mapConfig: argv['map-config'],
       saveOpts: {
         apiName: argv.apiName,
-        dstContentsDir: argv.dstContentsDir,
+        dstContentDir: argv.dstContentDir,
         dstImagesDir: argv.dstImagesDir,
         staticRoot: argv['static-root'] || 'static/',
         filter: argv['filter'] || []

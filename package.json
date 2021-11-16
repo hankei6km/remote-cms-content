@@ -1,15 +1,15 @@
 {
-  "name": "remote-cms-contents",
+  "name": "remote-cms-content",
   "version": "0.1.1-pre.33",
-  "description": "Mirror contents of remote cms to local files for nuxt-content",
+  "description": "Mirror content of remote cms to local files for nuxt-content",
   "author": "hankei6km <hankei6km@gmail.com> (https://github.com/hankei6km)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/hankei6km/remote-cms-contents.git"
+    "url": "git://github.com/hankei6km/remote-cms-content.git"
   },
   "bugs": {
-    "url": "https://github.com/hankei6km/remote-cms-contents/issues"
+    "url": "https://github.com/hankei6km/remote-cms-content/issues"
   },
   "keywords": [
     "cms",

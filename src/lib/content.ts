@@ -3,8 +3,8 @@ import { writeFile } from 'fs/promises'
 import matter from 'gray-matter'
 import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
 import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
-import { FetchResult, TransformContents } from '../types/client.js'
-import { SaveRemoteContentsOptions } from '../types/content.js'
+import { FetchResult, TransformContent } from '../types/client.js'
+import { SaveRemoteContentOptions } from '../types/content.js'
 import { imageInfoFromSrc, saveImageFile } from './media.js'
 
 export async function saveContentFile(
@@ -56,9 +56,9 @@ export async function saveContentFile(
 //   return ret
 // }
 
-function transformContents(m: MapConfig): TransformContents {
-  return (contents: FetchResult['contents']) => {
-    const valueType = typeof contents
+function transformContent(m: MapConfig): TransformContent {
+  return (content: FetchResult['content']) => {
+    const valueType = typeof content
     if (
       (valueType === 'number' ||
         valueType === 'string' ||
@@ -66,7 +66,7 @@ function transformContents(m: MapConfig): TransformContents {
       m.transformJsonata
     ) {
       try {
-        const ret = m.transformJsonata.evaluate(contents)
+        const ret = m.transformJsonata.evaluate(content)
         if (!Array.isArray(ret)) {
           throw new Error(
             `transformFldValue: result is not array: transform=${m.transform}`
@@ -77,41 +77,41 @@ function transformContents(m: MapConfig): TransformContents {
         throw new Error(
           `transformFldValue: transform=${m.transform} message=${
             err.message
-          } value=${JSON.stringify(contents)}`
+          } value=${JSON.stringify(content)}`
         )
       }
     }
-    return contents
+    return content
   }
 }
 
-export async function saveRemoteContents({
+export async function saveRemoteContent({
   client,
   apiName,
   mapConfig,
-  dstContentsDir,
+  dstContentDir,
   dstImagesDir,
   staticRoot,
   filter
-}: SaveRemoteContentsOptions): Promise<Error | null> {
+}: SaveRemoteContentOptions): Promise<Error | null> {
   let ret: Error | null = null
   try {
     const res = await client
       .request()
       .api(apiName)
       .filter(filter)
-      .transform(transformContents(mapConfig))
+      .transform(transformContent(mapConfig))
       .fetch()
-    const contentSrc = res.contents
-    const len = contentSrc.length
-    const contents: BaseFlds[] = new Array(len) as BaseFlds[]
+    const contenSrc = res.content
+    const len = contenSrc.length
+    const content: BaseFlds[] = new Array(len) as BaseFlds[]
     for (let idx = 0; idx < len; idx++) {
-      contents[idx] = await mappingFlds(contentSrc[idx], mapConfig)
+      content[idx] = await mappingFlds(contenSrc[idx], mapConfig)
     }
     // 途中で field の入れ替えがごちゃっとしている.
     // 新しい配列に map する処理に変更を検討.
     for (let idx = 0; idx < len; idx++) {
-      const fldsArray: [string, any][] = Object.entries(contents[idx])
+      const fldsArray: [string, any][] = Object.entries(content[idx])
       const fldsLen = fldsArray.length
       for (let fldsIdx = 0; fldsIdx < fldsLen; fldsIdx++) {
         const c = fldsArray[fldsIdx]
@@ -141,16 +141,16 @@ export async function saveRemoteContents({
           c[1] = imageInfo
         }
       }
-      const flds: BaseFlds = { ...contents[idx] }
+      const flds: BaseFlds = { ...content[idx] }
       fldsArray.forEach(([k, v]) => (flds[k] = v))
-      ret = await saveContentFile(flds, dstContentsDir, idx)
+      ret = await saveContentFile(flds, dstContentDir, idx)
       if (ret) {
         break
       }
     }
   } catch (err: any) {
     // console.log('err:', err);
-    ret = new Error(`saveRemoteContents error: ${err}`)
+    ret = new Error(`saveRemoteContent error: ${err}`)
   }
   return ret
 }

@@ -1,7 +1,7 @@
 import { PassThrough } from 'stream'
 import { jest } from '@jest/globals'
 // import { cli } from '../src/cli.js'
-import { SaveRemoteContentsOptions } from '../src/types/content.js'
+import { SaveRemoteContentOptions } from '../src/types/content.js'
 
 // > ENOENT: no such file or directory, open 'zlib'
 // になる対応.
@@ -13,12 +13,12 @@ jest.unstable_mockModule('contentful', async () => {
 })
 
 jest.unstable_mockModule('../src/lib/content.js', async () => {
-  const mockSaveRemoteContents = jest.fn()
+  const mockSaveRemoteContent = jest.fn()
   const reset = () => {
-    // mockSaveRemoteContents.mockReset().mockResolvedValue(null)
-    mockSaveRemoteContents.mockReset().mockImplementation(async (...args) => {
-      const { dstContentsDir } = args[0] as SaveRemoteContentsOptions
-      if (dstContentsDir.match(/error/)) {
+    // mockSaveRemoteContent.mockReset().mockResolvedValue(null)
+    mockSaveRemoteContent.mockReset().mockImplementation(async (...args) => {
+      const { dstContentDir } = args[0] as SaveRemoteContentOptions
+      if (dstContentDir.match(/error/)) {
         return new Error('dummy error')
       }
       return null
@@ -26,10 +26,10 @@ jest.unstable_mockModule('../src/lib/content.js', async () => {
   }
   reset()
   return {
-    saveRemoteContents: mockSaveRemoteContents,
+    saveRemoteContent: mockSaveRemoteContent,
     _reset: reset,
     _getMocks: () => ({
-      mockSaveRemoteContents
+      mockSaveRemoteContent: mockSaveRemoteContent
     })
   }
 })
@@ -60,16 +60,16 @@ describe('cli()', () => {
       mapConfig: 'test/assets/mapconfig.json',
       saveOpts: {
         apiName: 'tbl',
-        dstContentsDir: '/contents/tbl',
+        dstContentDir: '/content/tbl',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         filter: []
       }
     })
     expect(await res).toEqual(0)
-    //const { mockSaveRemoteContents } = require('../src/lib/content')._getMocks()
-    const { mockSaveRemoteContents } = (mockContent as any)._getMocks()
-    expect(mockSaveRemoteContents.mock.calls[0]).toEqual([
+    //const { mockSaveRemoteContent } = require('../src/lib/content')._getMocks()
+    const { mockSaveRemoteContent } = (mockContent as any)._getMocks()
+    expect(mockSaveRemoteContent.mock.calls[0]).toEqual([
       {
         client: expect.any(Object),
         apiName: 'tbl',
@@ -87,7 +87,7 @@ describe('cli()', () => {
             }
           ]
         },
-        dstContentsDir: '/contents/tbl',
+        dstContentDir: '/content/tbl',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         filter: []
@@ -114,16 +114,16 @@ describe('cli()', () => {
       mapConfig: 'test/assets/mapconfig.json',
       saveOpts: {
         apiName: 'tbl',
-        dstContentsDir: '/contents/tbl',
+        dstContentDir: '/content/tbl',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         filter: ['k=v']
       }
     })
     expect(await res).toEqual(0)
-    //const { mockSaveRemoteContents } = require('../src/lib/content')._getMocks()
-    const { mockSaveRemoteContents } = (mockContent as any)._getMocks()
-    expect(mockSaveRemoteContents.mock.calls[0]).toEqual([
+    //const { mockSaveRemoteContent } = require('../src/lib/content')._getMocks()
+    const { mockSaveRemoteContent } = (mockContent as any)._getMocks()
+    expect(mockSaveRemoteContent.mock.calls[0]).toEqual([
       {
         client: expect.any(Object),
         apiName: 'tbl',
@@ -141,7 +141,7 @@ describe('cli()', () => {
             }
           ]
         },
-        dstContentsDir: '/contents/tbl',
+        dstContentDir: '/content/tbl',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         filter: [['eq', 'k', 'v']]
@@ -152,7 +152,7 @@ describe('cli()', () => {
   })
   it('should return stderr with exitcode=1 from save coomand', async () => {
     const someModule = await import('../src/lib/content')
-    // const { mockSaveRemoteContents } = (someModule as any)._getMocks()
+    // const { mockSaveRemoteContent } = (someModule as any)._getMocks()
     const stdout = new PassThrough()
     const stderr = new PassThrough()
     let outData = ''
@@ -170,7 +170,7 @@ describe('cli()', () => {
       mapConfig: 'test/assets/mapconfig.json',
       saveOpts: {
         apiName: 'tbl',
-        dstContentsDir: '/error',
+        dstContentDir: '/error',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         filter: []

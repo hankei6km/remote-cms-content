@@ -2,23 +2,23 @@ export const ClientKindValues = ['appsheet', 'contentful', 'microcms'] as const
 export type ClientKind = typeof ClientKindValues[number]
 
 export type FetchResult = {
-  contents: Record<string, unknown>[]
+  content: Record<string, unknown>[]
 }
 
 export const OpKindValues = ['eq'] as const
 export type OpKind = typeof OpKindValues[number]
 export type OpValue = [OpKind, string, any]
 
-export type TransformContents = (
-  contents: FetchResult['contents']
-) => FetchResult['contents']
+export type TransformContent = (
+  content: FetchResult['content']
+) => FetchResult['content']
 
 export type ClientChain = {
   api: (name: string) => ClientChain
   filter: (o: OpValue[]) => ClientChain
   limit: (n: number) => ClientChain
   skip: (n: number) => ClientChain
-  transform: (t: TransformContents) => ClientChain
+  transform: (t: TransformContent) => ClientChain
   fetch: () => Promise<FetchResult>
 }
 

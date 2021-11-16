@@ -92,7 +92,7 @@ const mockFsPromise = await import('fs/promises')
 const { mockWriteFile } = (mockFsPromise as any)._getMocks()
 const { client } = await import('../../src/lib/client.js')
 const { compileMapConfig } = await import('../../src/lib/map.js')
-const { saveContentFile, saveRemoteContents } = await import(
+const { saveContentFile, saveRemoteContent } = await import(
   '../../src/lib/content.js'
 )
 
@@ -152,7 +152,7 @@ markdown
   })
 })
 
-describe('saveRemoteContents()', () => {
+describe('saveRemoteContent()', () => {
   it('should get remote content and save as local files', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       media: { image: { fileNameField: 'fileName', download: true } },
@@ -162,7 +162,7 @@ describe('saveRemoteContents()', () => {
         { srcName: 'content', dstName: 'content', fldType: 'string' }
       ]
     })
-    const res = saveRemoteContents({
+    const res = saveRemoteContent({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
@@ -170,7 +170,7 @@ describe('saveRemoteContents()', () => {
       }),
       apiName: 'tbl',
       mapConfig,
-      dstContentsDir: '/path/content',
+      dstContentDir: '/path/content',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       filter: []
@@ -245,7 +245,7 @@ describe('saveRemoteContents()', () => {
         { srcName: 'content', dstName: 'content', fldType: 'string' }
       ]
     })
-    const res = saveRemoteContents({
+    const res = saveRemoteContent({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
@@ -253,7 +253,7 @@ describe('saveRemoteContents()', () => {
       }),
       apiName: 'tbl',
       mapConfig,
-      dstContentsDir: '/path/content',
+      dstContentDir: '/path/content',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       filter: []
@@ -336,7 +336,7 @@ describe('saveRemoteContents()', () => {
         { srcName: '画像', dstName: 'image', fldType: 'image' }
       ]
     })
-    const res = saveRemoteContents({
+    const res = saveRemoteContent({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
@@ -344,7 +344,7 @@ describe('saveRemoteContents()', () => {
       }),
       apiName: 'tbl',
       mapConfig,
-      dstContentsDir: '/path/content',
+      dstContentDir: '/path/content',
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       filter: []
@@ -376,7 +376,7 @@ describe('saveRemoteContents()', () => {
         { srcName: '画像', dstName: 'image', fldType: 'image' }
       ]
     })
-    const res = saveRemoteContents({
+    const res = saveRemoteContent({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
@@ -384,7 +384,7 @@ describe('saveRemoteContents()', () => {
       }),
       apiName: 'tbl',
       mapConfig,
-      dstContentsDir: '/path/content',
+      dstContentDir: '/path/content',
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       filter: []
@@ -413,7 +413,7 @@ describe('saveRemoteContents()', () => {
       transform: 'recs',
       flds: []
     })
-    const res = saveRemoteContents({
+    const res = saveRemoteContent({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
@@ -421,7 +421,7 @@ describe('saveRemoteContents()', () => {
       }),
       apiName: 'tbl',
       mapConfig,
-      dstContentsDir: '/error',
+      dstContentDir: '/error',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       filter: []
@@ -442,7 +442,7 @@ describe('saveRemoteContents()', () => {
     expect(String(await res)).toMatch(/not array/)
   })
   it('should return error when fetch has failed', async () => {
-    const res = saveRemoteContents({
+    const res = saveRemoteContent({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
@@ -450,7 +450,7 @@ describe('saveRemoteContents()', () => {
       }),
       apiName: 'tbl',
       mapConfig: { flds: [] },
-      dstContentsDir: '/error',
+      dstContentDir: '/error',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       filter: []
@@ -461,7 +461,7 @@ describe('saveRemoteContents()', () => {
     expect(String(await res)).toMatch(/dummy error/)
   })
   it('should return error when save file has failed', async () => {
-    const res = saveRemoteContents({
+    const res = saveRemoteContent({
       client: client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
@@ -469,7 +469,7 @@ describe('saveRemoteContents()', () => {
       }),
       apiName: 'tbl',
       mapConfig: { flds: [] },
-      dstContentsDir: '/error',
+      dstContentDir: '/error',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       filter: []

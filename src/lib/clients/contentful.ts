@@ -13,7 +13,7 @@ import {
   ClientOpts,
   FetchResult,
   OpValue,
-  TransformContents
+  TransformContent
 } from '../../types/client.js'
 import { validateAdditionalItems } from 'ajv/dist/vocabularies/applicator/additionalItems'
 
@@ -118,7 +118,7 @@ export const client: Client = function client({
     const filter: OpValue[] = []
     let skip: number | undefined = undefined
     let limit: number | undefined = undefined
-    let transformer: TransformContents | undefined = undefined
+    let transformer: TransformContent | undefined = undefined
 
     const clientChain: ClientChain = {
       api(name: string) {
@@ -137,7 +137,7 @@ export const client: Client = function client({
         skip = n
         return clientChain
       },
-      transform(t: TransformContents) {
+      transform(t: TransformContent) {
         transformer = t
         return clientChain
       },
@@ -159,10 +159,10 @@ export const client: Client = function client({
             )
           })
         // console.log(JSON.stringify(res, null, '  '))
-        const contentsRaw = transformer
+        const contentRaw = transformer
           ? transformer(res.items as unknown as Record<string, unknown>[])
           : res.items
-        const contents = contentsRaw.map((item) => {
+        const content = contentRaw.map((item) => {
           const sys: Record<string, unknown> =
             typeof item.sys === 'object' ? item.sys : ({} as any)
           const fields: Record<string, unknown> =
@@ -190,7 +190,7 @@ export const client: Client = function client({
           })
           return ret
         })
-        return { contents }
+        return { content: content }
       }
     }
     return clientChain

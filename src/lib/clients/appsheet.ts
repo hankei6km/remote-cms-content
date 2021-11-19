@@ -6,6 +6,7 @@ import {
   ClientOpts,
   FetchResult,
   OpValue,
+  ResRecord,
   TransformContent
 } from '../../types/client.js'
 
@@ -140,7 +141,12 @@ export const client: Client = function client({
           )
         }
 
-        return { content: transformer ? transformer(res.data) : res.data }
+        const content = (transformer ? transformer(res.data) : res.data).map(
+          (v: Record<string, unknown>) => new ResRecord(v)
+        )
+        return {
+          content
+        }
       }
     }
     return clientChain

@@ -13,9 +13,10 @@ import {
   ClientOpts,
   FetchResult,
   OpValue,
+  ResRecord,
   TransformContent
 } from '../../types/client.js'
-import { validateAdditionalItems } from 'ajv/dist/vocabularies/applicator/additionalItems'
+import { MapFld } from '../../types/map.js'
 
 const nodeRendererAsset: NodeRenderer = (node) => {
   // console.log(JSON.stringify(node.data.target.fields, null, ' '))
@@ -105,6 +106,50 @@ export function queryEquality(filter: OpValue[]): Record<string, any> {
   return ret
 }
 
+export class CtfRecord extends ResRecord {
+  has(map: MapFld): boolean {
+    const n = map.srcName.split('.', 2)
+    if (n.length === 2) {
+      if (n[0] === 'fields') {
+        const f = this.record[n[0]]
+        if (typeof f === 'object') {
+          return (f as any).hasOwnProperty(n[1])
+        }
+      }
+    }
+    return this.record.hasOwnProperty(map.srcName)
+  }
+  isAsyncFld(map: MapFld): boolean {
+    return map.fldType === 'html'
+  }
+  _getValue(fldName: string) {
+    const n = fldName.split('.', 2)
+    if (n.length === 2) {
+      if (n[0] === 'fields') {
+        const f = this.record[n[0]]
+        if (typeof f === 'object') {
+          return (f as any)[n[1]]
+        }
+      }
+    }
+    return this.record[fldName]
+  }
+  getSync(map: MapFld): boolean {
+    return this._getValue(map.srcName)
+  }
+  async getAsync(map: MapFld): Promise<unknown> {
+    const v = this._getValue(map.srcName)
+    if (map.fldType === 'html') {
+      if (v && typeof v === 'object' && (v as any).nodeType === 'document') {
+        return richTextToHtml(v as Document)
+      } else {
+        return v
+      }
+    }
+    return v
+  }
+}
+
 export const client: Client = function client({
   apiName: inApiName,
   credential
@@ -174,21 +219,7 @@ export const client: Client = function client({
             sys: sys,
             fields: fields
           }
-          Object.entries(fields).forEach(([k, v]) => {
-            const n = `fields.${k}`
-            if (ret[n] === undefined) {
-              if (
-                v &&
-                typeof v === 'object' &&
-                (v as any).nodeType === 'document'
-              ) {
-                ret[n] = richTextToHtml(v as Document)
-              } else {
-                ret[n] = v
-              }
-            }
-          })
-          return ret
+          return new CtfRecord(ret)
         })
         return { content: content }
       }

@@ -7,6 +7,7 @@ import {
   compileMapConfig,
   validId
 } from '../../src/lib/map.js'
+import { ResRecord } from '../../src/types/client.js'
 import { MapConfig } from '../../src/types/map.js'
 
 describe('compileMapConfig', () => {
@@ -365,7 +366,7 @@ describe('mappingFlds', () => {
     const n = new Date().toUTCString()
     expect(
       await mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
@@ -385,7 +386,7 @@ describe('mappingFlds', () => {
           オブジェクト: { key: 'value' },
           配列: [10, 20, 30],
           本文: '<p>test html1</p><p>test html2</p>'
-        },
+        }),
         {
           flds: [
             {
@@ -478,13 +479,13 @@ describe('mappingFlds', () => {
     const n = new Date().toUTCString()
     expect(
       await mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
           updatedAt: n,
           タイトル: 'Title'
-        },
+        }),
         {
           flds: [
             {
@@ -513,7 +514,7 @@ describe('mappingFlds', () => {
     const n = new Date().toUTCString()
     expect(
       await mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
@@ -548,7 +549,7 @@ describe('mappingFlds', () => {
             title: 'test',
             html: '<p>test html1</p><p>test html2</p>'
           }
-        },
+        }),
         {
           flds: [
             {
@@ -584,13 +585,13 @@ describe('mappingFlds', () => {
     const n = new Date().toUTCString()
     await expect(
       mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'id.string',
           createdAt: n,
           updatedAt: n,
           名前: 'file.md'
-        },
+        }),
         {
           flds: [
             {
@@ -606,12 +607,12 @@ describe('mappingFlds', () => {
     )
     await expect(
       mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           createdAt: n,
           updatedAt: n,
           名前: 'file.md'
-        },
+        }),
         {
           flds: [
             {
@@ -627,13 +628,13 @@ describe('mappingFlds', () => {
     )
     await expect(
       mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
           updatedAt: n,
           名前: 'file.md'
-        },
+        }),
         {
           flds: [
             {
@@ -652,13 +653,13 @@ describe('mappingFlds', () => {
     const n = new Date().toUTCString()
     await expect(
       mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
           updatedAt: n,
           有効: ''
-        },
+        }),
         {
           flds: [
             {
@@ -674,13 +675,13 @@ describe('mappingFlds', () => {
     )
     await expect(
       mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
           updatedAt: n,
           回数: '21'
-        },
+        }),
         {
           flds: [
             {
@@ -696,13 +697,13 @@ describe('mappingFlds', () => {
     )
     await expect(
       mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
           updatedAt: n,
           本文: 21
-        },
+        }),
         {
           flds: [
             {
@@ -721,7 +722,7 @@ describe('mappingFlds', () => {
     const n = new Date().toUTCString()
     await expect(
       mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
@@ -736,7 +737,7 @@ describe('mappingFlds', () => {
               title: 'test2'
             }
           ]
-        },
+        }),
         {
           flds: [
             {
@@ -757,14 +758,14 @@ describe('mappingFlds', () => {
     const n = new Date().toUTCString()
     expect(
       await mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
           updatedAt: n,
           title: 'title1',
           回数: 21
-        },
+        }),
         {
           flds: [
             {
@@ -792,7 +793,7 @@ describe('mappingFlds', () => {
     const n = new Date().toUTCString()
     expect(
       await mappingFlds(
-        {
+        new ResRecord({
           _RowNumber: 1,
           id: 'idstring',
           createdAt: n,
@@ -809,7 +810,7 @@ describe('mappingFlds', () => {
               id: 'cat2'
             }
           ]
-        },
+        }),
         {
           passthruUnmapped: true,
           flds: [

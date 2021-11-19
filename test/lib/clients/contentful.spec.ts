@@ -183,7 +183,7 @@ describe('getEntries', () => {
 })
 
 describe('client_contentful', () => {
-  it('should get rendered contents from Contentful space', async () => {
+  it('should get rendered content from Contentful space', async () => {
     const n = new Date().toUTCString()
 
     const res = client({
@@ -198,7 +198,7 @@ describe('client_contentful', () => {
       accessToken: 'cda_token'
     })
     expect(await res).toEqual({
-      contents: [
+      content: [
         {
           id: 'id1',
           createdAt: '2021-11-10T07:47:13.673Z',
@@ -344,7 +344,7 @@ describe('client_contentful', () => {
       content_type: 'contentmodel'
     })
   })
-  it('should get rendered contents from Contentful space with filter', async () => {
+  it('should get rendered content from Contentful space with filter', async () => {
     const n = new Date().toUTCString()
 
     const res = await client({

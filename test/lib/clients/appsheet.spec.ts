@@ -48,7 +48,7 @@ describe('apiActionBodySelector', () => {
 })
 
 describe('client_appsheet', () => {
-  it('should get bare contents(rows) from AppSheet app', async () => {
+  it('should get bare content(rows) from AppSheet app', async () => {
     const n = new Date().toUTCString()
 
     const res = client({
@@ -88,9 +88,9 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({ contents: mockData })
+    expect(await res).toEqual({ content: mockData })
   })
-  it('should get bare contents(rows) from AppSheet app with eq()', async () => {
+  it('should get bare content(rows) from AppSheet app with eq()', async () => {
     const n = new Date().toUTCString()
 
     const res = client({
@@ -132,7 +132,7 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({ contents: mockData })
+    expect(await res).toEqual({ content: mockData })
   })
 })
 

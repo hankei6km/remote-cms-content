@@ -42,7 +42,7 @@ describe('queryFilters', () => {
 })
 
 describe('client_appsheet', () => {
-  it('should get bare contents from microCMS app', async () => {
+  it('should get bare content from microCMS app', async () => {
     const n = new Date().toUTCString()
 
     const res = client({
@@ -80,9 +80,9 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({ contents: mockData.contents })
+    expect(await res).toEqual({ content: mockData.contents })
   })
-  it('should get bare contents from microCMS app with filter', async () => {
+  it('should get bare content from microCMS app with filter', async () => {
     const n = new Date().toUTCString()
 
     const res = client({
@@ -122,7 +122,7 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({ contents: mockData.contents })
+    expect(await res).toEqual({ content: mockData.contents })
   })
 })
 

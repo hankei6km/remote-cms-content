@@ -61,6 +61,9 @@ describe('firstParagraphAsCodeDockTransformer()', () => {
       '<p>---<br>foo:bar<br><br></p><p>tes</p>'
     )
   })
+  it('should not convert paragraph(empty)', async () => {
+    expect(await f('<p></p><p>tes</p>')).toEqual('<p></p><p>tes</p>')
+  })
 })
 
 describe('htmlTo() none', () => {

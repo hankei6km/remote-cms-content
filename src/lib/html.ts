@@ -20,7 +20,11 @@ export function extractFrontMatter(
 ): [matter: string, matterRange: number] {
   let matter = ''
   let matterRange = 0
-  if (p.children[0].type === 'text' && p.children[0].value === '---') {
+  if (
+    p.children.length > 0 &&
+    p.children[0].type === 'text' &&
+    p.children[0].value === '---'
+  ) {
     matter = ''
     const clen = p.children.length
     let closed = false

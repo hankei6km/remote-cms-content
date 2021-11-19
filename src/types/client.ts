@@ -64,6 +64,7 @@ export type ClientChain = {
   filter: (o: OpValue[]) => ClientChain
   limit: (n: number) => ClientChain
   skip: (n: number) => ClientChain
+  pageSize(n: number): ClientChain
   transform: (t: TransformContent) => ClientChain
   fetch: () => Promise<FetchResult>
 }
@@ -80,6 +81,7 @@ export abstract class ClientBase {
   _filter: OpValue[] = []
   _skip: number | undefined = undefined
   _limit: number | undefined = undefined
+  _pageSize: number | undefined = undefined
   _transformer: TransformContent | undefined = undefined
 
   constructor(opts: ClientOpts) {
@@ -101,6 +103,10 @@ export abstract class ClientBase {
   }
   skip(n: number): ClientChain {
     this._skip = n
+    return this
+  }
+  pageSize(n: number): ClientChain {
+    this._pageSize = n
     return this
   }
   transform(t: TransformContent): ClientChain {

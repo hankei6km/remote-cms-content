@@ -9,7 +9,7 @@ jest.unstable_mockModule('axios', async () => {
   }
 })
 
-const { validateQueryFilterValue, queryFilters, client } = await import(
+const { validateQueryFilterValue, queryFilters, ClientMicroCMS } = await import(
   '../../../src/lib/clients/microcms.js'
 )
 
@@ -46,7 +46,7 @@ describe('client_appsheet', () => {
   it('should get bare content from microCMS app', async () => {
     const n = new Date().toUTCString()
 
-    const res = client({
+    const res = new ClientMicroCMS({
       apiBaseURL: 'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/',
       apiName: 'tbl',
       credential: ['X-API-KEY', 'secret']
@@ -88,7 +88,7 @@ describe('client_appsheet', () => {
   it('should get bare content from microCMS app with filter', async () => {
     const n = new Date().toUTCString()
 
-    const res = client({
+    const res = new ClientMicroCMS({
       apiBaseURL: 'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/',
       apiName: 'tbl',
       credential: ['X-API-KEY', 'secret']

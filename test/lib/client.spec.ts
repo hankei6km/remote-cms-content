@@ -31,7 +31,7 @@ describe('client', () => {
       apiBaseURL: 'http://localhost:3000',
       credential: ['X-MICROCMS-API-KEY', 'secret']
     })
-    expect(c.kind()).toEqual('appsheet')
+    expect(c.kind()).toEqual('microcms')
   })
   it('should throw error when pass unkown kid', () => {
     expect(() =>

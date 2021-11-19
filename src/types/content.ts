@@ -1,8 +1,8 @@
-import { ClientInstance, OpValue } from './client.js'
+import { ClientBase, OpValue } from './client.js'
 import { MapConfig } from './map.js'
 
 export type SaveRemoteContentOptions = {
-  client: ClientInstance
+  client: ClientBase
   apiName: string
   mapConfig: MapConfig
   dstContentDir: string

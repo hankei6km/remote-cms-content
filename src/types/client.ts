@@ -68,15 +68,59 @@ export type ClientChain = {
   fetch: () => Promise<FetchResult>
 }
 
-export type ClientInstance = {
-  kind: () => ClientKind
-  request: () => ClientChain
-}
-
 export type ClientOpts = {
   apiBaseURL: string
   apiName?: string
   credential: string[]
 }
 
-export type Client = (opst: ClientOpts) => ClientInstance
+export abstract class ClientBase {
+  _opts: ClientOpts
+  _apiName: string = ''
+  _filter: OpValue[] = []
+  _skip: number | undefined = undefined
+  _limit: number | undefined = undefined
+  _transformer: TransformContent | undefined = undefined
+
+  constructor(opts: ClientOpts) {
+    this._opts = opts
+    this._apiName = opts.apiName || ''
+  }
+
+  api(name: string): ClientChain {
+    this._apiName = name
+    return this
+  }
+  filter(o: OpValue[]): ClientChain {
+    this._filter.push(...o)
+    return this
+  }
+  limit(n: number): ClientChain {
+    this._limit = n
+    return this
+  }
+  skip(n: number): ClientChain {
+    this._skip = n
+    return this
+  }
+  transform(t: TransformContent): ClientChain {
+    this._transformer = t
+    return this
+  }
+  abstract fetch(): Promise<FetchResult>
+  // clientChain: ClientChain = {
+  //   api: this.api.bind(this),
+  //   filter: this.filter.bind(this),
+  //   limit: this.limit.bind(this),
+  //   skip: this.skip.bind(this),
+  //   transform: this.transform.bind(this),
+  //   fetch: this.fetch.bind(this)
+  // }
+
+  abstract kind(): ClientKind // なくてもいいかな.
+  request(): ClientChain {
+    return this
+  }
+}
+
+export type Client = (opst: ClientOpts) => ClientBase

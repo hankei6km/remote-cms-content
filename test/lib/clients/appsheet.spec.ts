@@ -10,8 +10,12 @@ jest.unstable_mockModule('axios', async () => {
 })
 
 // await import('axios')
-const { apiActionPath, validateSelctorValue, apiActionBodySelector, client } =
-  await import('../../../src/lib/clients/appsheet.js')
+const {
+  apiActionPath,
+  validateSelctorValue,
+  apiActionBodySelector,
+  ClientAppSheet
+} = await import('../../../src/lib/clients/appsheet.js')
 
 afterEach(() => {
   mockAxios.reset()
@@ -52,7 +56,7 @@ describe('client_appsheet', () => {
   it('should get bare content(rows) from AppSheet app', async () => {
     const n = new Date().toUTCString()
 
-    const res = client({
+    const res = new ClientAppSheet({
       apiBaseURL: 'https://api.appsheet.com/api/v2/',
       apiName: 'tbl',
       credential: ['appId', 'secret']
@@ -96,7 +100,7 @@ describe('client_appsheet', () => {
   it('should get bare content(rows) from AppSheet app with eq()', async () => {
     const n = new Date().toUTCString()
 
-    const res = client({
+    const res = new ClientAppSheet({
       apiBaseURL: 'https://api.appsheet.com/api/v2/',
       apiName: 'tbl',
       credential: ['appId', 'secret']

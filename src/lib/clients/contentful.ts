@@ -8,8 +8,9 @@ import {
 } from '@contentful/rich-text-html-renderer'
 import {
   Client,
+  ClientBase,
   ClientChain,
-  ClientInstance,
+  ClientKind,
   ClientOpts,
   FetchResult,
   OpValue,
@@ -150,84 +151,51 @@ export class CtfRecord extends ResRecord {
   }
 }
 
-export const client: Client = function client({
-  apiName: inApiName,
-  credential
-}: ClientOpts): ClientInstance {
-  const request = () => {
-    const ctfClient = contentful.createClient({
-      space: credential[0],
-      accessToken: credential[1]
-    })
-    let apiName: string | undefined = inApiName
-    const filter: OpValue[] = []
-    let skip: number | undefined = undefined
-    let limit: number | undefined = undefined
-    let transformer: TransformContent | undefined = undefined
-
-    const clientChain: ClientChain = {
-      api(name: string) {
-        apiName = name
-        return clientChain
-      },
-      filter(o: OpValue[]) {
-        filter.push(...o)
-        return clientChain
-      },
-      limit(n: number) {
-        limit = n
-        return clientChain
-      },
-      skip(n: number) {
-        skip = n
-        return clientChain
-      },
-      transform(t: TransformContent) {
-        transformer = t
-        return clientChain
-      },
-      async fetch(): Promise<FetchResult> {
-        const res = await ctfClient
-          .getEntries<Record<string, any>>({
-            ...queryEquality(filter),
-            content_type: apiName
-          })
-          .catch((err) => {
-            const m = JSON.parse(err.message)
-            delete m.request // bearer が一部見えるのでいちおう消す
-            throw new Error(
-              `client_contentful.fetch API getEntries error: content type = ${apiName}\n${JSON.stringify(
-                m,
-                null,
-                ' '
-              )}`
-            )
-          })
-        // console.log(JSON.stringify(res, null, '  '))
-        const contentRaw = transformer
-          ? transformer(res.items as unknown as Record<string, unknown>[])
-          : res.items
-        const content = contentRaw.map((item) => {
-          const sys: Record<string, unknown> =
-            typeof item.sys === 'object' ? item.sys : ({} as any)
-          const fields: Record<string, unknown> =
-            typeof item.fields === 'object' ? item.fields : ({} as any)
-          const ret: Record<string, unknown> = {
-            id: sys.id,
-            createdAt: sys.createdAt,
-            updatedAt: sys.updatedAt,
-            sys: sys,
-            fields: fields
-          }
-          return new CtfRecord(ret)
-        })
-        return { content: content }
-      }
-    }
-    return clientChain
+export class ClientCtf extends ClientBase {
+  ctfClient!: contentful.ContentfulClientApi
+  kind(): ClientKind {
+    return 'contentful'
   }
-  return {
-    kind: () => 'contentful',
-    request
+  async fetch(): Promise<FetchResult> {
+    const res = await this.ctfClient
+      .getEntries<Record<string, any>>({
+        ...queryEquality(this._filter),
+        content_type: this._apiName
+      })
+      .catch((err) => {
+        const m = JSON.parse(err.message)
+        delete m.request // bearer が一部見えるのでいちおう消す
+        throw new Error(
+          `client_contentful.fetch API getEntries error: content type = ${
+            this._apiName
+          }\n${JSON.stringify(m, null, ' ')}`
+        )
+      })
+    // console.log(JSON.stringify(res, null, '  '))
+    const contentRaw = this._transformer
+      ? this._transformer(res.items as unknown as Record<string, unknown>[])
+      : res.items
+    const content = contentRaw.map((item) => {
+      const sys: Record<string, unknown> =
+        typeof item.sys === 'object' ? item.sys : ({} as any)
+      const fields: Record<string, unknown> =
+        typeof item.fields === 'object' ? item.fields : ({} as any)
+      const ret: Record<string, unknown> = {
+        id: sys.id,
+        createdAt: sys.createdAt,
+        updatedAt: sys.updatedAt,
+        sys: sys,
+        fields: fields
+      }
+      return new CtfRecord(ret)
+    })
+    return { content: content }
+  }
+  request(): ClientChain {
+    this.ctfClient = contentful.createClient({
+      space: this._opts.credential[0],
+      accessToken: this._opts.credential[1]
+    })
+    return super.request()
   }
 }

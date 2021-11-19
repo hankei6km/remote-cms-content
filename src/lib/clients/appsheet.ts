@@ -1,8 +1,9 @@
 import axios from 'axios'
 import {
   Client,
+  ClientBase,
   ClientChain,
-  ClientInstance,
+  ClientKind,
   ClientOpts,
   FetchResult,
   OpValue,
@@ -80,79 +81,43 @@ export function apiActionBodyFind(
   return ret
 }
 
-export const client: Client = function client({
-  apiBaseURL,
-  apiName: inApiName,
-  credential
-}: ClientOpts): ClientInstance {
-  const request = () => {
-    let apiName: string = inApiName || ''
-    const filter: OpValue[] = []
-    let skip: number | undefined = undefined
-    let limit: number | undefined = undefined
-    let transformer: TransformContent | undefined = undefined
-
-    const clientChain: ClientChain = {
-      api(name: string) {
-        apiName = name
-        return clientChain
-      },
-      filter(o: OpValue[]) {
-        filter.push(...o)
-        return clientChain
-      },
-      limit(n: number) {
-        limit = n
-        return clientChain
-      },
-      skip(n: number) {
-        skip = n
-        return clientChain
-      },
-      transform(t: TransformContent) {
-        transformer = t
-        return clientChain
-      },
-      async fetch(): Promise<FetchResult> {
-        const res = await axios
-          .post(
-            `${apiBaseURL}${apiActionPath(
-              credential[0],
-              apiName,
-              credential[1]
-            )}`,
-            JSON.stringify(
-              apiActionBodyFind({
-                Selector: apiActionBodySelector(apiName, filter)
-              })
-            ),
-            {
-              headers: { 'Content-Type': ' application/json' }
-            }
-          )
-          .catch((err) => {
-            throw new Error(
-              `client_appsheet.fetch API request error: table = ${apiName}, status = ${err.response.status}:${err.response.statusText}`
-            )
-          })
-        if (res.data === '') {
-          throw new Error(
-            `client_appsheet.find API request error: table = ${apiName}, empty data received`
-          )
-        }
-
-        const content = (transformer ? transformer(res.data) : res.data).map(
-          (v: Record<string, unknown>) => new ResRecord(v)
-        )
-        return {
-          content
-        }
-      }
-    }
-    return clientChain
+export class ClientAppSheet extends ClientBase {
+  kind(): ClientKind {
+    return 'appsheet'
   }
-  return {
-    kind: () => 'appsheet',
-    request
+  async fetch(): Promise<FetchResult> {
+    const res = await axios
+      .post(
+        `${this._opts.apiBaseURL}${apiActionPath(
+          this._opts.credential[0],
+          this._apiName,
+          this._opts.credential[1]
+        )}`,
+        JSON.stringify(
+          apiActionBodyFind({
+            Selector: apiActionBodySelector(this._apiName, this._filter)
+          })
+        ),
+        {
+          headers: { 'Content-Type': ' application/json' }
+        }
+      )
+      .catch((err) => {
+        throw new Error(
+          `client_appsheet.fetch API request error: table = ${this._apiName}, status = ${err.response.status}:${err.response.statusText}`
+        )
+      })
+    if (res.data === '') {
+      throw new Error(
+        `client_appsheet.find API request error: table = ${this._apiName}, empty data received`
+      )
+    }
+
+    const content = (
+      this._transformer ? this._transformer(res.data) : res.data
+    ).map((v: Record<string, unknown>) => new ResRecord(v))
+    return {
+      content
+    }
   }
 }

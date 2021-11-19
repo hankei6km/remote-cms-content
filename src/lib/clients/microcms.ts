@@ -6,6 +6,7 @@ import {
   ClientOpts,
   FetchResult,
   OpValue,
+  ResRecord,
   TransformContent
 } from '../../types/client.js'
 
@@ -91,10 +92,12 @@ export const client: Client = function client({
             `client_microcms.find API request error: api = ${apiName}, empty data received`
           )
         }
+
+        const content = (
+          transformer ? transformer(res.data.contents) : res.data.contents
+        ).map((v: Record<string, unknown>) => new ResRecord(v))
         return {
-          content: transformer
-            ? transformer(res.data.contents)
-            : res.data.contents
+          content
         }
       }
     }

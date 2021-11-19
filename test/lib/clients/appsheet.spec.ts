@@ -1,5 +1,6 @@
 import { jest } from '@jest/globals'
 import mockAxiosDefault from 'jest-mock-axios'
+import { ResRecord } from '../../../src/types/client.js'
 const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
 
 jest.unstable_mockModule('axios', async () => {
@@ -88,7 +89,9 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({ content: mockData })
+    expect(await res).toEqual({
+      content: mockData.map((v) => new ResRecord(v))
+    })
   })
   it('should get bare content(rows) from AppSheet app with eq()', async () => {
     const n = new Date().toUTCString()
@@ -132,7 +135,9 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({ content: mockData })
+    expect(await res).toEqual({
+      content: mockData.map((v) => new ResRecord(v))
+    })
   })
 })
 

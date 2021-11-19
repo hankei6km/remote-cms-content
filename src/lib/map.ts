@@ -6,6 +6,7 @@ import { BaseFlds, MapConfig, MapFld, MapFldsImage } from '../types/map.js'
 import { mapConfigSchema } from '../types/mapConfigSchema.js'
 import { ImageInfo } from '../types/media.js'
 import { htmlTo } from './html.js'
+import { ResRecord } from '../types/client.js'
 
 const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
@@ -154,10 +155,10 @@ function transformFldValue(m: MapFld, value: unknown): any {
 }
 
 export async function mappingFlds(
-  s: Record<string, unknown>,
+  s: ResRecord,
   mapConfig: MapConfig
 ): Promise<BaseFlds> {
-  const { _RowNumber, id, createdAt, updatedAt, ...src } = s
+  const { _RowNumber, id, createdAt, updatedAt } = s.baseFlds()
   const n = new Date()
   const ret: BaseFlds = {
     _RowNumber: typeof _RowNumber === 'number' ? _RowNumber! : -1,
@@ -174,8 +175,11 @@ export async function mappingFlds(
   const mapFldsLen = mapConfig.flds.length
   for (let mapFldsIdx = 0; mapFldsIdx < mapFldsLen; mapFldsIdx++) {
     const m = mapConfig.flds[mapFldsIdx]
-    if (src.hasOwnProperty(m.srcName)) {
-      const srcValue = transformFldValue(m, src[m.srcName])
+    if (s.has(m)) {
+      const srcValue = transformFldValue(
+        m,
+        s.isAsyncFld(m) ? await s.getAsync(m) : s.getSync(m)
+      )
       const srcFldType = typeof srcValue
       switch (m.fldType) {
         case 'id':
@@ -258,7 +262,7 @@ export async function mappingFlds(
     }
   }
   if (mapConfig.passthruUnmapped) {
-    Object.entries(src).forEach(([k, v]) => {
+    s.rawEntries().forEach(([k, v]) => {
       if (!mapped[k] && !ret.hasOwnProperty(k)) {
         ret[k] = v
       }

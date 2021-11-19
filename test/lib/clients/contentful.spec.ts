@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { ResRecord } from '../../../src/types/client.js'
 
 jest.unstable_mockModule('contentful', async () => {
   const mockCreateClient = jest.fn()
@@ -338,7 +339,7 @@ describe('client_contentful', () => {
           'fields.richt':
             '<p>Hello world!</p><p><img alt="image1" src="https://images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="https://images.ctfassets.net/image2.jpg" width="600" height="400"></p><pre><code>console.log(123)</code></pre>'
         }
-      ]
+      ].map((v) => new ResRecord(v))
     })
     expect(mockGetEntries).toHaveBeenLastCalledWith({
       content_type: 'contentmodel'

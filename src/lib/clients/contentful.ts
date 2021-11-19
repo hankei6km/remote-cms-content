@@ -13,6 +13,7 @@ import {
   ClientOpts,
   FetchResult,
   OpValue,
+  ResRecord,
   TransformContent
 } from '../../types/client.js'
 import { validateAdditionalItems } from 'ajv/dist/vocabularies/applicator/additionalItems'
@@ -188,7 +189,7 @@ export const client: Client = function client({
               }
             }
           })
-          return ret
+          return new ResRecord(ret)
         })
         return { content: content }
       }

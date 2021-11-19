@@ -57,7 +57,7 @@ export async function saveContentFile(
 // }
 
 function transformContent(m: MapConfig): TransformContent {
-  return (content: FetchResult['content']) => {
+  const ret: TransformContent = (content) => {
     const valueType = typeof content
     if (
       (valueType === 'number' ||
@@ -83,6 +83,7 @@ function transformContent(m: MapConfig): TransformContent {
     }
     return content
   }
+  return ret
 }
 
 export async function saveRemoteContent({

@@ -1,15 +1,15 @@
-import { client as clientAppSheet } from './clients/appsheet.js'
-import { client as clientContentful } from './clients/contentful.js'
-import { client as clientMicroCMS } from './clients/microcms.js'
-import { ClientInstance, ClientKind, ClientOpts } from '../types/client.js'
+import { ClientAppSheet } from './clients/appsheet.js'
+import { ClientCtf } from './clients/contentful.js'
+import { ClientMicroCMS } from './clients/microcms.js'
+import { ClientBase, ClientKind, ClientOpts } from '../types/client.js'
 
-export function client(kind: ClientKind, opts: ClientOpts): ClientInstance {
+export function client(kind: ClientKind, opts: ClientOpts): ClientBase {
   if (kind === 'appsheet') {
-    return clientAppSheet(opts)
+    return new ClientAppSheet(opts)
   } else if (kind === 'contentful') {
-    return clientContentful(opts)
+    return new ClientCtf(opts)
   } else if (kind === 'microcms') {
-    return clientMicroCMS(opts)
+    return new ClientMicroCMS(opts)
   }
   throw new Error(`client: unknown kind ${kind}`)
 }

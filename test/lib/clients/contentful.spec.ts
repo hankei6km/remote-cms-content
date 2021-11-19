@@ -161,7 +161,7 @@ jest.unstable_mockModule('contentful', async () => {
 
 const mockCtf = await import('contentful')
 const { mockCreateClient, mockGetEntries } = (mockCtf as any)._getMocks()
-const { queryEquality, CtfRecord, client } = await import(
+const { queryEquality, CtfRecord, ClientCtf } = await import(
   '../../../src/lib/clients/contentful.js'
 )
 
@@ -311,7 +311,7 @@ describe('client_contentful', () => {
   it('should get rendered content from Contentful space', async () => {
     const n = new Date().toUTCString()
 
-    const res = client({
+    const res = new ClientCtf({
       apiBaseURL: '',
       apiName: 'contentmodel',
       credential: ['spcaeId', 'cda_token']
@@ -332,7 +332,7 @@ describe('client_contentful', () => {
   it('should get rendered content from Contentful space with filter', async () => {
     const n = new Date().toUTCString()
 
-    const res = await client({
+    const res = await new ClientCtf({
       apiBaseURL: '',
       apiName: 'contentmodel',
       credential: ['spcaeId', 'cda_token']

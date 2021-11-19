@@ -1,8 +1,9 @@
 import axios, { AxiosRequestConfig } from 'axios'
 import {
   Client,
+  ClientBase,
   ClientChain,
-  ClientInstance,
+  ClientKind,
   ClientOpts,
   FetchResult,
   OpValue,
@@ -33,78 +34,41 @@ export function queryFilters(filter: OpValue[]): string {
     .join('[and]')
 }
 
-export const client: Client = function client({
-  apiBaseURL,
-  apiName: inApiName,
-  credential
-}: ClientOpts): ClientInstance {
-  if (credential[0] !== 'X-API-KEY' && credential[0] !== 'X-MICROCMS-API-KEY') {
-    throw new Error(`client: the headers key is invalid: ${credential[0]}`)
+export class ClientMicroCMS extends ClientBase {
+  kind(): ClientKind {
+    return 'microcms'
   }
-  const request = () => {
-    let apiName: string | undefined = inApiName
-    const filter: OpValue[] = []
-    let skip: number | undefined = undefined
-    let limit: number | undefined = undefined
-    let transformer: TransformContent | undefined = undefined
-
-    const clientChain: ClientChain = {
-      api(name: string) {
-        apiName = name
-        return clientChain
-      },
-      filter(o: OpValue[]) {
-        filter.push(...o)
-        return clientChain
-      },
-      limit(n: number) {
-        limit = n
-        return clientChain
-      },
-      skip(n: number) {
-        skip = n
-        return clientChain
-      },
-      transform(t: TransformContent) {
-        transformer = t
-        return clientChain
-      },
-      async fetch(): Promise<FetchResult> {
-        const headers: AxiosRequestConfig['headers'] = {}
-        headers[credential[0]] = credential[1]
-        const params: Record<string, any> = {}
-        const filterString = queryFilters(filter)
-        if (filterString) {
-          params['filters'] = filterString
-        }
-        const res = await axios
-          .get(`${apiBaseURL}${apiName || ''}`, {
-            headers,
-            params
-          })
-          .catch((err) => {
-            throw new Error(
-              `client_microcms.fetch API request error: api = ${apiName}, status = ${err.response.status}:${err.response.statusText}`
-            )
-          })
-        if (res.data === '') {
-          throw new Error(
-            `client_microcms.find API request error: api = ${apiName}, empty data received`
-          )
-        }
-
-        const content = (
-          transformer ? transformer(res.data.contents) : res.data.contents
-        ).map((v: Record<string, unknown>) => new ResRecord(v))
-        return {
-          content
-        }
-      }
+  async fetch(): Promise<FetchResult> {
+    const headers: AxiosRequestConfig['headers'] = {}
+    headers[this._opts.credential[0]] = this._opts.credential[1]
+    const params: Record<string, any> = {}
+    const filterString = queryFilters(this._filter)
+    if (filterString) {
+      params['filters'] = filterString
     }
-    return clientChain
-  }
-  return {
-    kind: () => 'appsheet',
-    request
+    const res = await axios
+      .get(`${this._opts.apiBaseURL}${this._apiName || ''}`, {
+        headers,
+        params
+      })
+      .catch((err) => {
+        throw new Error(
+          `client_microcms.fetch API request error: api = ${this._apiName}, status = ${err.response.status}:${err.response.statusText}`
+        )
+      })
+    if (res.data === '') {
+      throw new Error(
+        `client_microcms.find API request error: api = ${this._apiName}, empty data received`
+      )
+    }
+
+    const content = (
+      this._transformer
+        ? this._transformer(res.data.contents)
+        : res.data.contents
+    ).map((v: Record<string, unknown>) => new ResRecord(v))
+    return {
+      content
+    }
   }
 }

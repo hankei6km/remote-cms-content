@@ -5,6 +5,7 @@ import { ImageInfo } from '../../src/types/media.js'
 import { BaseFlds, MapConfig } from '../../src/types/map.js'
 import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media.js'
 import mockAxiosDefault from 'jest-mock-axios'
+import { ClientTest } from './clientTest.js'
 const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
 
 // > ENOENT: no such file or directory, open 'zlib'
@@ -234,6 +235,31 @@ describe('saveRemoteContent()', () => {
     expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
     expect(mockWriteFile.mock.calls[1][1]).toContain('position: 1')
     expect(mockWriteFile.mock.calls[1][1]).toContain('markdown2')
+  })
+  it('should get remote content and save as local files with paginate', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      flds: []
+    })
+    const res = saveRemoteContent({
+      // paginate させるために、他とは違う方法で client を生成している.
+      client: new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100),
+      apiName: 'tbl',
+      mapConfig,
+      dstContentDir: '/path/content',
+      dstImagesDir: '/path/static/images',
+      staticRoot: '/path/static',
+      skip: 5,
+      limit: 90,
+      pageSize: 30,
+      filter: []
+    })
+    await expect(res).resolves.toEqual(null)
+    for (let idx = 0; idx < 90; idx++) {
+      expect(mockWriteFile.mock.calls[idx][0]).toEqual(
+        `/path/content/id${idx + 5}.md`
+      )
+      expect(mockWriteFile.mock.calls[idx][1]).toContain(`position: ${idx}`)
+    }
   })
   it('should get remote content and save as local files with transform content', async () => {
     const mapConfig: MapConfig = compileMapConfig({

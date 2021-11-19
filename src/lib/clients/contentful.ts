@@ -12,6 +12,7 @@ import {
   ClientChain,
   ClientKind,
   ClientOpts,
+  FetchParams,
   FetchResult,
   OpValue,
   ResRecord,
@@ -156,10 +157,12 @@ export class ClientCtf extends ClientBase {
   kind(): ClientKind {
     return 'contentful'
   }
-  async fetch(): Promise<FetchResult> {
+  async _fetch({ skip, pageSize }: FetchParams): Promise<FetchResult> {
     const res = await this.ctfClient
       .getEntries<Record<string, any>>({
         ...queryEquality(this._filter),
+        skip: skip,
+        limit: pageSize,
         content_type: this._apiName
       })
       .catch((err) => {
@@ -189,7 +192,13 @@ export class ClientCtf extends ClientBase {
       }
       return new CtfRecord(ret)
     })
-    return { content: content }
+    return {
+      fetch: {
+        total: res.total,
+        count: res.items.length
+      },
+      content: content
+    }
   }
   request(): ClientChain {
     this.ctfClient = contentful.createClient({

@@ -5,6 +5,7 @@ import {
   ClientChain,
   ClientKind,
   ClientOpts,
+  FetchParams,
   FetchResult,
   OpValue,
   ResRecord,
@@ -85,7 +86,7 @@ export class ClientAppSheet extends ClientBase {
   kind(): ClientKind {
     return 'appsheet'
   }
-  async fetch(): Promise<FetchResult> {
+  async _fetch(_p: FetchParams): Promise<FetchResult> {
     const res = await axios
       .post(
         `${this._opts.apiBaseURL}${apiActionPath(
@@ -117,6 +118,10 @@ export class ClientAppSheet extends ClientBase {
       this._transformer ? this._transformer(res.data) : res.data
     ).map((v: Record<string, unknown>) => new ResRecord(v))
     return {
+      fetch: {
+        total: res.data.length,
+        count: res.data.length
+      },
       content
     }
   }

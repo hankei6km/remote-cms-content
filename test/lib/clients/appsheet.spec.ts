@@ -56,13 +56,13 @@ describe('client_appsheet', () => {
   it('should get bare content(rows) from AppSheet app', async () => {
     const n = new Date().toUTCString()
 
-    const res = new ClientAppSheet({
+    const c = new ClientAppSheet({
       apiBaseURL: 'https://api.appsheet.com/api/v2/',
       apiName: 'tbl',
       credential: ['appId', 'secret']
-    })
-      .request()
-      .fetch()
+    }).request()
+    const g = c.fetch()
+    const next = g.next()
     expect(mockAxios.post).toHaveBeenLastCalledWith(
       `https://api.appsheet.com/api/v2/${apiActionPath(
         'appId',
@@ -93,14 +93,16 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({
+    expect((await next).value).toEqual({
+      fetch: { total: 2, count: 2 },
       content: mockData.map((v) => new ResRecord(v))
     })
+    expect((await g.next()).done).toBeTruthy()
   })
   it('should get bare content(rows) from AppSheet app with eq()', async () => {
     const n = new Date().toUTCString()
 
-    const res = new ClientAppSheet({
+    const c = new ClientAppSheet({
       apiBaseURL: 'https://api.appsheet.com/api/v2/',
       apiName: 'tbl',
       credential: ['appId', 'secret']
@@ -108,7 +110,8 @@ describe('client_appsheet', () => {
       .request()
       .filter([['eq', 'k1', 'v1']])
       .filter([['eq', 'k2', 'v2']])
-      .fetch()
+    const g = c.fetch()
+    const next = g.next()
     expect(mockAxios.post).toHaveBeenLastCalledWith(
       `https://api.appsheet.com/api/v2/${apiActionPath(
         'appId',
@@ -139,9 +142,11 @@ describe('client_appsheet', () => {
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({
+    expect((await next).value).toEqual({
+      fetch: { total: 2, count: 2 },
       content: mockData.map((v) => new ResRecord(v))
     })
+    expect((await g.next()).done).toBeTruthy()
   })
 })
 

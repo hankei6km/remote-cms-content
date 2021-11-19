@@ -97,56 +97,61 @@ export async function saveRemoteContent({
 }: SaveRemoteContentOptions): Promise<Error | null> {
   let ret: Error | null = null
   try {
-    const res = await client
+    const c = client
       .request()
       .api(apiName)
+      .skip(skip)
+      .limit(limit)
+      .pageSize(pageSize)
       .filter(filter)
       .transform(transformContent(mapConfig))
-      .fetch()
-    const contenSrc = res.content
-    const len = contenSrc.length
-    const content: BaseFlds[] = new Array(len) as BaseFlds[]
-    for (let idx = 0; idx < len; idx++) {
-      content[idx] = await mappingFlds(contenSrc[idx], mapConfig)
-    }
-    // 途中で field の入れ替えがごちゃっとしている.
-    // 新しい配列に map する処理に変更を検討.
-    for (let idx = 0; idx < len; idx++) {
-      const fldsArray: [string, any][] = Object.entries(content[idx])
-      const fldsLen = fldsArray.length
-      for (let fldsIdx = 0; fldsIdx < fldsLen; fldsIdx++) {
-        const c = fldsArray[fldsIdx]
-        const imageFld: MapFldsImage | undefined = (() => {
-          const mapIdx = mapConfig.flds.findIndex(
-            ({ dstName, fldType }) => dstName === c[0] && fldType === 'image'
-          )
-          if (mapIdx >= 0) {
-            return mapConfig.flds[mapIdx] as MapFldsImage
-          }
-          return
-        })()
-        if (imageFld) {
-          let imageInfo = await imageInfoFromSrc(
-            c[1],
-            imageFld.setSize || false
-          )
-          if (isImageDownload(mapConfig, imageInfo)) {
-            imageInfo = await saveImageFile(
-              imageInfo,
-              dstImagesDir,
-              staticRoot,
-              fileNameFromURL(imageInfo.url, mapConfig, imageFld),
+    let position = 0
+    for await (let res of c.fetch()) {
+      const contenSrc = res.content
+      const len = contenSrc.length
+      const content: BaseFlds[] = new Array(len) as BaseFlds[]
+      for (let idx = 0; idx < len; idx++) {
+        content[idx] = await mappingFlds(contenSrc[idx], mapConfig)
+      }
+      // 途中で field の入れ替えがごちゃっとしている.
+      // 新しい配列に map する処理に変更を検討.
+      for (let idx = 0; idx < len; idx++) {
+        const fldsArray: [string, any][] = Object.entries(content[idx])
+        const fldsLen = fldsArray.length
+        for (let fldsIdx = 0; fldsIdx < fldsLen; fldsIdx++) {
+          const c = fldsArray[fldsIdx]
+          const imageFld: MapFldsImage | undefined = (() => {
+            const mapIdx = mapConfig.flds.findIndex(
+              ({ dstName, fldType }) => dstName === c[0] && fldType === 'image'
+            )
+            if (mapIdx >= 0) {
+              return mapConfig.flds[mapIdx] as MapFldsImage
+            }
+            return
+          })()
+          if (imageFld) {
+            let imageInfo = await imageInfoFromSrc(
+              c[1],
               imageFld.setSize || false
             )
+            if (isImageDownload(mapConfig, imageInfo)) {
+              imageInfo = await saveImageFile(
+                imageInfo,
+                dstImagesDir,
+                staticRoot,
+                fileNameFromURL(imageInfo.url, mapConfig, imageFld),
+                imageFld.setSize || false
+              )
+            }
+            c[1] = imageInfo
           }
-          c[1] = imageInfo
         }
-      }
-      const flds: BaseFlds = { ...content[idx] }
-      fldsArray.forEach(([k, v]) => (flds[k] = v))
-      ret = await saveContentFile(flds, dstContentDir, idx)
-      if (ret) {
-        break
+        const flds: BaseFlds = { ...content[idx] }
+        fldsArray.forEach(([k, v]) => (flds[k] = v))
+        ret = await saveContentFile(flds, dstContentDir, position++)
+        if (ret) {
+          break
+        }
       }
     }
   } catch (err: any) {

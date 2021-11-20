@@ -93,6 +93,9 @@ export async function saveRemoteContent({
   dstContentDir,
   dstImagesDir,
   staticRoot,
+  skip,
+  limit,
+  pageSize,
   filter
 }: SaveRemoteContentOptions): Promise<Error | null> {
   let ret: Error | null = null
@@ -103,7 +106,6 @@ export async function saveRemoteContent({
       .skip(skip)
       .limit(limit)
       .pageSize(pageSize)
-      .filter(filter)
       .transform(transformContent(mapConfig))
     let position = 0
     for await (let res of c.fetch()) {

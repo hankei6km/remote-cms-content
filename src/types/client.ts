@@ -72,9 +72,9 @@ export type TransformContent = (content: RawRecord[]) => RawRecord[]
 export type ClientChain = {
   api: (name: string) => ClientChain
   filter: (o: OpValue[]) => ClientChain
-  limit: (n: number) => ClientChain
+  limit: (n: number | undefined) => ClientChain
   skip: (n: number) => ClientChain
-  pageSize(n: number): ClientChain
+  pageSize(n: number | undefined): ClientChain
   transform: (t: TransformContent) => ClientChain
   fetch: () => AsyncGenerator<FetchResult, void, void>
 }
@@ -109,7 +109,7 @@ export abstract class ClientBase {
     this._filter.push(...o)
     return this
   }
-  limit(n: number): ClientChain {
+  limit(n: number | undefined): ClientChain {
     this._limit = n
     return this
   }
@@ -117,7 +117,7 @@ export abstract class ClientBase {
     this._skip = n
     return this
   }
-  pageSize(n: number): ClientChain {
+  pageSize(n: number | undefined): ClientChain {
     this._pageSize = n
     return this
   }

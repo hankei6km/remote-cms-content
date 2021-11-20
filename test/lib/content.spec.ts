@@ -174,6 +174,7 @@ describe('saveRemoteContent()', () => {
       dstContentDir: '/path/content',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
+      skip: 0,
       filter: []
     })
     mockAxios.mockResponse({
@@ -282,6 +283,7 @@ describe('saveRemoteContent()', () => {
       dstContentDir: '/path/content',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
+      skip: 0,
       filter: []
     })
     mockAxios.mockResponse({
@@ -373,6 +375,7 @@ describe('saveRemoteContent()', () => {
       dstContentDir: '/path/content',
       dstImagesDir: '/path/static/images',
       staticRoot: '',
+      skip: 0,
       filter: []
     })
     mockAxios.mockResponse({
@@ -413,6 +416,7 @@ describe('saveRemoteContent()', () => {
       dstContentDir: '/path/content',
       dstImagesDir: '/path/static/images',
       staticRoot: '',
+      skip: 0,
       filter: []
     })
     mockAxios.mockResponse({
@@ -450,6 +454,7 @@ describe('saveRemoteContent()', () => {
       dstContentDir: '/error',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
+      skip: 0,
       filter: []
     })
     mockAxios.mockResponse({
@@ -479,6 +484,7 @@ describe('saveRemoteContent()', () => {
       dstContentDir: '/error',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
+      skip: 0,
       filter: []
     })
     mockAxios.mockError({
@@ -498,6 +504,7 @@ describe('saveRemoteContent()', () => {
       dstContentDir: '/error',
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
+      skip: 0,
       filter: []
     })
     mockAxios.mockResponse({

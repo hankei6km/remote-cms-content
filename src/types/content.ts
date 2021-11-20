@@ -8,5 +8,8 @@ export type SaveRemoteContentOptions = {
   dstContentDir: string
   dstImagesDir: string
   staticRoot: string
+  skip: number
+  limit?: number
+  pageSize?: number
   filter: OpValue[]
 }

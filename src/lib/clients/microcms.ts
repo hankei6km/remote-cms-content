@@ -5,6 +5,7 @@ import {
   ClientChain,
   ClientKind,
   ClientOpts,
+  FetchParams,
   FetchResult,
   OpValue,
   ResRecord,
@@ -38,13 +39,19 @@ export class ClientMicroCMS extends ClientBase {
   kind(): ClientKind {
     return 'microcms'
   }
-  async fetch(): Promise<FetchResult> {
+  async _fetch({ skip, pageSize }: FetchParams): Promise<FetchResult> {
     const headers: AxiosRequestConfig['headers'] = {}
     headers[this._opts.credential[0]] = this._opts.credential[1]
     const params: Record<string, any> = {}
     const filterString = queryFilters(this._filter)
     if (filterString) {
       params['filters'] = filterString
+    }
+    if (skip > 0) {
+      params['offset'] = skip
+    }
+    if (pageSize !== undefined) {
+      params['limit'] = pageSize
     }
     const res = await axios
       .get(`${this._opts.apiBaseURL}${this._apiName || ''}`, {
@@ -68,6 +75,10 @@ export class ClientMicroCMS extends ClientBase {
         : res.data.contents
     ).map((v: Record<string, unknown>) => new ResRecord(v))
     return {
+      fetch: {
+        total: res.data.totalCount,
+        count: res.data.contents.length
+      },
       content
     }
   }

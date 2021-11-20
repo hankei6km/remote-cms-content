@@ -9,6 +9,9 @@ type SaveOpts = {
   dstContentDir: string
   dstImagesDir: string
   staticRoot: string
+  skip: number
+  limit?: number
+  pageSize?: number
   filter: string[]
 }
 

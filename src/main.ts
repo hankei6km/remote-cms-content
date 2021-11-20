@@ -19,6 +19,19 @@ import { ClientKindValues } from './types/client.js'
               defult: 'static/',
               description: 'root of static path to trim image path'
             },
+            skip: {
+              type: 'number',
+              defult: 0,
+              description: 'offset to fetching content'
+            },
+            limit: {
+              type: 'number',
+              description: 'limit to fetching content'
+            },
+            'page-size': {
+              type: 'number',
+              description: 'page size to fetching content with paginate'
+            },
             filter: {
               type: 'string',
               array: true,
@@ -117,6 +130,9 @@ import { ClientKindValues } from './types/client.js'
         dstContentDir: argv.dstContentDir,
         dstImagesDir: argv.dstImagesDir,
         staticRoot: argv['static-root'] || 'static/',
+        skip: argv['skip'] !== undefined ? argv['skip'] : 0,
+        limit: argv['limit'],
+        pageSize: argv['page-size'],
         filter: argv['filter'] || []
       }
     })

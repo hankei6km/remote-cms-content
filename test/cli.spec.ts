@@ -63,6 +63,7 @@ describe('cli()', () => {
         dstContentDir: '/content/tbl',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
+        skip: 0,
         filter: []
       }
     })
@@ -90,6 +91,7 @@ describe('cli()', () => {
         dstContentDir: '/content/tbl',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
+        skip: 0,
         filter: []
       }
     ])
@@ -117,6 +119,7 @@ describe('cli()', () => {
         dstContentDir: '/content/tbl',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
+        skip: 0,
         filter: ['k=v']
       }
     })
@@ -144,6 +147,7 @@ describe('cli()', () => {
         dstContentDir: '/content/tbl',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
+        skip: 0,
         filter: [['eq', 'k', 'v']]
       }
     ])
@@ -173,6 +177,7 @@ describe('cli()', () => {
         dstContentDir: '/error',
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
+        skip: 0,
         filter: []
       }
     })

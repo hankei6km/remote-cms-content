@@ -46,13 +46,13 @@ describe('client_appsheet', () => {
   it('should get bare content from microCMS app', async () => {
     const n = new Date().toUTCString()
 
-    const res = new ClientMicroCMS({
+    const c = new ClientMicroCMS({
       apiBaseURL: 'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/',
       apiName: 'tbl',
       credential: ['X-API-KEY', 'secret']
-    })
-      .request()
-      .fetch()
+    }).request()
+    const g = c.fetch()
+    const next = g.next()
     expect(mockAxios.get).toHaveBeenLastCalledWith(
       'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/tbl',
       {
@@ -76,19 +76,22 @@ describe('client_appsheet', () => {
           updatedAt: n,
           タイトル: 'Title2'
         }
-      ]
+      ],
+      totalCount: 2
     }
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({
+    expect((await next).value).toEqual({
+      fetch: { total: 2, count: 2 },
       content: mockData.contents.map((v) => new ResRecord(v))
     })
+    expect((await g.next()).done).toBeTruthy()
   })
   it('should get bare content from microCMS app with filter', async () => {
     const n = new Date().toUTCString()
 
-    const res = new ClientMicroCMS({
+    const c = new ClientMicroCMS({
       apiBaseURL: 'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/',
       apiName: 'tbl',
       credential: ['X-API-KEY', 'secret']
@@ -96,7 +99,8 @@ describe('client_appsheet', () => {
       .request()
       .filter([['eq', 'k1', 'v1']])
       .filter([['eq', 'k2', 'v2']])
-      .fetch()
+    const g = c.fetch()
+    const next = g.next()
     expect(mockAxios.get).toHaveBeenLastCalledWith(
       'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/tbl',
       {
@@ -120,14 +124,65 @@ describe('client_appsheet', () => {
           updatedAt: n,
           タイトル: 'Title2'
         }
-      ]
+      ],
+      totalCount: 2
     }
     mockAxios.mockResponse({
       data: mockData
     })
-    expect(await res).toEqual({
+    expect((await next).value).toEqual({
+      fetch: { total: 2, count: 2 },
       content: mockData.contents.map((v) => new ResRecord(v))
     })
+    expect((await g.next()).done).toBeTruthy()
+  })
+  it('should get bare content from microCMS app with paginate', async () => {
+    const n = new Date().toUTCString()
+
+    const c = new ClientMicroCMS({
+      apiBaseURL: 'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/',
+      apiName: 'tbl',
+      credential: ['X-API-KEY', 'secret']
+    })
+      .request()
+      .skip(5)
+      .pageSize(50)
+    const g = c.fetch()
+    const next = g.next()
+    expect(mockAxios.get).toHaveBeenLastCalledWith(
+      'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/tbl',
+      {
+        headers: { 'X-API-KEY': 'secret' },
+        params: { offset: 5, limit: 50 }
+      }
+    )
+    const mockData = {
+      contents: [
+        {
+          _RowNumber: 1,
+          id: 'idstring1',
+          createdAt: n,
+          updatedAt: n,
+          タイトル: 'Title1'
+        },
+        {
+          _RowNumber: 2,
+          id: 'idstring2',
+          createdAt: n,
+          updatedAt: n,
+          タイトル: 'Title2'
+        }
+      ],
+      totalCount: 2
+    }
+    mockAxios.mockResponse({
+      data: mockData
+    })
+    expect((await next).value).toEqual({
+      fetch: { total: 2, count: 2 },
+      content: mockData.contents.map((v) => new ResRecord(v))
+    })
+    expect((await g.next()).done).toBeTruthy()
   })
 })
 

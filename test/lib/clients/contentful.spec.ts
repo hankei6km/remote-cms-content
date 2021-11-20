@@ -129,7 +129,8 @@ const mockData = {
         }
       }
     }
-  ]
+  ],
+  total: 2
 }
 
 jest.unstable_mockModule('contentful', async () => {
@@ -309,30 +310,30 @@ describe('getEntries', () => {
 
 describe('client_contentful', () => {
   it('should get rendered content from Contentful space', async () => {
-    const n = new Date().toUTCString()
-
-    const res = new ClientCtf({
+    const c = new ClientCtf({
       apiBaseURL: '',
       apiName: 'contentmodel',
       credential: ['spcaeId', 'cda_token']
-    })
-      .request()
-      .fetch()
+    }).request()
+    const g = c.fetch()
+    const next = g.next()
     expect(mockCreateClient).toHaveBeenLastCalledWith({
       space: 'spcaeId',
       accessToken: 'cda_token'
     })
-    expect(await res).toEqual({
+    expect((await next).value).toEqual({
+      fetch: { total: 2, count: 2 },
       content: mockData.items.map((v) => new CtfRecord({ ...v.sys, ...v }))
     })
     expect(mockGetEntries).toHaveBeenLastCalledWith({
-      content_type: 'contentmodel'
+      content_type: 'contentmodel',
+      skip: 0,
+      limit: undefined,
+      pageSize: undefined
     })
   })
   it('should get rendered content from Contentful space with filter', async () => {
-    const n = new Date().toUTCString()
-
-    const res = await new ClientCtf({
+    const c = new ClientCtf({
       apiBaseURL: '',
       apiName: 'contentmodel',
       credential: ['spcaeId', 'cda_token']
@@ -340,15 +341,40 @@ describe('client_contentful', () => {
       .request()
       .filter([['eq', 'fields.k1', 'v1']])
       .filter([['eq', 'fields.k2', 'v2']])
-      .fetch()
+    const g = c.fetch()
+    await g.next()
     expect(mockCreateClient).toHaveBeenLastCalledWith({
       space: 'spcaeId',
       accessToken: 'cda_token'
     })
     expect(mockGetEntries).toHaveBeenLastCalledWith({
       content_type: 'contentmodel',
+      skip: 0,
+      limit: undefined,
+      pageSize: undefined,
       'fields.k1': 'v1',
       'fields.k2': 'v2'
+    })
+  })
+  it('should get rendered content from Contentful space with paginate', async () => {
+    const c = new ClientCtf({
+      apiBaseURL: '',
+      apiName: 'contentmodel',
+      credential: ['spcaeId', 'cda_token']
+    })
+      .request()
+      .skip(5)
+      .pageSize(50)
+    const g = c.fetch()
+    await g.next()
+    expect(mockCreateClient).toHaveBeenLastCalledWith({
+      space: 'spcaeId',
+      accessToken: 'cda_token'
+    })
+    expect(mockGetEntries).toHaveBeenLastCalledWith({
+      content_type: 'contentmodel',
+      skip: 5,
+      limit: 50
     })
   })
 })

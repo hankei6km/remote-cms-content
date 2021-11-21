@@ -5,7 +5,6 @@ import { ImageInfo } from '../../src/types/media.js'
 import { BaseFlds, MapConfig } from '../../src/types/map.js'
 import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media.js'
 import mockAxiosDefault from 'jest-mock-axios'
-import { ClientTest } from './clientTest.js'
 const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
 
 // > ENOENT: no such file or directory, open 'zlib'
@@ -20,6 +19,12 @@ jest.unstable_mockModule('contentful', async () => {
 jest.unstable_mockModule('axios', async () => {
   return {
     default: mockAxios
+  }
+})
+
+jest.unstable_mockModule('../../src/lib/util.js', async () => {
+  return {
+    readQuery: (v: string) => v // ファイル読み込みではなく、文字列をそのまま返す.
   }
 })
 
@@ -92,6 +97,7 @@ const { mockSaveImageFile } = (mockMedia as any)._getMocks()
 const mockFsPromise = await import('fs/promises')
 const { mockWriteFile } = (mockFsPromise as any)._getMocks()
 const { client } = await import('../../src/lib/client.js')
+const { ClientTest } = await import('./clientTest.js')
 const { compileMapConfig } = await import('../../src/lib/map.js')
 const { saveContentFile, saveRemoteContent } = await import(
   '../../src/lib/content.js'
@@ -175,7 +181,8 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
-      filter: []
+      filter: [],
+      query: []
     })
     mockAxios.mockResponse({
       data: [
@@ -252,7 +259,8 @@ describe('saveRemoteContent()', () => {
       skip: 5,
       limit: 90,
       pageSize: 30,
-      filter: []
+      filter: [],
+      query: []
     })
     await expect(res).resolves.toEqual(null)
     for (let idx = 0; idx < 90; idx++) {
@@ -284,7 +292,8 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
-      filter: []
+      filter: [],
+      query: []
     })
     mockAxios.mockResponse({
       data: [
@@ -376,7 +385,8 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       skip: 0,
-      filter: []
+      filter: [],
+      query: []
     })
     mockAxios.mockResponse({
       data: [
@@ -398,6 +408,33 @@ describe('saveRemoteContent()', () => {
     expect(mockWriteFile.mock.calls[0][1]).not.toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).not.toContain('height: 100')
   })
+  it('should call query method', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      media: {},
+      flds: []
+    })
+    const c = client('appsheet', {
+      apiBaseURL: 'https://api.appsheet.com/api/v2/',
+      apiName: 'tbl',
+      credential: ['appId', 'secret']
+    })
+    const res = saveRemoteContent({
+      client: c,
+      apiName: 'tbl',
+      mapConfig,
+      dstContentDir: '/path/content',
+      dstImagesDir: '/path/static/images',
+      staticRoot: '',
+      skip: 0,
+      filter: [],
+      query: ['test1.gql', 'test2.gql']
+    })
+    mockAxios.mockResponse({
+      data: []
+    })
+    await expect(res).resolves.toEqual(null)
+    expect(c._query).toEqual(['test1.gql', 'test2.gql'])
+  })
   it('should get remote content and save as local files without downloading images', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       flds: [
@@ -417,7 +454,8 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       skip: 0,
-      filter: []
+      filter: [],
+      query: []
     })
     mockAxios.mockResponse({
       data: [
@@ -455,7 +493,8 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
-      filter: []
+      filter: [],
+      query: []
     })
     mockAxios.mockResponse({
       data: [
@@ -485,7 +524,8 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
-      filter: []
+      filter: [],
+      query: []
     })
     mockAxios.mockError({
       response: { status: 404, statusText: 'dummy error' }
@@ -505,7 +545,8 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
-      filter: []
+      filter: [],
+      query: []
     })
     mockAxios.mockResponse({
       data: [

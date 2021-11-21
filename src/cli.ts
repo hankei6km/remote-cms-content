@@ -13,6 +13,7 @@ type SaveOpts = {
   limit?: number
   pageSize?: number
   filter: string[]
+  query: string[]
 }
 
 type Opts = {

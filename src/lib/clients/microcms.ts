@@ -1,15 +1,10 @@
 import axios, { AxiosRequestConfig } from 'axios'
 import {
-  Client,
   ClientBase,
-  ClientChain,
   ClientKind,
-  ClientOpts,
   FetchParams,
   FetchResult,
-  OpValue,
-  ResRecord,
-  TransformContent
+  OpValue
 } from '../../types/client.js'
 
 export function validateQueryFilterValue(s: string) {
@@ -69,11 +64,9 @@ export class ClientMicroCMS extends ClientBase {
       )
     }
 
-    const content = (
-      this._transformer
-        ? this._transformer(res.data.contents)
-        : res.data.contents
-    ).map((v: Record<string, unknown>) => new ResRecord(v))
+    const content = this._execTransform(res.data.contents).map(
+      (v: Record<string, unknown>) => this.resRecord(v)
+    )
     return {
       fetch: {
         total: res.data.totalCount,

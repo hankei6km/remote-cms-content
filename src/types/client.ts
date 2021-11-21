@@ -1,6 +1,12 @@
+import { readQuery } from '../lib/util.js'
 import { MapFld } from './map.js'
 
-export const ClientKindValues = ['appsheet', 'contentful', 'microcms'] as const
+export const ClientKindValues = [
+  'appsheet',
+  'contentful',
+  'contentful:gql',
+  'microcms'
+] as const
 export type ClientKind = typeof ClientKindValues[number]
 
 export type RawRecord = Record<string, unknown>
@@ -52,6 +58,7 @@ export class ResRecord {
 export type FetchParams = {
   skip: number
   pageSize?: number
+  query: string[]
 }
 
 export type FetchResult = {
@@ -67,7 +74,10 @@ export const OpKindValues = ['eq'] as const
 export type OpKind = typeof OpKindValues[number]
 export type OpValue = [OpKind, string, any]
 
-export type TransformContent = (content: RawRecord[]) => RawRecord[]
+export type TransformContent = (
+  content: any,
+  arrayPath?: string[]
+) => RawRecord[]
 
 export type ClientChain = {
   api: (name: string) => ClientChain
@@ -76,6 +86,7 @@ export type ClientChain = {
   skip: (n: number) => ClientChain
   pageSize(n: number | undefined): ClientChain
   transform: (t: TransformContent) => ClientChain
+  query: (q: string[]) => ClientChain
   fetch: () => AsyncGenerator<FetchResult, void, void>
 }
 
@@ -92,9 +103,14 @@ export abstract class ClientBase {
   _skip: number = 0
   _limit: number | undefined = undefined
   _pageSize: number | undefined = undefined
+  _query: string[] = []
   _transformer: TransformContent | undefined = undefined
 
+  _setupErr: Error | undefined
+
   _recCnt: number = 0
+
+  _arrayPath: string[] | undefined
 
   constructor(opts: ClientOpts) {
     this._opts = opts
@@ -121,16 +137,38 @@ export abstract class ClientBase {
     this._pageSize = n
     return this
   }
+  query(q: string[]): ClientChain {
+    try {
+      this._query = q.map((v) => readQuery(v))
+    } catch (err: any) {
+      this._setupErr = new Error(`ClientBase.query: ${err}`)
+    }
+    return this
+  }
   transform(t: TransformContent): ClientChain {
     this._transformer = t
     return this
+  }
+  protected resRecord(r: RawRecord): ResRecord {
+    return new ResRecord(r)
+  }
+  protected _execTransform(content: any): RawRecord[] {
+    if (this._transformer) {
+      return this._transformer(content, this._arrayPath)
+    }
+    return content
   }
   abstract _fetch(p: FetchParams): Promise<FetchResult>
   async *fetch(): AsyncGenerator<FetchResult, void, void> {
     let skip = this._skip
     let pageSize = this._pageSize
     let limit = this._limit
+    const query = this._query
     let count = 0
+
+    if (this._setupErr) {
+      throw new Error(`ClientBase: ${this._setupErr}`)
+    }
 
     let res: FetchResult = { fetch: { count: 0, total: 0 }, content: [] }
     let complete = false
@@ -143,7 +181,7 @@ export abstract class ClientBase {
         }
       }
 
-      res = await this._fetch({ skip, pageSize })
+      res = await this._fetch({ skip, pageSize, query })
 
       count = count + res.fetch.count
       if (limit !== undefined) {

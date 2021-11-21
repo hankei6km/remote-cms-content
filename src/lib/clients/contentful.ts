@@ -6,8 +6,9 @@ import {
   documentToHtmlString,
   NodeRenderer
 } from '@contentful/rich-text-html-renderer'
+import fetch from 'cross-fetch'
+import { HttpLink } from '@apollo/client'
 import {
-  Client,
   ClientBase,
   ClientChain,
   ClientKind,
@@ -15,10 +16,11 @@ import {
   FetchParams,
   FetchResult,
   OpValue,
-  ResRecord,
-  TransformContent
+  RawRecord,
+  ResRecord
 } from '../../types/client.js'
 import { MapFld } from '../../types/map.js'
+import { ClientGqlBase } from '../../types/gql.js'
 
 const nodeRendererAsset: NodeRenderer = (node) => {
   // console.log(JSON.stringify(node.data.target.fields, null, ' '))
@@ -157,6 +159,9 @@ export class ClientCtf extends ClientBase {
   kind(): ClientKind {
     return 'contentful'
   }
+  resRecord(r: RawRecord): ResRecord {
+    return new CtfRecord(r)
+  }
   async _fetch({ skip, pageSize }: FetchParams): Promise<FetchResult> {
     const res = await this.ctfClient
       .getEntries<Record<string, any>>({
@@ -175,9 +180,9 @@ export class ClientCtf extends ClientBase {
         )
       })
     // console.log(JSON.stringify(res, null, '  '))
-    const contentRaw = this._transformer
-      ? this._transformer(res.items as unknown as Record<string, unknown>[])
-      : res.items
+    const contentRaw = this._execTransform(
+      res.items as unknown as Record<string, unknown>[]
+    )
     const content = contentRaw.map((item) => {
       const sys: Record<string, unknown> =
         typeof item.sys === 'object' ? item.sys : ({} as any)
@@ -190,7 +195,7 @@ export class ClientCtf extends ClientBase {
         sys: sys,
         fields: fields
       }
-      return new CtfRecord(ret)
+      return this.resRecord(ret)
     })
     return {
       fetch: {
@@ -206,5 +211,37 @@ export class ClientCtf extends ClientBase {
       accessToken: this._opts.credential[1]
     })
     return super.request()
+  }
+}
+
+export class ClientCtfGql extends ClientGqlBase {
+  constructor(opts: ClientOpts) {
+    super(
+      new HttpLink({
+        uri: `${opts.apiBaseURL}${opts.credential[0]}`,
+        fetch,
+        headers: {
+          Authorization: `Bearer ${opts.credential[1]}`
+        }
+      }),
+      opts
+    )
+  }
+  kind(): ClientKind {
+    return 'contentful:gql'
+  }
+  resRecord(r: RawRecord): ResRecord {
+    return new CtfRecord(r)
+  }
+  arrayPath() {
+    return ['items']
+  }
+  extractArrayItem(o: object): RawRecord[] {
+    // ここが実行される時点で arrayPath は array であることが検証されている.
+    return (o as any)['items'] as RawRecord[]
+  }
+  _extractTotal(o: object): number {
+    // 呼び出し元のメソッドで number であることが検証される.
+    return (o as any).total
   }
 }

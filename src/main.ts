@@ -55,6 +55,30 @@ import { ClientKindValues } from './types/client.js'
                 }
                 return arg
               }
+            },
+            query: {
+              type: 'string',
+              array: true,
+              required: false,
+              description: 'query files',
+              coerce: (arg: any) => {
+                // https://github.com/yargs/yargs/issues/821
+                if (typeof arg === 'object' && !Array.isArray(arg)) {
+                  const arr: any[] = []
+                  for (const [key, value] of Object.entries(arg)) {
+                    const idx = Number.parseInt(key, 10)
+                    if (!Number.isNaN(idx)) {
+                      arr[idx] = value
+                    } else {
+                      throw new Error(
+                        `filter: index of filter is not number: ${key}`
+                      )
+                    }
+                  }
+                  return arr
+                }
+                return arg
+              }
             }
           })
           .positional('apiName', {
@@ -133,7 +157,8 @@ import { ClientKindValues } from './types/client.js'
         skip: argv['skip'] !== undefined ? argv['skip'] : 0,
         limit: argv['limit'],
         pageSize: argv['page-size'],
-        filter: argv['filter'] || []
+        filter: argv['filter'] || [],
+        query: argv['query'] || []
       }
     })
   )

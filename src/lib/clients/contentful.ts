@@ -139,10 +139,10 @@ export class CtfRecord extends ResRecord {
     return this.record[fldName]
   }
   getSync(map: MapFld): boolean {
-    return this._getValue(map.srcName)
+    return this.execTransform(map, this._getValue(map.srcName))
   }
   async getAsync(map: MapFld): Promise<unknown> {
-    const v = this._getValue(map.srcName)
+    const v = this.execTransform(map, this._getValue(map.srcName))
     if (map.fldType === 'html') {
       if (v && typeof v === 'object' && (v as any).nodeType === 'document') {
         return richTextToHtml(v as Document)

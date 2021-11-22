@@ -47,11 +47,31 @@ export class ResRecord {
     // return map.fldType === 'html' || map.fldType === 'image'
     return false
   }
+  execTransform(m: MapFld, value: unknown): any {
+    const valueType = typeof value
+    if (
+      (valueType === 'number' ||
+        valueType === 'string' ||
+        valueType === 'object') &&
+      m.transformJsonata
+    ) {
+      try {
+        return m.transformJsonata.evaluate(value)
+      } catch (err: any) {
+        throw new Error(
+          `transformFldValue: transform=${m.transform} message=${
+            err.message
+          } value=${JSON.stringify(value)}`
+        )
+      }
+    }
+    return value
+  }
   getSync(map: MapFld): unknown {
-    return this.record[map.srcName]
+    return this.execTransform(map, this.record[map.srcName])
   }
   async getAsync(map: MapFld): Promise<unknown> {
-    return this.record[map.srcName]
+    return this.execTransform(map, this.record[map.srcName])
   }
 }
 

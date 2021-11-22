@@ -133,27 +133,6 @@ function throwInvalidType(
   )
 }
 
-function transformFldValue(m: MapFld, value: unknown): any {
-  const valueType = typeof value
-  if (
-    (valueType === 'number' ||
-      valueType === 'string' ||
-      valueType === 'object') &&
-    m.transformJsonata
-  ) {
-    try {
-      return m.transformJsonata.evaluate(value)
-    } catch (err: any) {
-      throw new Error(
-        `transformFldValue: transform=${m.transform} message=${
-          err.message
-        } value=${JSON.stringify(value)}`
-      )
-    }
-  }
-  return value
-}
-
 export async function mappingFlds(
   s: ResRecord,
   mapConfig: MapConfig
@@ -176,10 +155,7 @@ export async function mappingFlds(
   for (let mapFldsIdx = 0; mapFldsIdx < mapFldsLen; mapFldsIdx++) {
     const m = mapConfig.flds[mapFldsIdx]
     if (s.has(m)) {
-      const srcValue = transformFldValue(
-        m,
-        s.isAsyncFld(m) ? await s.getAsync(m) : s.getSync(m)
-      )
+      const srcValue = s.isAsyncFld(m) ? await s.getAsync(m) : s.getSync(m)
       const srcFldType = typeof srcValue
       switch (m.fldType) {
         case 'id':

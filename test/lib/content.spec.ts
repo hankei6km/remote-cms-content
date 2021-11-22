@@ -22,9 +22,13 @@ jest.unstable_mockModule('axios', async () => {
   }
 })
 
+const { readQuery: _readQuery, ...utils } = await import(
+  '../../src/lib/util.js'
+)
 jest.unstable_mockModule('../../src/lib/util.js', async () => {
   return {
-    readQuery: (v: string) => v // ファイル読み込みではなく、文字列をそのまま返す.
+    readQuery: (v: string) => v, // ファイル読み込みではなく、文字列をそのまま返す.
+    ...utils
   }
 })
 

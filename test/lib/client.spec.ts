@@ -10,9 +10,13 @@ jest.unstable_mockModule('contentful', async () => {
   }
 })
 
+const { readQuery: _readQuery, ...utils } = await import(
+  '../../src/lib/util.js'
+)
 jest.unstable_mockModule('../../src/lib/util.js', async () => {
   return {
-    readQuery: (v: string) => (v === 'error' ? new Error('query error') : v) // ファイル読み込みではなく、文字列をそのまま返す.
+    readQuery: (v: string) => (v === 'error' ? new Error('query error') : v), // ファイル読み込みではなく、文字列をそのまま返す.
+    ...utils
   }
 })
 

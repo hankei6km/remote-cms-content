@@ -2,9 +2,13 @@ import { jest } from '@jest/globals'
 import { ApolloLink, HttpLink } from '@apollo/client'
 import { ClientKind, RawRecord } from '../../src/types/client.js' // type の export は import() で扱えない?(d.ts だから?)
 
+const { readQuery: _readQuery, ...utils } = await import(
+  '../../src/lib/util.js'
+)
 jest.unstable_mockModule('../../src/lib/util.js', async () => {
   return {
-    readQuery: (v: string) => v // ファイル読み込みではなく、文字列をそのまま返す.
+    readQuery: (v: string) => v, // ファイル読み込みではなく、文字列をそのまま返す.
+    ...utils
   }
 })
 const { ResRecord } = await import('../../src/types/client.js') // mock は object を import する順番に左右される.

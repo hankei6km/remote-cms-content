@@ -5,15 +5,14 @@ import {
   gql,
   NormalizedCacheObject
 } from '@apollo/client'
-import { readQuery } from '../lib/util.js'
+import { apolloErrToMessages } from '../lib/util.js'
 import {
   ClientBase,
   ClientChain,
   ClientOpts,
   FetchParams,
   FetchResult,
-  RawRecord,
-  ResRecord
+  RawRecord
 } from '../types/client.js'
 //ApolloProvider,
 
@@ -50,23 +49,35 @@ export abstract class ClientGqlBase extends ClientBase {
     return this
   }
   async _fetch({ skip, pageSize, query }: FetchParams): Promise<FetchResult> {
-    const res = await this._gqlClient.query({
-      query: gql(query.join('\n')),
-      variables: {
-        skip,
-        pageSize
-      }
+    return new Promise((resolve, reject) => {
+      this._gqlClient
+        .query({
+          query: gql(query.join('\n')),
+          variables: {
+            skip,
+            pageSize
+          }
+        })
+        .then((res) => {
+          const data = res.data
+          const t = this._execTransform(data)
+          const content = this.extractArrayItem(t)
+          const total = this.extractTotal(t)
+          resolve({
+            fetch: {
+              total,
+              count: content.length
+            },
+            content: content.map((v) => this.resRecord(v))
+          })
+        })
+        .catch((err) => {
+          reject(
+            new Error(
+              `ClientGqlBase._fetch: ${apolloErrToMessages(err)} ${err}`
+            )
+          )
+        })
     })
-    const data = res.data
-    const t = this._execTransform(data)
-    const content = this.extractArrayItem(t)
-    const total = this.extractTotal(t)
-    return {
-      fetch: {
-        total,
-        count: content.length
-      },
-      content: content.map((v) => this.resRecord(v))
-    }
   }
 }

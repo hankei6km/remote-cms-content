@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockData = {
+const mockDataRest = {
   sys: {},
   items: [
     {
@@ -50,80 +50,6 @@ const mockData = {
                   marks: []
                 }
               ]
-            },
-            {
-              nodeType: 'embedded-asset-block',
-              content: [],
-              data: {
-                target: {
-                  fields: {
-                    title: 'image1',
-                    description: 'image1 description',
-                    file: {
-                      url: '//images.ctfassets.net/image1.jpg',
-                      details: {
-                        size: 100,
-                        image: {
-                          width: 600,
-                          height: 400
-                        }
-                      },
-                      fileName: 'image1.jpg',
-                      contentType: 'image/jpeg'
-                    }
-                  }
-                }
-              }
-            },
-            {
-              nodeType: 'embedded-asset-block',
-              content: [],
-              data: {
-                target: {
-                  fields: {
-                    title: 'image2',
-                    description:
-                      'image2 description\n{\n  width="400"\n  height="300"\n}',
-                    file: {
-                      url: '//images.ctfassets.net/image2.jpg',
-                      details: {
-                        size: 100,
-                        image: {
-                          width: 600,
-                          height: 400
-                        }
-                      },
-                      fileName: 'image1.jpg',
-                      contentType: 'image/jpeg'
-                    }
-                  }
-                }
-              }
-            },
-            {
-              nodeType: 'embedded-entry-block',
-              content: [],
-              data: {
-                target: {
-                  metadata: {
-                    tags: []
-                  },
-                  sys: {
-                    type: 'Entry',
-                    contentType: {
-                      sys: {
-                        type: 'Link',
-                        linkType: 'ContentType',
-                        id: 'fragmentCodeblock'
-                      }
-                    },
-                    locale: 'ja'
-                  },
-                  fields: {
-                    content: 'console.log(123)'
-                  }
-                }
-              }
             }
           ]
         }
@@ -138,7 +64,7 @@ jest.unstable_mockModule('contentful', async () => {
   const mockGetEntries = jest.fn()
   let res: any = {}
   const reset = () => {
-    res = mockData
+    res = mockDataRest
   }
   reset()
   return {
@@ -162,7 +88,7 @@ jest.unstable_mockModule('contentful', async () => {
 
 const mockCtf = await import('contentful')
 const { mockCreateClient, mockGetEntries } = (mockCtf as any)._getMocks()
-const { queryEquality, CtfRecord, ClientCtf } = await import(
+const { queryEquality, richTextToHtml, CtfRecord, ClientCtf } = await import(
   '../../../src/lib/clients/contentful.js'
 )
 
@@ -272,7 +198,7 @@ describe('CtfRecord', () => {
   it('should return HTML', async () => {
     expect(
       new CtfRecord({
-        fields: { content: mockData.items[0].fields.richt }
+        fields: { content: mockDataRest.items[0].fields.richt }
       }).getAsync({
         srcName: 'fields.content',
         dstName: '',
@@ -281,15 +207,13 @@ describe('CtfRecord', () => {
     ).resolves.toEqual('<p>Hello world!</p>')
     expect(
       new CtfRecord({
-        fields: { content: mockData.items[1].fields.richt }
+        fields: { content: mockDataRest.items[1].fields.richt }
       }).getAsync({
         srcName: 'fields.content',
         dstName: '',
         fldType: 'html'
       })
-    ).resolves.toEqual(
-      '<p>Hello world!</p><p><img alt="image1" src="https://images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="https://images.ctfassets.net/image2.jpg" width="600" height="400"></p><pre><code>console.log(123)</code></pre>'
-    )
+    ).resolves.toEqual('<p>Hello world!</p>')
   })
 })
 
@@ -308,6 +232,196 @@ describe('getEntries', () => {
   })
 })
 
+describe('richTextToHtml', () => {
+  it('should return html', () => {
+    expect(
+      richTextToHtml({
+        nodeType: 'document',
+        content: [
+          {
+            nodeType: 'paragraph',
+            content: [
+              {
+                nodeType: 'text',
+                value: 'Hello world!',
+                marks: []
+              }
+            ]
+          },
+          {
+            nodeType: 'embedded-asset-block',
+            content: [],
+            data: {
+              target: {
+                fields: {
+                  title: 'image1',
+                  description: 'image1 description',
+                  file: {
+                    url: '//images.ctfassets.net/image1.jpg',
+                    details: {
+                      size: 100,
+                      image: {
+                        width: 600,
+                        height: 400
+                      }
+                    },
+                    fileName: 'image1.jpg',
+                    contentType: 'image/jpeg'
+                  }
+                }
+              }
+            }
+          },
+          {
+            nodeType: 'embedded-asset-block',
+            content: [],
+            data: {
+              target: {
+                fields: {
+                  title: 'image2',
+                  description:
+                    'image2 description\n{\n  width="400"\n  height="300"\n}',
+                  file: {
+                    url: '//images.ctfassets.net/image2.jpg',
+                    details: {
+                      size: 100,
+                      image: {
+                        width: 600,
+                        height: 400
+                      }
+                    },
+                    fileName: 'image1.jpg',
+                    contentType: 'image/jpeg'
+                  }
+                }
+              }
+            }
+          },
+          {
+            nodeType: 'embedded-entry-block',
+            content: [],
+            data: {
+              target: {
+                metadata: {
+                  tags: []
+                },
+                sys: {
+                  type: 'Entry',
+                  contentType: {
+                    sys: {
+                      type: 'Link',
+                      linkType: 'ContentType',
+                      id: 'fragmentCodeblock'
+                    }
+                  },
+                  locale: 'ja'
+                },
+                fields: {
+                  content: 'console.log(123)'
+                }
+              }
+            }
+          }
+        ]
+      } as any)
+    ).toEqual(
+      '<p>Hello world!</p><p><img alt="image1" src="//images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="//images.ctfassets.net/image2.jpg" width="600" height="400"></p><pre><code>console.log(123)</code></pre>'
+    )
+  })
+  it('should return html(GrapghQL)', () => {
+    expect(
+      richTextToHtml(
+        {
+          nodeType: 'document',
+          content: [
+            {
+              nodeType: 'paragraph',
+              content: [
+                {
+                  nodeType: 'text',
+                  value: 'Hello world!',
+                  marks: []
+                }
+              ]
+            },
+            {
+              nodeType: 'embedded-asset-block',
+              content: [],
+              data: {
+                target: {
+                  sys: { id: 'image-1' }
+                }
+              }
+            },
+            {
+              nodeType: 'embedded-asset-block',
+              content: [],
+              data: {
+                target: {
+                  sys: { id: 'image-2' }
+                }
+              }
+            },
+            {
+              nodeType: 'embedded-entry-block',
+              content: [],
+              data: {
+                target: {
+                  sys: {
+                    id: 'entry-1'
+                  }
+                }
+              }
+            }
+          ]
+        } as any,
+        {
+          assets: {
+            block: [
+              {
+                sys: {
+                  id: 'image-1'
+                },
+                url: '//images.ctfassets.net/image1.jpg',
+                width: 600,
+                height: 400,
+                contentType: 'image/jpeg',
+                title: 'image1',
+                description: 'image1 description'
+              },
+              {
+                sys: {
+                  id: 'image-2'
+                },
+                url: '//images.ctfassets.net/image2.jpg',
+                width: 600,
+                height: 400,
+                contentType: 'image/jpeg',
+                title: 'image2',
+                description:
+                  'image2 description\n{\n  width="400"\n  height="300"\n}'
+              }
+            ]
+          },
+          entries: {
+            block: [
+              {
+                __typename: 'FragmentCodeblock',
+                sys: {
+                  id: 'entry-1'
+                },
+                content: 'console.log(123)'
+              }
+            ]
+          }
+        }
+      )
+    ).toEqual(
+      '<p>Hello world!</p><p><img alt="image1" src="//images.ctfassets.net/image1.jpg" width="600" height="400"></p><p><img alt="image2{   width=&#x22;400&#x22;   height=&#x22;300&#x22; }" src="//images.ctfassets.net/image2.jpg" width="600" height="400"></p><pre><code>console.log(123)</code></pre>'
+    )
+  })
+})
+
 describe('client_contentful', () => {
   it('should get rendered content from Contentful space', async () => {
     const c = new ClientCtf({
@@ -323,7 +437,7 @@ describe('client_contentful', () => {
     })
     expect((await next).value).toEqual({
       fetch: { total: 2, count: 2 },
-      content: mockData.items.map((v) => new CtfRecord({ ...v.sys, ...v }))
+      content: mockDataRest.items.map((v) => new CtfRecord({ ...v.sys, ...v }))
     })
     expect(mockGetEntries).toHaveBeenLastCalledWith({
       content_type: 'contentmodel',

@@ -106,6 +106,7 @@ export async function saveRemoteContent({
   skip,
   limit,
   pageSize,
+  filter,
   query,
   vars,
   varsStr
@@ -119,6 +120,7 @@ export async function saveRemoteContent({
       .limit(limit)
       .pageSize(pageSize)
       .transform(transformContent(mapConfig))
+      .filter(filter)
       .query(query)
       .vars(vars)
       .vars(varsStr, true)

@@ -420,6 +420,35 @@ describe('saveRemoteContent()', () => {
     expect(mockWriteFile.mock.calls[0][1]).not.toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).not.toContain('height: 100')
   })
+  it('should call filter method', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      media: {},
+      flds: []
+    })
+    const c = client('appsheet', {
+      apiBaseURL: 'https://api.appsheet.com/api/v2/',
+      apiName: 'tbl',
+      credential: ['appId', 'secret']
+    })
+    const res = saveRemoteContent({
+      client: c,
+      apiName: 'tbl',
+      mapConfig,
+      dstContentDir: '/path/content',
+      dstImagesDir: '/path/static/images',
+      staticRoot: '',
+      skip: 0,
+      filter: [['eq', 'fields.id', 'index']],
+      query: [],
+      vars: [],
+      varsStr: []
+    })
+    mockAxios.mockResponse({
+      data: []
+    })
+    await expect(res).resolves.toEqual(null)
+    expect(c._filter).toEqual([['eq', 'fields.id', 'index']])
+  })
   it('should call query method', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       media: {},

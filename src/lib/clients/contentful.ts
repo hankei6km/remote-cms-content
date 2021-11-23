@@ -27,6 +27,16 @@ const nodeRendererAsset = (links?: any): NodeRenderer => {
   const assetMap = new Map()
   if (links) {
     for (const asset of links?.assets?.block || []) {
+      // TODO: sys.id だけでなくオブジェクト全体の検証.
+      if (asset.sys?.id === undefined) {
+        throw new Error(
+          `nodeRendererAsset: sys.id is undefined\nasset = ${JSON.stringify(
+            asset,
+            null,
+            ' '
+          )}`
+        )
+      }
       assetMap.set(asset.sys.id, asset)
     }
   }
@@ -108,6 +118,16 @@ const nodeRendererEntry = (links: any): NodeRenderer => {
   const entriesMap = new Map()
   if (links) {
     for (const entry of links?.entries?.block || []) {
+      // TODO: sys.id だけでなくオブジェクト全体の検証.
+      if (entry.sys?.id === undefined) {
+        throw new Error(
+          `nodeRendererEntry: sys.id is undefined\nentry = ${JSON.stringify(
+            entry,
+            null,
+            ' '
+          )}`
+        )
+      }
       entriesMap.set(entry.sys.id, entry)
     }
   }

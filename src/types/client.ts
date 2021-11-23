@@ -31,7 +31,13 @@ export class ResRecord {
     this.updatedAt = updatedAt
   }
   has(map: MapFld): boolean {
-    return this.record.hasOwnProperty(map.srcName)
+    if (this.record.hasOwnProperty(map.srcName)) {
+      const v = this.record[map.srcName]
+      if (v !== null) {
+        return true
+      }
+    }
+    return false
   }
   baseFlds() {
     return {

@@ -136,6 +136,22 @@ describe('CtfRecord', () => {
       })
     ).toBeFalsy()
   })
+  it('should return false from has(null)', () => {
+    expect(
+      new CtfRecord({ text: null }).has({
+        srcName: 'text',
+        dstName: '',
+        fldType: 'string'
+      })
+    ).toBeFalsy()
+    expect(
+      new CtfRecord({ fields: { text: null } }).has({
+        srcName: 'fields.text',
+        dstName: '',
+        fldType: 'string'
+      })
+    ).toBeFalsy()
+  })
   it('should return true from isAsyncFld', () => {
     expect(
       new CtfRecord({}).isAsyncFld({

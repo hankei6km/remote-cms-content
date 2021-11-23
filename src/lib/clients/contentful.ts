@@ -198,11 +198,23 @@ export class CtfRecord extends ResRecord {
       if (n[0] === 'fields') {
         const f = this.record[n[0]]
         if (typeof f === 'object') {
-          return (f as any).hasOwnProperty(n[1])
+          if ((f as any).hasOwnProperty(n[1])) {
+            const v = (f as any)[n[1]]
+            if (v !== null) {
+              return true
+            }
+          }
         }
       }
+      return false
     }
-    return this.record.hasOwnProperty(map.srcName)
+    if (this.record.hasOwnProperty(map.srcName)) {
+      const v = this.record[map.srcName]
+      if (v !== null) {
+        return true
+      }
+    }
+    return false
   }
   isAsyncFld(map: MapFld): boolean {
     return map.fldType === 'html'

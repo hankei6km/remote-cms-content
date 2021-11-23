@@ -77,11 +77,7 @@ export abstract class ClientGqlBase extends ClientBase {
           })
         })
         .catch((err) => {
-          reject(
-            new Error(
-              `ClientGqlBase._fetch: ${apolloErrToMessages(err)} ${err}`
-            )
-          )
+          reject(new Error(`ClientGqlBase._fetch: ${apolloErrToMessages(err)}`))
         })
     })
   }

@@ -1,6 +1,20 @@
 import { readFileSync } from 'fs'
-import { GqlVars } from '../types/gql.js'
 import toNumber from 'lodash.tonumber'
+import { GqlVars } from '../types/gql.js'
+import { OpValue } from '../types/client.js'
+
+export function decodeFilter(filter: string[]): OpValue[] {
+  return filter
+    .map((f) => {
+      const t = f.split('=')
+      if (t.length > 1) {
+        return ['=', t[0], t.slice(1).join('=')]
+      }
+      return []
+    })
+    .filter(([o]) => o === '=')
+    .map(([_o, k, v]) => ['eq', k, v])
+}
 
 export function readQuery(
   fileName: string,

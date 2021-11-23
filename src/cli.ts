@@ -2,6 +2,7 @@ import { Writable } from 'stream'
 import { client } from './lib/client.js'
 import { saveRemoteContent } from './lib/content.js'
 import { loadMapConfig } from './lib/map.js'
+import { decodeFilter } from './lib/util.js'
 import { ClientKind, OpValue } from './types/client.js'
 
 type SaveOpts = {
@@ -27,19 +28,6 @@ type Opts = {
   credential: string[]
   mapConfig: string
   saveOpts: SaveOpts
-}
-
-export function decodeFilter(filter: string[]): OpValue[] {
-  return filter
-    .map((f) => {
-      const t = f.split('=', 2)
-      if (t.length === 2) {
-        return ['=', ...t]
-      }
-      return []
-    })
-    .filter(([o]) => o === '=')
-    .map(([_o, k, v]) => ['eq', k, v])
 }
 
 export const cli = async ({

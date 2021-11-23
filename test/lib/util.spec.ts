@@ -23,11 +23,28 @@ jest.unstable_mockModule('fs', async () => {
 
 const mockFs = await import('fs')
 const { mockReadFileSync } = (mockFs as any)._getMocks()
-const { readQuery, decodeVars, apolloErrToMessages, yargsArrayFromEnvVars } =
-  await import('../../src/lib/util.js')
+const {
+  decodeFilter,
+  readQuery,
+  decodeVars,
+  apolloErrToMessages,
+  yargsArrayFromEnvVars
+} = await import('../../src/lib/util.js')
 
 afterEach(() => {
   ;(mockFs as any)._reset()
+})
+
+describe('decodeFilter', () => {
+  it('should decode filter', () => {
+    expect(
+      decodeFilter(['fields.id=index', 'test=test1=test2=test3', 'test=test1='])
+    ).toEqual([
+      ['eq', 'fields.id', 'index'],
+      ['eq', 'test', 'test1=test2=test3'],
+      ['eq', 'test', 'test1=']
+    ])
+  })
 })
 
 describe('readQuery', () => {

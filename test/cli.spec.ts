@@ -64,7 +64,10 @@ describe('cli()', () => {
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         skip: 0,
-        filter: []
+        filter: [],
+        query: [],
+        vars: [],
+        varsStr: []
       }
     })
     expect(await res).toEqual(0)
@@ -92,7 +95,10 @@ describe('cli()', () => {
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         skip: 0,
-        filter: []
+        filter: [],
+        query: [],
+        vars: [],
+        varsStr: []
       }
     ])
     expect(outData).toEqual('')
@@ -120,7 +126,10 @@ describe('cli()', () => {
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         skip: 0,
-        filter: ['k=v']
+        filter: ['k=v'],
+        query: [],
+        vars: [],
+        varsStr: []
       }
     })
     expect(await res).toEqual(0)
@@ -148,7 +157,10 @@ describe('cli()', () => {
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         skip: 0,
-        filter: [['eq', 'k', 'v']]
+        filter: [['eq', 'k', 'v']],
+        query: [],
+        vars: [],
+        varsStr: []
       }
     ])
     expect(outData).toEqual('')
@@ -178,7 +190,10 @@ describe('cli()', () => {
         dstImagesDir: '/static/tbl',
         staticRoot: '/static',
         skip: 0,
-        filter: []
+        filter: [],
+        query: [],
+        vars: [],
+        varsStr: []
       }
     })
     expect(await res).toEqual(1)

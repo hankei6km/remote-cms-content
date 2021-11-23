@@ -385,7 +385,8 @@ describe('mappingFlds', () => {
           背景色: '青',
           オブジェクト: { key: 'value' },
           配列: [10, 20, 30],
-          本文: '<p>test html1</p><p>test html2</p>'
+          本文: '<p>test html1</p><p>test html2</p>',
+          'null テスト': null
         }),
         {
           flds: [
@@ -449,6 +450,11 @@ describe('mappingFlds', () => {
               dstName: 'content',
               fldType: 'html',
               convert: 'markdown'
+            },
+            {
+              srcName: 'null テスト',
+              dstName: 'nullTest',
+              fldType: 'boolean'
             }
           ]
         }
@@ -473,6 +479,7 @@ describe('mappingFlds', () => {
       obj: { key: 'value' },
       arr: [10, 20, 30],
       content: 'test html1\n\ntest html2\n'
+      // nullTest は has() で弾かれる
     })
   })
   test('should map flds multiple', async () => {

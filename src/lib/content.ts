@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises'
 import matter from 'gray-matter'
 import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
 import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
-import { FetchResult, TransformContent } from '../types/client.js'
+import { TransformContent } from '../types/client.js'
 import { SaveRemoteContentOptions } from '../types/content.js'
 import { imageInfoFromSrc, saveImageFile } from './media.js'
 
@@ -57,7 +57,7 @@ export async function saveContentFile(
 // }
 
 function transformContent(m: MapConfig): TransformContent {
-  const ret: TransformContent = (content) => {
+  const ret: TransformContent = (content, arrayPath) => {
     const valueType = typeof content
     if (
       (valueType === 'number' ||
@@ -67,9 +67,19 @@ function transformContent(m: MapConfig): TransformContent {
     ) {
       try {
         const ret = m.transformJsonata.evaluate(content)
-        if (!Array.isArray(ret)) {
+        let arrayItem = ret
+        let arrayPathLabel = 'resutl'
+        if (arrayPath) {
+          arrayPath.forEach((p) => {
+            if (typeof arrayItem === 'object' && arrayItem.hasOwnProperty(p)) {
+              arrayItem = arrayItem[p]
+              arrayPathLabel = `${arrayPathLabel}.${p}`
+            }
+          })
+        }
+        if (!Array.isArray(arrayItem)) {
           throw new Error(
-            `transformFldValue: result is not array: transform=${m.transform}`
+            `transformFldValue: ${arrayPathLabel} is not array: transform=${m.transform}`
           )
         }
         return ret
@@ -96,7 +106,9 @@ export async function saveRemoteContent({
   skip,
   limit,
   pageSize,
-  filter
+  query,
+  vars,
+  varsStr
 }: SaveRemoteContentOptions): Promise<Error | null> {
   let ret: Error | null = null
   try {
@@ -107,6 +119,9 @@ export async function saveRemoteContent({
       .limit(limit)
       .pageSize(pageSize)
       .transform(transformContent(mapConfig))
+      .query(query)
+      .vars(vars)
+      .vars(varsStr, true)
     let position = 0
     for await (let res of c.fetch()) {
       const contenSrc = res.content

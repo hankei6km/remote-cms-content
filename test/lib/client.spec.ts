@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals'
 import { ResRecord } from '../../src/types/client.js'
-import { ClientTest } from './clientTest.js'
 
 // > ENOENT: no such file or directory, open 'zlib'
 // になる対応.
@@ -11,7 +10,18 @@ jest.unstable_mockModule('contentful', async () => {
   }
 })
 
+const { readQuery: _readQuery, ...utils } = await import(
+  '../../src/lib/util.js'
+)
+jest.unstable_mockModule('../../src/lib/util.js', async () => {
+  return {
+    readQuery: (v: string) => (v === 'error' ? new Error('query error') : v), // ファイル読み込みではなく、文字列をそのまま返す.
+    ...utils
+  }
+})
+
 const { client } = await import('../../src/lib/client.js')
+const { ClientTest } = await import('./clientTest.js')
 
 describe('ClientBase', () => {
   it('should fetch all content', async () => {
@@ -24,7 +34,11 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 0, pageSize: undefined })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 0,
+      pageSize: undefined,
+      query: []
+    })
     expect(await g.next()).toEqual({
       value: undefined,
       done: true
@@ -41,7 +55,11 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 0, pageSize: 30 })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 0,
+      pageSize: 30,
+      query: []
+    })
     expect(await g.next()).toEqual({
       value: {
         fetch: { total: 100, count: 30 },
@@ -49,7 +67,11 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 30, pageSize: 30 })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 30,
+      pageSize: 30,
+      query: []
+    })
     expect(await g.next()).toEqual({
       value: {
         fetch: { total: 100, count: 30 },
@@ -57,7 +79,11 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 60, pageSize: 30 })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 60,
+      pageSize: 30,
+      query: []
+    })
     expect(await g.next()).toEqual({
       value: {
         fetch: { total: 100, count: 10 },
@@ -65,7 +91,11 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 90, pageSize: 30 }) // limit を指定していない.
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 90,
+      pageSize: 30,
+      query: []
+    }) // limit を指定していない.
     expect(await g.next()).toEqual({
       value: undefined,
       done: true
@@ -82,7 +112,11 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 5, pageSize: undefined })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 5,
+      pageSize: undefined,
+      query: []
+    })
     expect(c._fetch).toHaveBeenCalledTimes(1)
   })
   it('should fetch part of content with paginate', async () => {
@@ -95,7 +129,11 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 5, pageSize: 30 })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 5,
+      pageSize: 30,
+      query: []
+    })
     expect(await g.next()).toEqual({
       value: {
         fetch: { total: 100, count: 30 },
@@ -103,7 +141,11 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 35, pageSize: 30 })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 35,
+      pageSize: 30,
+      query: []
+    })
     expect(await g.next()).toEqual({
       value: {
         fetch: { total: 100, count: 15 },
@@ -111,12 +153,31 @@ describe('ClientBase', () => {
       },
       done: false
     })
-    expect(c._fetch).toHaveBeenLastCalledWith({ skip: 65, pageSize: 15 })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 65,
+      pageSize: 15,
+      query: []
+    })
     expect(await g.next()).toEqual({
       value: undefined,
       done: true
     })
     expect(c._fetch).toHaveBeenCalledTimes(3)
+  })
+  it('should throw error when error occured in chain(query)', () => {
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).query([
+      'error'
+    ])
+    const g = c.fetch()
+    expect(g.next()).rejects.toThrowError(/query/)
+  })
+  it('should throw error when error occured in chain(vars)', () => {
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).vars(
+      ['error'],
+      true
+    )
+    const g = c.fetch()
+    expect(g.next()).rejects.toThrowError(/vars/)
   })
 })
 
@@ -134,6 +195,13 @@ describe('client', () => {
       credential: ['spaceId', 'cda_token']
     })
     expect(c.kind()).toEqual('contentful')
+  })
+  it('should return contentful:gql client instanse', () => {
+    const c = client('contentful:gql', {
+      apiBaseURL: 'https://graphql.contentful.com/content/v1/spaces/',
+      credential: ['spaceId', 'cda_token']
+    })
+    expect(c.kind()).toEqual('contentful:gql')
   })
   it('should return microcms client instanse', () => {
     const c = client('microcms', {

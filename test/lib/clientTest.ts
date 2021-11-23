@@ -1,9 +1,7 @@
 import { jest } from '@jest/globals'
-import { rejects } from 'assert'
 
 import {
   ClientBase,
-  ClientChain,
   ClientKind,
   FetchParams,
   FetchResult,
@@ -49,9 +47,9 @@ export class ClientTest extends ClientBase {
       return new Promise((resolve, reject) => {
         process.nextTick(() => {
           try {
-            const content = (
-              this._transformer ? this._transformer(recs) : recs
-            ).map((v) => new ResRecord(v))
+            const content = this._execTransform(recs).map(
+              (v) => new ResRecord(v)
+            )
             resolve({
               fetch: { count: recs.length, total: this._total },
               content

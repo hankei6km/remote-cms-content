@@ -1,15 +1,10 @@
 import axios from 'axios'
 import {
-  Client,
   ClientBase,
-  ClientChain,
   ClientKind,
-  ClientOpts,
   FetchParams,
   FetchResult,
-  OpValue,
-  ResRecord,
-  TransformContent
+  OpValue
 } from '../../types/client.js'
 
 export type APIActionBody = {
@@ -114,9 +109,9 @@ export class ClientAppSheet extends ClientBase {
       )
     }
 
-    const content = (
-      this._transformer ? this._transformer(res.data) : res.data
-    ).map((v: Record<string, unknown>) => new ResRecord(v))
+    const content = this._execTransform(res.data).map(
+      (v: Record<string, unknown>) => this.resRecord(v)
+    )
     return {
       fetch: {
         total: res.data.length,

@@ -14,6 +14,8 @@ type SaveOpts = {
   pageSize?: number
   filter: string[]
   query: string[]
+  vars: string[]
+  varsStr: string[]
 }
 
 type Opts = {

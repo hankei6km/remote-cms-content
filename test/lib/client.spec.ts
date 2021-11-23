@@ -164,12 +164,20 @@ describe('ClientBase', () => {
     })
     expect(c._fetch).toHaveBeenCalledTimes(3)
   })
-  it('should throw error when error occured in chain', () => {
+  it('should throw error when error occured in chain(query)', () => {
     const c = new ClientTest({ apiBaseURL: '', credential: [] }).query([
       'error'
     ])
     const g = c.fetch()
     expect(g.next()).rejects.toThrowError(/query/)
+  })
+  it('should throw error when error occured in chain(vars)', () => {
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).vars(
+      ['error'],
+      true
+    )
+    const g = c.fetch()
+    expect(g.next()).rejects.toThrowError(/vars/)
   })
 })
 

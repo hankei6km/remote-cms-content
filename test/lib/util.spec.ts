@@ -23,7 +23,8 @@ jest.unstable_mockModule('fs', async () => {
 
 const mockFs = await import('fs')
 const { mockReadFileSync } = (mockFs as any)._getMocks()
-const { readQuery, apolloErrToMessages } = await import('../../src/lib/util.js')
+const { readQuery, decodeVars, apolloErrToMessages, yargsArrayFromEnvVars } =
+  await import('../../src/lib/util.js')
 
 afterEach(() => {
   ;(mockFs as any)._reset()
@@ -42,6 +43,61 @@ describe('readQuery', () => {
       /validation.*TEST/
     )
     expect(mockValidator).toHaveBeenLastCalledWith('query test')
+  })
+})
+
+describe('decodeVars', () => {
+  it('should return boolean', () => {
+    expect(decodeVars(['a', 'b=true', 'c=false'])).toEqual({
+      a: true,
+      b: true,
+      c: false
+    })
+  })
+  it('should return number', () => {
+    expect(decodeVars(['a=0101', 'b=5.4', 'c=-5.4', 'd=0x123'])).toEqual({
+      a: 101,
+      b: 5.4,
+      c: -5.4,
+      d: 291
+    })
+  })
+  it('should return string', () => {
+    expect(
+      decodeVars([
+        'a=ABC',
+        'b=',
+        'c=abc=efg',
+        'd=abc=efg=',
+        'e=あいうえお',
+        'f=3.1.4'
+      ])
+    ).toEqual({
+      a: 'ABC',
+      b: '',
+      c: 'abc=efg',
+      d: 'abc=efg=',
+      e: 'あいうえお',
+      f: '3.1.4'
+    })
+  })
+  it('should return string with force option', () => {
+    expect(
+      decodeVars(
+        ['a=true', 'b=false', 'c=0101', 'd=5.4', 'e=-5.4', 'f=0x123'],
+        true
+      )
+    ).toEqual({
+      a: 'true',
+      b: 'false',
+      c: '0101',
+      d: '5.4',
+      e: '-5.4',
+      f: '0x123'
+    })
+  })
+  it('should throw error', () => {
+    expect(() => decodeVars(['abc'], true)).toThrowError(/invalid/)
   })
 })
 
@@ -120,5 +176,19 @@ describe('apolloErrToMessages', () => {
   it('should return value when value is apollo errors', () => {
     const mockErr = new Error('error')
     expect(apolloErrToMessages(mockErr)).toEqual(mockErr)
+  })
+})
+
+describe('yargsArrayFromEnvVars', () => {
+  it('should return array', () => {
+    expect(yargsArrayFromEnvVars({ 0: 'a', 1: 'b' })).toEqual(['a', 'b'])
+  })
+  it('should return value when value is not object', () => {
+    expect(yargsArrayFromEnvVars('value')).toEqual('value')
+  })
+  it('should throw error when index is not number', () => {
+    expect(() => yargsArrayFromEnvVars({ A: 'a', B: 'b' })).toThrowError(
+      /is not number/
+    )
   })
 })

@@ -68,8 +68,8 @@ class ClienteGqlTest extends ClientGqlBase {
 describe('ClientGql', () => {
   const query = [
     `
-      query GetItems($skip: Int, $pageSize: Int) {
-        testCollection(skip: $skip, limt: $pageSize) {
+      query GetItems($skip: Int, $pageSize: Int, $var1: Int) {
+        testCollection(skip: $skip, limt: $pageSize, var1: $var1) {
           items {
             title
             content
@@ -120,6 +120,29 @@ describe('ClientGql', () => {
       value: undefined,
       done: true
     })
+  })
+  it('should fetch with variables', async () => {
+    const mockData = {
+      data: {
+        testCollection: {
+          items: genItems(2),
+          total: 2
+        }
+      },
+      errors: {}
+    }
+    const [mockFetch, mockLink] = mockFetchLink(mockData)
+    const client = new ClienteGqlTest(mockLink, {
+      apiBaseURL: '',
+      credential: []
+    })
+      .request()
+      .transform((content) => content.testCollection)
+      .vars(['var1=123'])
+      .query(query)
+    await client.fetch().next()
+    const body = JSON.parse((mockFetch.mock.calls[0][1] as any).body)
+    expect(body.variables).toEqual({ skip: 0, var1: 123 })
   })
   it('should fetch all content with paginate', async () => {
     const mockData = {

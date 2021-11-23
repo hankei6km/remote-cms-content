@@ -1,4 +1,5 @@
-import { readQuery } from '../lib/util.js'
+import { readQuery, decodeVars } from '../lib/util.js'
+import { GqlVars } from './gql.js'
 import { MapFld } from './map.js'
 
 export const ClientKindValues = [
@@ -107,6 +108,7 @@ export type ClientChain = {
   pageSize(n: number | undefined): ClientChain
   transform: (t: TransformContent) => ClientChain
   query: (q: string[]) => ClientChain
+  vars: (v: string[], forceString?: boolean) => ClientChain
   fetch: () => AsyncGenerator<FetchResult, void, void>
 }
 
@@ -124,6 +126,7 @@ export abstract class ClientBase {
   _limit: number | undefined = undefined
   _pageSize: number | undefined = undefined
   _query: string[] = []
+  _vars: GqlVars = {}
   _transformer: TransformContent | undefined = undefined
 
   _setupErr: Error | undefined
@@ -162,6 +165,14 @@ export abstract class ClientBase {
       this._query = q.map((v) => readQuery(v))
     } catch (err: any) {
       this._setupErr = new Error(`ClientBase.query: ${err}`)
+    }
+    return this
+  }
+  vars(v: string[], forceString?: boolean): ClientChain {
+    try {
+      Object.assign(this._vars, decodeVars(v, forceString))
+    } catch (err: any) {
+      this._setupErr = new Error(`ClientBase.vars: ${err}`)
     }
     return this
   }

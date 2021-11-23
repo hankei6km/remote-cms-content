@@ -186,7 +186,9 @@ describe('saveRemoteContent()', () => {
       staticRoot: '/path/static',
       skip: 0,
       filter: [],
-      query: []
+      query: [],
+      vars: [],
+      varsStr: []
     })
     mockAxios.mockResponse({
       data: [
@@ -264,7 +266,9 @@ describe('saveRemoteContent()', () => {
       limit: 90,
       pageSize: 30,
       filter: [],
-      query: []
+      query: [],
+      vars: [],
+      varsStr: []
     })
     await expect(res).resolves.toEqual(null)
     for (let idx = 0; idx < 90; idx++) {
@@ -297,7 +301,9 @@ describe('saveRemoteContent()', () => {
       staticRoot: '/path/static',
       skip: 0,
       filter: [],
-      query: []
+      query: [],
+      vars: [],
+      varsStr: []
     })
     mockAxios.mockResponse({
       data: [
@@ -390,7 +396,9 @@ describe('saveRemoteContent()', () => {
       staticRoot: '',
       skip: 0,
       filter: [],
-      query: []
+      query: [],
+      vars: [],
+      varsStr: []
     })
     mockAxios.mockResponse({
       data: [
@@ -431,13 +439,44 @@ describe('saveRemoteContent()', () => {
       staticRoot: '',
       skip: 0,
       filter: [],
-      query: ['test1.gql', 'test2.gql']
+      query: ['test1.gql', 'test2.gql'],
+      vars: [],
+      varsStr: []
     })
     mockAxios.mockResponse({
       data: []
     })
     await expect(res).resolves.toEqual(null)
     expect(c._query).toEqual(['test1.gql', 'test2.gql'])
+  })
+  it('should call vars method', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      media: {},
+      flds: []
+    })
+    const c = client('appsheet', {
+      apiBaseURL: 'https://api.appsheet.com/api/v2/',
+      apiName: 'tbl',
+      credential: ['appId', 'secret']
+    })
+    const res = saveRemoteContent({
+      client: c,
+      apiName: 'tbl',
+      mapConfig,
+      dstContentDir: '/path/content',
+      dstImagesDir: '/path/static/images',
+      staticRoot: '',
+      skip: 0,
+      filter: [],
+      query: [],
+      vars: ['abc=123'],
+      varsStr: ['ABC=123']
+    })
+    mockAxios.mockResponse({
+      data: []
+    })
+    await expect(res).resolves.toEqual(null)
+    expect(c._vars).toEqual({ abc: 123, ABC: '123' })
   })
   it('should get remote content and save as local files without downloading images', async () => {
     const mapConfig: MapConfig = compileMapConfig({
@@ -459,7 +498,9 @@ describe('saveRemoteContent()', () => {
       staticRoot: '',
       skip: 0,
       filter: [],
-      query: []
+      query: [],
+      vars: [],
+      varsStr: []
     })
     mockAxios.mockResponse({
       data: [
@@ -498,7 +539,9 @@ describe('saveRemoteContent()', () => {
       staticRoot: '/path/static',
       skip: 0,
       filter: [],
-      query: []
+      query: [],
+      vars: [],
+      varsStr: []
     })
     mockAxios.mockResponse({
       data: [
@@ -529,7 +572,9 @@ describe('saveRemoteContent()', () => {
       staticRoot: '/path/static',
       skip: 0,
       filter: [],
-      query: []
+      query: [],
+      vars: [],
+      varsStr: []
     })
     mockAxios.mockError({
       response: { status: 404, statusText: 'dummy error' }
@@ -550,7 +595,9 @@ describe('saveRemoteContent()', () => {
       staticRoot: '/path/static',
       skip: 0,
       filter: [],
-      query: []
+      query: [],
+      vars: [],
+      varsStr: []
     })
     mockAxios.mockResponse({
       data: [

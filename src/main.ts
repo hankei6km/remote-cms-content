@@ -3,6 +3,7 @@ import yargs from 'yargs'
 
 import { hideBin } from 'yargs/helpers'
 import { cli } from './cli.js'
+import { yargsArrayFromEnvVars } from './lib/util.js'
 import { ClientKindValues } from './types/client.js'
 ;(async () => {
   const argv = await yargs(hideBin(process.argv))
@@ -37,48 +38,28 @@ import { ClientKindValues } from './types/client.js'
               array: true,
               required: false,
               description: 'filter operators',
-              coerce: (arg: any) => {
-                // https://github.com/yargs/yargs/issues/821
-                if (typeof arg === 'object' && !Array.isArray(arg)) {
-                  const arr: any[] = []
-                  for (const [key, value] of Object.entries(arg)) {
-                    const idx = Number.parseInt(key, 10)
-                    if (!Number.isNaN(idx)) {
-                      arr[idx] = value
-                    } else {
-                      throw new Error(
-                        `filter: index of filter is not number: ${key}`
-                      )
-                    }
-                  }
-                  return arr
-                }
-                return arg
-              }
+              coerce: yargsArrayFromEnvVars
             },
             query: {
               type: 'string',
               array: true,
               required: false,
               description: 'query files',
-              coerce: (arg: any) => {
-                // https://github.com/yargs/yargs/issues/821
-                if (typeof arg === 'object' && !Array.isArray(arg)) {
-                  const arr: any[] = []
-                  for (const [key, value] of Object.entries(arg)) {
-                    const idx = Number.parseInt(key, 10)
-                    if (!Number.isNaN(idx)) {
-                      arr[idx] = value
-                    } else {
-                      throw new Error(
-                        `filter: index of filter is not number: ${key}`
-                      )
-                    }
-                  }
-                  return arr
-                }
-                return arg
-              }
+              coerce: yargsArrayFromEnvVars
+            },
+            vars: {
+              type: 'string',
+              array: true,
+              required: false,
+              description: 'variables to GraphQL',
+              coerce: yargsArrayFromEnvVars
+            },
+            'vars-str': {
+              type: 'string',
+              array: true,
+              required: false,
+              description: 'variables to GraphQL(force string)',
+              coerce: yargsArrayFromEnvVars
             }
           })
           .positional('apiName', {
@@ -114,24 +95,7 @@ import { ClientKindValues } from './types/client.js'
         array: true,
         required: false,
         description: 'credential to API endpoint',
-        coerce: (arg: any) => {
-          // https://github.com/yargs/yargs/issues/821
-          if (!Array.isArray(arg)) {
-            const arr: any[] = []
-            for (const [key, value] of Object.entries(arg)) {
-              const idx = Number.parseInt(key, 10)
-              if (!Number.isNaN(idx)) {
-                arr[idx] = value
-              } else {
-                throw new Error(
-                  `credential: index of credential is not number: ${key}`
-                )
-              }
-            }
-            return arr
-          }
-          return arg
-        }
+        coerce: yargsArrayFromEnvVars
       },
       'map-config': {
         type: 'string',
@@ -158,7 +122,9 @@ import { ClientKindValues } from './types/client.js'
         limit: argv['limit'],
         pageSize: argv['page-size'],
         filter: argv['filter'] || [],
-        query: argv['query'] || []
+        query: argv['query'] || [],
+        vars: argv['vars'] || [],
+        varsStr: argv['vars-str'] || []
       }
     })
   )

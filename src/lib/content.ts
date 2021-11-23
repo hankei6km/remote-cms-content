@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises'
 import matter from 'gray-matter'
 import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
 import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
-import { FetchResult, TransformContent } from '../types/client.js'
+import { TransformContent } from '../types/client.js'
 import { SaveRemoteContentOptions } from '../types/content.js'
 import { imageInfoFromSrc, saveImageFile } from './media.js'
 
@@ -106,7 +106,9 @@ export async function saveRemoteContent({
   skip,
   limit,
   pageSize,
-  query
+  query,
+  vars,
+  varsStr
 }: SaveRemoteContentOptions): Promise<Error | null> {
   let ret: Error | null = null
   try {
@@ -118,6 +120,8 @@ export async function saveRemoteContent({
       .pageSize(pageSize)
       .transform(transformContent(mapConfig))
       .query(query)
+      .vars(vars)
+      .vars(varsStr, true)
     let position = 0
     for await (let res of c.fetch()) {
       const contenSrc = res.content

@@ -27,8 +27,8 @@ export function gqlClient() {
 }
 
 export abstract class ClientGqlBase extends ClientBase {
-  _gqlClient!: ApolloClient<NormalizedCacheObject>
-  _link!: ApolloLink
+  private _gqlClient!: ApolloClient<NormalizedCacheObject>
+  private _link!: ApolloLink
   constructor(link: ApolloLink, opts: ClientOpts) {
     // link が外部に露出しているのはどうなの?
     super(opts)

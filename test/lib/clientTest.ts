@@ -5,6 +5,7 @@ import {
   ClientKind,
   FetchParams,
   FetchResult,
+  OpValue,
   RawRecord,
   ResRecord
 } from '../../src/types/client.js'
@@ -34,6 +35,15 @@ export class ClientTest extends ClientBase {
   kind(): ClientKind {
     return 'appsheet'
   }
+  filter = jest.fn((o: OpValue[]) => {
+    return super.filter(o)
+  })
+  query = jest.fn((q: string[]) => {
+    return super.query(q)
+  })
+  vars = jest.fn((v: string[], forceString?: boolean) => {
+    return super.vars(v, forceString)
+  })
   _fetch = jest.fn(
     (async ({ skip, pageSize }: FetchParams): Promise<FetchResult> => {
       const recs: RawRecord[] = []

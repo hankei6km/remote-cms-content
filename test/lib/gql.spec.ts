@@ -1,5 +1,8 @@
 import { jest } from '@jest/globals'
-import { ApolloLink, HttpLink } from '@apollo/client'
+// SyntaxError: The requested module '@apollo/client' does not provide an export named 'HttpLink'
+// types/gql.ts での対応と同じ.
+import pkgApolloClient, { ApolloLink as ApolloLinkAsType } from '@apollo/client'
+const { ApolloLink, HttpLink } = pkgApolloClient
 import { ClientKind, RawRecord } from '../../src/types/client.js' // type の export は import() で扱えない?(d.ts だから?)
 
 const { readQuery: _readQuery, ...utils } = await import(
@@ -19,7 +22,9 @@ const testLink = new ApolloLink((operation, forward) => {
   return forward(operation)
 })
 
-const mockFetchLink = (mockData: Record<string, any>): [any, ApolloLink] => {
+const mockFetchLink = (
+  mockData: Record<string, any>
+): [any, ApolloLinkAsType] => {
   // const mockFetch = jest.fn().mockResolvedValue({
   //   status: 200,
   //   text: jest.fn().mockResolvedValue(JSON.stringify(data) as never)

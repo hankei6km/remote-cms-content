@@ -15,12 +15,12 @@ export type RawRecord = Record<string, unknown>
 // type GetFldSyncType = Exclude<MapFld, MapFldsImage | MapFldsHtml>
 // type GetFldAsyncType = Exclude<MapFld, GetFldSyncType>
 export class ResRecord {
-  record: Record<string, unknown> = {}
-  _RowNumber: unknown
-  id: unknown
-  createdAt: unknown
-  updatedAt: unknown
-  src: Record<string, unknown> = {}
+  protected record: Record<string, unknown> = {}
+  private _RowNumber: unknown
+  private id: unknown
+  private createdAt: unknown
+  private updatedAt: unknown
+  private src: Record<string, unknown> = {}
   constructor(record: Record<string, unknown>) {
     const { _RowNumber, id, createdAt, updatedAt, ...r } = record
     this.record = record
@@ -125,21 +125,21 @@ export type ClientOpts = {
 }
 
 export abstract class ClientBase {
-  _opts: ClientOpts
-  _apiName: string = ''
-  _filter: OpValue[] = []
-  _skip: number = 0
-  _limit: number | undefined = undefined
-  _pageSize: number | undefined = undefined
-  _query: string[] = []
-  _vars: GqlVars = {}
-  _transformer: TransformContent | undefined = undefined
+  protected _opts: ClientOpts
+  protected _apiName: string = ''
+  protected _filter: OpValue[] = []
+  protected _skip: number = 0
+  protected _limit: number | undefined = undefined
+  protected _pageSize: number | undefined = undefined
+  protected _query: string[] = []
+  protected _vars: GqlVars = {}
+  protected _transformer: TransformContent | undefined = undefined
 
-  _setupErr: Error | undefined
+  protected _setupErr: Error | undefined
 
   _recCnt: number = 0
 
-  _arrayPath: string[] | undefined
+  protected _arrayPath: string[] | undefined
 
   constructor(opts: ClientOpts) {
     this._opts = opts

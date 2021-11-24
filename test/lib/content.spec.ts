@@ -425,11 +425,7 @@ describe('saveRemoteContent()', () => {
       media: {},
       flds: []
     })
-    const c = client('appsheet', {
-      apiBaseURL: 'https://api.appsheet.com/api/v2/',
-      apiName: 'tbl',
-      credential: ['appId', 'secret']
-    })
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(0)
     const res = saveRemoteContent({
       client: c,
       apiName: 'tbl',
@@ -443,22 +439,15 @@ describe('saveRemoteContent()', () => {
       vars: [],
       varsStr: []
     })
-    mockAxios.mockResponse({
-      data: []
-    })
     await expect(res).resolves.toEqual(null)
-    expect(c._filter).toEqual([['eq', 'fields.id', 'index']])
+    expect(c.filter).toHaveBeenCalledWith([['eq', 'fields.id', 'index']])
   })
   it('should call query method', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       media: {},
       flds: []
     })
-    const c = client('appsheet', {
-      apiBaseURL: 'https://api.appsheet.com/api/v2/',
-      apiName: 'tbl',
-      credential: ['appId', 'secret']
-    })
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(0)
     const res = saveRemoteContent({
       client: c,
       apiName: 'tbl',
@@ -472,22 +461,15 @@ describe('saveRemoteContent()', () => {
       vars: [],
       varsStr: []
     })
-    mockAxios.mockResponse({
-      data: []
-    })
     await expect(res).resolves.toEqual(null)
-    expect(c._query).toEqual(['test1.gql', 'test2.gql'])
+    expect(c.query).toHaveBeenCalledWith(['test1.gql', 'test2.gql'])
   })
   it('should call vars method', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       media: {},
       flds: []
     })
-    const c = client('appsheet', {
-      apiBaseURL: 'https://api.appsheet.com/api/v2/',
-      apiName: 'tbl',
-      credential: ['appId', 'secret']
-    })
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(0)
     const res = saveRemoteContent({
       client: c,
       apiName: 'tbl',
@@ -501,11 +483,8 @@ describe('saveRemoteContent()', () => {
       vars: ['abc=123'],
       varsStr: ['ABC=123']
     })
-    mockAxios.mockResponse({
-      data: []
-    })
     await expect(res).resolves.toEqual(null)
-    expect(c._vars).toEqual({ abc: 123, ABC: '123' })
+    expect(c.vars).toHaveBeenCalledWith(['abc=123'])
   })
   it('should get remote content and save as local files without downloading images', async () => {
     const mapConfig: MapConfig = compileMapConfig({

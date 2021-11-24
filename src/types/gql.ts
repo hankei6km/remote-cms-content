@@ -1,10 +1,21 @@
-import {
-  ApolloClient,
+// なぜかこのエラーになる.
+// このモジュールも @apollo/client も native ESM だと思うのだが、なぜ?
+//
+// SyntaxError: Named export 'gql' not found. The requested module '@apollo/client' is a CommonJS module, which may not support all module.exports as named exports.
+// CommonJS modules can always be imported via the default export, for example using:
+//
+// import pkg from '@apollo/client';
+// const { ApolloClient, InMemoryCache, gql } = pkg;
+//
+// 素直に上記の対応をやると ApolloClient の型(d.ts)の読み込みがうまくいかない。
+// ApolloClient は型と class が必要なので import と const で名前を変えて読み込む.
+import pkgApolloClient, {
+  ApolloClient as ApolloClientAsType,
   ApolloLink,
-  InMemoryCache,
-  gql,
   NormalizedCacheObject
 } from '@apollo/client'
+const { ApolloClient, InMemoryCache, gql } = pkgApolloClient
+
 import { apolloErrToMessages } from '../lib/util.js'
 import {
   ClientBase,
@@ -27,7 +38,7 @@ export function gqlClient() {
 }
 
 export abstract class ClientGqlBase extends ClientBase {
-  private _gqlClient!: ApolloClient<NormalizedCacheObject>
+  private _gqlClient!: ApolloClientAsType<NormalizedCacheObject>
   private _link!: ApolloLink
   constructor(link: ApolloLink, opts: ClientOpts) {
     // link が外部に露出しているのはどうなの?
@@ -82,3 +93,5 @@ export abstract class ClientGqlBase extends ClientBase {
     })
   }
 }
+
+export {}

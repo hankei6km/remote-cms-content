@@ -7,7 +7,14 @@ import {
   NodeRenderer
 } from '@contentful/rich-text-html-renderer'
 import fetch from 'cross-fetch'
-import { HttpLink } from '@apollo/client'
+// SyntaxError: Named export 'HttpLink' not found. The requested module '@apollo/client' is a CommonJS module, which may not support all module.exports as named exports.
+// CommonJS modules can always be imported via the default export, for example using:
+// import pkg from '@apollo/client';
+// const { HttpLink: HttpLink } = pkg;
+// なぜかこのエラーになるので対応.
+// types/gql.ts でも同じようなことになっている.
+import pkgApolloClient from '@apollo/client'
+const { HttpLink: HttpLink } = pkgApolloClient
 import {
   ClientBase,
   ClientChain,

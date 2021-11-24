@@ -46,7 +46,7 @@ export const cli = async ({
       case 'save':
         const filter: OpValue[] = decodeFilter(saveOpts.filter)
         cliErr = await saveRemoteContent({
-          client: client(clientKind, {
+          client: await client(clientKind, {
             apiBaseURL,
             credential: [...credential]
           }),

@@ -2,13 +2,16 @@ import { PassThrough } from 'stream'
 import { jest } from '@jest/globals'
 // import { cli } from '../src/cli.js'
 import { SaveRemoteContentOptions } from '../src/types/content.js'
+import { ClientKind, ClientOpts } from '../src/types/client.js'
 
-// > ENOENT: no such file or directory, open 'zlib'
-// になる対応.
-// contentful を import すると発生するが原理は不明.
-jest.unstable_mockModule('contentful', async () => {
+// https://github.com/facebook/jest/issues/11438 の対策
+// client.spec.ts 以外では client を直接使わない.
+// 1 つの worker を共有する複数の spec の import 先で動的 import を使うとエラーになる.
+// その対策.
+jest.unstable_mockModule('../src/lib/client.js', async () => {
   return {
-    default: jest.fn()
+    client: async (_kind: ClientKind, opts: ClientOpts) =>
+      new (await import('../src/lib/clients/appsheet.js')).ClientAppSheet(opts)
   }
 })
 

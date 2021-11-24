@@ -5,16 +5,8 @@ import { ImageInfo } from '../../src/types/media.js'
 import { BaseFlds, MapConfig } from '../../src/types/map.js'
 import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media.js'
 import mockAxiosDefault from 'jest-mock-axios'
+import { ClientKind, ClientOpts } from '../../src/types/client.js'
 const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
-
-// > ENOENT: no such file or directory, open 'zlib'
-// になる対応.
-// contentful を import すると発生するが原理は不明.
-jest.unstable_mockModule('contentful', async () => {
-  return {
-    default: jest.fn()
-  }
-})
 
 jest.unstable_mockModule('axios', async () => {
   return {
@@ -29,6 +21,19 @@ jest.unstable_mockModule('../../src/lib/util.js', async () => {
   return {
     readQuery: (v: string) => v, // ファイル読み込みではなく、文字列をそのまま返す.
     ...utils
+  }
+})
+
+// https://github.com/facebook/jest/issues/11438 の対策
+// client.spec.ts 以外では client を直接使わない.
+// 1 つの worker を共有する複数の spec の import 先で動的 import を使うとエラーになる.
+// その対策.
+jest.unstable_mockModule('../../src/lib/client.js', async () => {
+  return {
+    client: async (_kind: ClientKind, opts: ClientOpts) =>
+      new (await import('../../src/lib/clients/appsheet.js')).ClientAppSheet(
+        opts
+      )
   }
 })
 
@@ -174,7 +179,7 @@ describe('saveRemoteContent()', () => {
       ]
     })
     const res = saveRemoteContent({
-      client: client('appsheet', {
+      client: await client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']
@@ -289,7 +294,7 @@ describe('saveRemoteContent()', () => {
       ]
     })
     const res = saveRemoteContent({
-      client: client('appsheet', {
+      client: await client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']
@@ -384,7 +389,7 @@ describe('saveRemoteContent()', () => {
       ]
     })
     const res = saveRemoteContent({
-      client: client('appsheet', {
+      client: await client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']
@@ -494,7 +499,7 @@ describe('saveRemoteContent()', () => {
       ]
     })
     const res = saveRemoteContent({
-      client: client('appsheet', {
+      client: await client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']
@@ -535,7 +540,7 @@ describe('saveRemoteContent()', () => {
       flds: []
     })
     const res = saveRemoteContent({
-      client: client('appsheet', {
+      client: await client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']
@@ -568,7 +573,7 @@ describe('saveRemoteContent()', () => {
   })
   it('should return error when fetch has failed', async () => {
     const res = saveRemoteContent({
-      client: client('appsheet', {
+      client: await client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']
@@ -591,7 +596,7 @@ describe('saveRemoteContent()', () => {
   })
   it('should return error when save file has failed', async () => {
     const res = saveRemoteContent({
-      client: client('appsheet', {
+      client: await client('appsheet', {
         apiBaseURL: 'https://api.appsheet.com/api/v2/',
         apiName: 'tbl',
         credential: ['appId', 'secret']

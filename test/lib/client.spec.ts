@@ -181,42 +181,46 @@ describe('ClientBase', () => {
   })
 })
 
+// https://github.com/facebook/jest/issues/11438
+// 実際の client を使うのはここでのみ.
+// 1 つの worker を共有する複数の spec の import 先で動的 import を使うとエラーになる.
+// その対策.
 describe('client', () => {
-  it('should return appsheet client instanse', () => {
-    const c = client('appsheet', {
+  it('should return appsheet client instanse', async () => {
+    const c = await client('appsheet', {
       apiBaseURL: 'http://localhost:3000',
       credential: ['id', 'secret']
     })
     expect(c.kind()).toEqual('appsheet')
   })
-  it('should return contentful client instanse', () => {
-    const c = client('contentful', {
+  it('should return contentful client instanse', async () => {
+    const c = await client('contentful', {
       apiBaseURL: '',
       credential: ['spaceId', 'cda_token']
     })
     expect(c.kind()).toEqual('contentful')
   })
-  it('should return contentful:gql client instanse', () => {
-    const c = client('contentful:gql', {
+  it('should return contentful:gql client instanse', async () => {
+    const c = await client('contentful:gql', {
       apiBaseURL: 'https://graphql.contentful.com/content/v1/spaces/',
       credential: ['spaceId', 'cda_token']
     })
     expect(c.kind()).toEqual('contentful:gql')
   })
-  it('should return microcms client instanse', () => {
-    const c = client('microcms', {
+  it('should return microcms client instanse', async () => {
+    const c = await client('microcms', {
       apiBaseURL: 'http://localhost:3000',
       credential: ['X-MICROCMS-API-KEY', 'secret']
     })
     expect(c.kind()).toEqual('microcms')
   })
-  it('should throw error when pass unkown kid', () => {
-    expect(() =>
+  it('should throw error when pass unkown kid', async () => {
+    await expect(() =>
       client('UNKWON' as any, {
         apiBaseURL: 'http://localhost:3000',
         credential: ['id', 'secret']
       })
-    ).toThrowError('client: unknown kind UNKWON')
+    ).rejects.toThrowError('client: unknown kind UNKWON')
   })
 })
 

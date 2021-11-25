@@ -107,7 +107,7 @@ describe('ClientGql', () => {
       credential: []
     })
       .request()
-      .transform((content) => content.testCollection)
+      .transform((content) => content.data.testCollection)
       .query(queryTotal)
     const g = client.fetch()
 
@@ -143,7 +143,7 @@ describe('ClientGql', () => {
       credential: []
     })
       .request()
-      .transform((content) => content.testCollection)
+      .transform((content) => content.data.testCollection)
       .vars(['var1=123'])
       .query(queryTotal)
     await client.fetch().next()
@@ -167,7 +167,7 @@ describe('ClientGql', () => {
     })
       .request()
       .pageSize(10)
-      .transform((content) => content.testCollection)
+      .transform((content) => content.data.testCollection)
       .query(queryTotal)
     const g = client.fetch()
 
@@ -232,7 +232,7 @@ describe('ClientGql', () => {
     })
       .request()
       .pageSize(10)
-      .transform((content) => content.testCollection)
+      .transform((content) => content.data.testCollection)
       .query(queryHas)
     const g = client.fetch()
 
@@ -310,7 +310,7 @@ describe('ClientGql', () => {
       .request()
       .pageSize(10)
       .limit(24)
-      .transform((content) => content.testCollection)
+      .transform((content) => content.data.testCollection)
       .query(queryHas)
     const g = client.fetch()
 

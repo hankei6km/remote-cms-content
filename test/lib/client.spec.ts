@@ -207,6 +207,14 @@ describe('client', () => {
     })
     expect(c.kind()).toEqual('contentful:gql')
   })
+  it('should return graphcms:gql client instanse', async () => {
+    const c = await client('graphcms:gql', {
+      apiBaseURL: 'https://[region].graphcms.com/v2/',
+      credential: ['projectId', 'pat'],
+      apiName: 'master'
+    })
+    expect(c.kind()).toEqual('graphcms:gql')
+  })
   it('should return microcms client instanse', async () => {
     const c = await client('microcms', {
       apiBaseURL: 'http://localhost:3000',

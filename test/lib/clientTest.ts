@@ -61,7 +61,10 @@ export class ClientTest extends ClientBase {
               (v) => new ResRecord(v)
             )
             resolve({
-              fetch: { count: recs.length, total: this._total },
+              fetch: {
+                count: recs.length,
+                next: { kind: 'total', total: this._total }
+              },
               content
             })
           } catch (err) {

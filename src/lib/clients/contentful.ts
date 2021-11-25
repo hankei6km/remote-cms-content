@@ -306,8 +306,11 @@ export class ClientCtf extends ClientBase {
     })
     return {
       fetch: {
-        total: res.total,
-        count: res.items.length
+        count: res.items.length,
+        next: {
+          kind: 'total',
+          total: res.total
+        }
       },
       content: content
     }

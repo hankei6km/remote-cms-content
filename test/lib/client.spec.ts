@@ -29,7 +29,7 @@ describe('ClientBase', () => {
     const g = c.fetch()
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 100 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 100 },
         content: c._record.map((v) => new ResRecord(v))
       },
       done: false
@@ -50,7 +50,7 @@ describe('ClientBase', () => {
     const g = c.pageSize(30).fetch()
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 30 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 30 },
         content: c._record.slice(0, 30).map((v) => new ResRecord(v))
       },
       done: false
@@ -62,7 +62,7 @@ describe('ClientBase', () => {
     })
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 30 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 30 },
         content: c._record.slice(30, 60).map((v) => new ResRecord(v))
       },
       done: false
@@ -74,7 +74,7 @@ describe('ClientBase', () => {
     })
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 30 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 30 },
         content: c._record.slice(60, 90).map((v) => new ResRecord(v))
       },
       done: false
@@ -86,7 +86,7 @@ describe('ClientBase', () => {
     })
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 10 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 10 },
         content: c._record.slice(90, 100).map((v) => new ResRecord(v))
       },
       done: false
@@ -107,7 +107,7 @@ describe('ClientBase', () => {
     const g = c.skip(5).limit(11).fetch()
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 11 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 11 },
         content: c._record.slice(5, 16).map((v) => new ResRecord(v))
       },
       done: false
@@ -124,7 +124,7 @@ describe('ClientBase', () => {
     const g = c.skip(5).pageSize(30).limit(75).fetch()
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 30 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 30 },
         content: c._record.slice(5, 35).map((v) => new ResRecord(v))
       },
       done: false
@@ -136,7 +136,7 @@ describe('ClientBase', () => {
     })
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 30 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 30 },
         content: c._record.slice(35, 65).map((v) => new ResRecord(v))
       },
       done: false
@@ -148,7 +148,7 @@ describe('ClientBase', () => {
     })
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 100, count: 15 },
+        fetch: { next: { kind: 'total', total: 100 }, count: 15 },
         content: c._record.slice(65, 80).map((v) => new ResRecord(v))
       },
       done: false

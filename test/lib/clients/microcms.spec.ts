@@ -83,7 +83,7 @@ describe('client_appsheet', () => {
       data: mockData
     })
     expect((await next).value).toEqual({
-      fetch: { total: 2, count: 2 },
+      fetch: { next: { kind: 'total', total: 2 }, count: 2 },
       content: mockData.contents.map((v) => new ResRecord(v))
     })
     expect((await g.next()).done).toBeTruthy()
@@ -131,7 +131,7 @@ describe('client_appsheet', () => {
       data: mockData
     })
     expect((await next).value).toEqual({
-      fetch: { total: 2, count: 2 },
+      fetch: { next: { kind: 'total', total: 2 }, count: 2 },
       content: mockData.contents.map((v) => new ResRecord(v))
     })
     expect((await g.next()).done).toBeTruthy()
@@ -179,7 +179,7 @@ describe('client_appsheet', () => {
       data: mockData
     })
     expect((await next).value).toEqual({
-      fetch: { total: 2, count: 2 },
+      fetch: { next: { kind: 'total', total: 2 }, count: 2 },
       content: mockData.contents.map((v) => new ResRecord(v))
     })
     expect((await g.next()).done).toBeTruthy()

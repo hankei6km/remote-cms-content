@@ -88,11 +88,20 @@ export type FetchParams = {
   query: string[]
 }
 
+export type FetchResultNextTotal = {
+  kind: 'total'
+  total: number
+}
+export type FetchResultNextHas = {
+  kind: 'has'
+  hasNext: boolean
+}
+export type FetchResultNext = FetchResultNextTotal | FetchResultNextHas
 export type FetchResult = {
   fetch: {
     // fetch したレコード件数(transform 後の content のレコードではない)
     count: number
-    total: number
+    next: FetchResultNext
   }
   content: ResRecord[]
 }
@@ -207,7 +216,10 @@ export abstract class ClientBase {
       throw new Error(`ClientBase: ${this._setupErr}`)
     }
 
-    let res: FetchResult = { fetch: { count: 0, total: 0 }, content: [] }
+    let res: FetchResult = {
+      fetch: { count: 0, next: { kind: 'has', hasNext: true } },
+      content: []
+    }
     let complete = false
     while (!complete) {
       if (pageSize !== undefined && limit !== undefined) {
@@ -224,6 +236,7 @@ export abstract class ClientBase {
       if (limit !== undefined) {
         const s = count - limit
         if (s >= 0) {
+          // limit に到達したので終了
           complete = true
           if (s > 0) {
             // limit を超えてた場合は調整する.
@@ -233,9 +246,21 @@ export abstract class ClientBase {
         }
       }
       skip = skip + res.fetch.count
-      if (skip >= res.fetch.total) {
-        // total は変動する. 最初のものを保持して使う?
-        complete = true
+      if (res.fetch.next.kind === 'has') {
+        if (!res.fetch.next.hasNext) {
+          // 次はないので終了
+          complete = true
+        } else {
+          if (count === 0) {
+            // 0 件だったので終了
+            complete = true
+          }
+        }
+      } else {
+        if (skip >= res.fetch.next.total) {
+          // total は変動する. 最初のものを保持して使う?
+          complete = true
+        }
       }
       yield res
     }

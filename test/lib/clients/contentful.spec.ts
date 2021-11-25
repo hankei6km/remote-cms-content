@@ -452,7 +452,7 @@ describe('client_contentful', () => {
       accessToken: 'cda_token'
     })
     expect((await next).value).toEqual({
-      fetch: { total: 2, count: 2 },
+      fetch: { next: { kind: 'total', total: 2 }, count: 2 },
       content: mockDataRest.items.map((v) => new CtfRecord({ ...v.sys, ...v }))
     })
     expect(mockGetEntries).toHaveBeenLastCalledWith({

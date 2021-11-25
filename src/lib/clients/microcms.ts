@@ -69,8 +69,11 @@ export class ClientMicroCMS extends ClientBase {
     )
     return {
       fetch: {
-        total: res.data.totalCount,
-        count: res.data.contents.length
+        count: res.data.contents.length,
+        next: {
+          kind: 'total',
+          total: res.data.totalCount
+        }
       },
       content
     }

@@ -6,6 +6,7 @@ export const ClientKindValues = [
   'appsheet',
   'contentful',
   'contentful:gql',
+  'graphcms:gql',
   'microcms'
 ] as const
 export type ClientKind = typeof ClientKindValues[number]

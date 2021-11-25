@@ -13,6 +13,9 @@ export async function client(
   } else if (kind === 'contentful:gql') {
     const { ClientCtfGql } = await import('./clients/contentful.js')
     return new ClientCtfGql(opts)
+  } else if (kind === 'graphcms:gql') {
+    const { ClientGcmsGql } = await import('./clients/graphcms.js')
+    return new ClientGcmsGql(opts)
   } else if (kind === 'microcms') {
     const { ClientMicroCMS } = await import('./clients/microcms.js')
     return new ClientMicroCMS(opts)

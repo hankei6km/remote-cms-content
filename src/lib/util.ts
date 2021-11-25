@@ -75,14 +75,19 @@ export function apolloErrToMessages(err: any): string {
     return [
       err.message,
       ...Object.entries(err)
-        .filter(
-          ([_k, v]: [string, any]) => v && Array.isArray(v.result?.errors)
-        )
-        .map(([k, v]: [string, any]) =>
-          v.result.errors
-            .map(({ message }: any) => `${k}: ${message}`)
-            .join('\n')
-        )
+        .map(([k, v]: [string, any]) => {
+          if (v) {
+            if (Array.isArray(v.result?.errors)) {
+              return v.result.errors
+                .map(({ message }: any) => `${k}: ${message}`)
+                .join('\n')
+            } else if (v.bodyText) {
+              return `${k}: ${v.statusCode} ${v.bodyText}`
+            }
+          }
+          return ''
+        })
+        .filter((v) => v !== '')
     ].join('\n')
   }
   return err

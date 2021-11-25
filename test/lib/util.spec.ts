@@ -152,6 +152,22 @@ describe('apolloErrToMessages', () => {
       'Response not successful: Received status code 400\nnetworkError: Query cannot be executed. The maximum allowed complexity for a query is 11000 but it was 50100. Simplify the query e.g. by setting lower limits for collections.'
     )
   })
+  it('should return message from apollo errors(bodyText)', () => {
+    const mockErr = {
+      graphQLErrors: [],
+      clientErrors: [],
+      networkError: {
+        name: 'ServerParseError',
+        response: { size: 0, timeout: 0 },
+        statusCode: 404,
+        bodyText: 'Page not found.'
+      },
+      message: 'Unexpected token P in JSON at position 0'
+    }
+    expect(apolloErrToMessages(mockErr)).toEqual(
+      'Unexpected token P in JSON at position 0\nnetworkError: 404 Page not found.'
+    )
+  })
   it('should return message from apollo errors(multiple kind)', () => {
     const mockErr = {
       graphQLErrors: {

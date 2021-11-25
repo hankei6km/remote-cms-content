@@ -48,6 +48,7 @@ export const cli = async ({
         cliErr = await saveRemoteContent({
           client: await client(clientKind, {
             apiBaseURL,
+            apiName: saveOpts.apiName,
             credential: [...credential]
           }),
           mapConfig: await loadMapConfig(mapConfig),

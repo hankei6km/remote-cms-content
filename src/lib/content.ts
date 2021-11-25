@@ -79,13 +79,13 @@ function transformContent(m: MapConfig): TransformContent {
         }
         if (!Array.isArray(arrayItem)) {
           throw new Error(
-            `transformFldValue: ${arrayPathLabel} is not array: transform=${m.transform}`
+            `transformContent: ${arrayPathLabel} is not array: transform=${m.transform}`
           )
         }
         return ret
       } catch (err: any) {
         throw new Error(
-          `transformFldValue: transform=${m.transform} message=${
+          `transformContent: transform=${m.transform} message=${
             err.message
           } value=${JSON.stringify(content)}`
         )

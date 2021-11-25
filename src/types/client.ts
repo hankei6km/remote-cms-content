@@ -66,7 +66,7 @@ export class ResRecord {
         return m.transformJsonata.evaluate(value)
       } catch (err: any) {
         throw new Error(
-          `transformFldValue: transform=${m.transform} message=${
+          `ResRecord.execTransform: transform=${m.transform} message=${
             err.message
           } value=${JSON.stringify(value)}`
         )

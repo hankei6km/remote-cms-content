@@ -56,7 +56,7 @@ export async function saveContentFile(
 //   return ret
 // }
 
-function transformContent(m: MapConfig): TransformContent {
+export function transformContent(m: MapConfig): TransformContent {
   const ret: TransformContent = (content, arrayPath) => {
     const valueType = typeof content
     if (
@@ -74,7 +74,13 @@ function transformContent(m: MapConfig): TransformContent {
             if (typeof arrayItem === 'object' && arrayItem.hasOwnProperty(p)) {
               arrayItem = arrayItem[p]
               arrayPathLabel = `${arrayPathLabel}.${p}`
+              return
             }
+            throw new Error(
+              `transformContent: ${arrayPath.join(
+                '.'
+              )} is not exist in the object: transform=${m.transform}`
+            )
           })
         }
         if (!Array.isArray(arrayItem)) {

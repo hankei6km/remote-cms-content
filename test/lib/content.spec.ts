@@ -108,7 +108,7 @@ const { mockWriteFile } = (mockFsPromise as any)._getMocks()
 const { client } = await import('../../src/lib/client.js')
 const { ClientTest } = await import('./clientTest.js')
 const { compileMapConfig } = await import('../../src/lib/map.js')
-const { saveContentFile, saveRemoteContent } = await import(
+const { saveContentFile, transformContent, saveRemoteContent } = await import(
   '../../src/lib/content.js'
 )
 
@@ -165,6 +165,59 @@ markdown
       0
     )
     expect(String(await res)).toMatch(/dummy error/)
+  })
+})
+
+describe('transformContent()', () => {
+  it('should transform the content', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      transform: 'recs',
+      flds: []
+    })
+    const t = transformContent(mapConfig)
+    expect(t({ recs: [{ a: 1 }, { a: 2 }] })).toEqual([{ a: 1 }, { a: 2 }])
+  })
+  it('should transform the content with arrayPath', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      transform: 'recs',
+      flds: []
+    })
+    const t = transformContent(mapConfig)
+    expect(
+      t({ recs: { p1: { p2: [{ a: 1 }, { a: 2 }] } } }, ['p1', 'p2'])
+    ).toEqual({ p1: { p2: [{ a: 1 }, { a: 2 }] } }) // p1.p2 が array であることが検証されている.
+  })
+  it('should throw error when transform error', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      transform: 'items.{items:recs}',
+      flds: []
+    })
+    const t = transformContent(mapConfig)
+    expect(() => t({ items: '' })).toThrowError(/Key in object/)
+  })
+  it('should throw error when the transformed root value is not array', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      transform: 'recs',
+      flds: []
+    })
+    const t = transformContent(mapConfig)
+    expect(() =>
+      t({ recs: { p1: { p2: [{ a: 1 }, { a: 2 }] } } })
+    ).toThrowError(/is not array/)
+  })
+  it('should throw error when array path is not exist', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      transform: 'recs',
+      flds: []
+    })
+    const t = transformContent(mapConfig)
+    expect(() =>
+      t({ recs: { p1: { p2: [{ a: 1 }, { a: 2 }] } } }, ['p1', 'p3'])
+    ).toThrowError(/is not exist/)
+    expect(() => t({ recs: [{ a: 1 }, { a: 2 }] }, ['p1', 'p3'])).toThrowError(
+      // root が array の場合.
+      /is not exist/
+    )
   })
 })
 

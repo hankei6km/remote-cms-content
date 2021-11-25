@@ -60,7 +60,7 @@ class ClienteGqlTest extends ClientGqlBase {
 }
 
 describe('ClientGql', () => {
-  const query = [
+  const queryTotal = [
     `
       query GetItems($skip: Int, $pageSize: Int, $var1: Int) {
         testCollection(skip: $skip, limt: $pageSize, var1: $var1) {
@@ -69,6 +69,18 @@ describe('ClientGql', () => {
             content
           }
           total
+        }
+      }
+      `
+  ]
+  const queryHas = [
+    `
+      query GetItems($skip: Int, $pageSize: Int, $var1: Int) {
+        testCollection(skip: $skip, limt: $pageSize, var1: $var1) {
+          items {
+            title
+            content
+          }
         }
       }
       `
@@ -96,12 +108,12 @@ describe('ClientGql', () => {
     })
       .request()
       .transform((content) => content.testCollection)
-      .query(query)
+      .query(queryTotal)
     const g = client.fetch()
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 2, count: 2 },
+        fetch: { next: { kind: 'total', total: 2 }, count: 2 },
         content: mockData.data.testCollection.items.map((v) => new ResRecord(v))
       },
       done: false
@@ -133,7 +145,7 @@ describe('ClientGql', () => {
       .request()
       .transform((content) => content.testCollection)
       .vars(['var1=123'])
-      .query(query)
+      .query(queryTotal)
     await client.fetch().next()
     const body = JSON.parse((mockFetch.mock.calls[0][1] as any).body)
     expect(body.variables).toEqual({ skip: 0, var1: 123 })
@@ -156,12 +168,12 @@ describe('ClientGql', () => {
       .request()
       .pageSize(10)
       .transform((content) => content.testCollection)
-      .query(query)
+      .query(queryTotal)
     const g = client.fetch()
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 25, count: 10 },
+        fetch: { next: { kind: 'total', total: 25 }, count: 10 },
         content: mockData.data.testCollection.items
           .slice(0, 10)
           .map((v) => new ResRecord(v))
@@ -174,7 +186,7 @@ describe('ClientGql', () => {
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 25, count: 10 },
+        fetch: { next: { kind: 'total', total: 25 }, count: 10 },
         content: mockData.data.testCollection.items
           .slice(10, 20)
           .map((v) => new ResRecord(v))
@@ -187,7 +199,7 @@ describe('ClientGql', () => {
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { total: 25, count: 5 },
+        fetch: { next: { kind: 'total', total: 25 }, count: 5 },
         content: mockData.data.testCollection.items
           .slice(20, 25)
           .map((v) => new ResRecord(v))
@@ -198,6 +210,150 @@ describe('ClientGql', () => {
     expect(body.query).toMatch(/testCollection/)
     expect(body.variables).toEqual({ skip: 20, pageSize: 10 })
 
+    expect(await g.next()).toEqual({
+      value: undefined,
+      done: true
+    })
+  })
+  it('should fetch all content with "has"', async () => {
+    const mockData = {
+      data: {
+        testCollection: {
+          items: genItems(25)
+        },
+        total: undefined
+      },
+      errors: {}
+    }
+    const [mockFetch, mockLink] = mockFetchLink(mockData)
+    const client = new ClienteGqlTest(mockLink, {
+      apiBaseURL: '',
+      credential: []
+    })
+      .request()
+      .pageSize(10)
+      .transform((content) => content.testCollection)
+      .query(queryHas)
+    const g = client.fetch()
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'has', hasNext: true }, count: 10 },
+        content: mockData.data.testCollection.items
+          .slice(0, 10)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    let body = JSON.parse((mockFetch.mock.calls[0][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ skip: 0, pageSize: 10 })
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'has', hasNext: true }, count: 10 },
+        content: mockData.data.testCollection.items
+          .slice(10, 20)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    body = JSON.parse((mockFetch.mock.calls[1][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ skip: 10, pageSize: 10 })
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'has', hasNext: true }, count: 5 },
+        content: mockData.data.testCollection.items
+          .slice(20, 25)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    body = JSON.parse((mockFetch.mock.calls[2][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ skip: 20, pageSize: 10 })
+
+    // has では空振り(empry を fetch)が 1 回余分に実行される.
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'has', hasNext: false }, count: 0 },
+        content: []
+      },
+      done: false
+    })
+    body = JSON.parse((mockFetch.mock.calls[2][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ skip: 20, pageSize: 10 })
+
+    expect(await g.next()).toEqual({
+      value: undefined,
+      done: true
+    })
+  })
+  it('should fetch all content with "has" and limit', async () => {
+    const mockData = {
+      data: {
+        testCollection: {
+          items: genItems(25)
+        },
+        total: undefined
+      },
+      errors: {}
+    }
+    const [mockFetch, mockLink] = mockFetchLink(mockData)
+    const client = new ClienteGqlTest(mockLink, {
+      apiBaseURL: '',
+      credential: []
+    })
+      .request()
+      .pageSize(10)
+      .limit(24)
+      .transform((content) => content.testCollection)
+      .query(queryHas)
+    const g = client.fetch()
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'has', hasNext: true }, count: 10 },
+        content: mockData.data.testCollection.items
+          .slice(0, 10)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    let body = JSON.parse((mockFetch.mock.calls[0][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ skip: 0, pageSize: 10 })
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'has', hasNext: true }, count: 10 },
+        content: mockData.data.testCollection.items
+          .slice(10, 20)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    body = JSON.parse((mockFetch.mock.calls[1][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ skip: 10, pageSize: 10 })
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'has', hasNext: true }, count: 4 },
+        content: mockData.data.testCollection.items
+          .slice(20, 24)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    body = JSON.parse((mockFetch.mock.calls[2][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ skip: 20, pageSize: 4 })
+
+    // limit で終了する場合は has でも空振りしない.
     expect(await g.next()).toEqual({
       value: undefined,
       done: true

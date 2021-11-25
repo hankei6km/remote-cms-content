@@ -114,8 +114,13 @@ export class ClientAppSheet extends ClientBase {
     )
     return {
       fetch: {
-        total: res.data.length,
-        count: res.data.length
+        count: res.data.length,
+        next: {
+          kind: 'has',
+          // AppSheet では skip などがないので paginate は一旦保留
+          // (やるならソートキーに _RowNumber を含めて対応か)
+          hasNext: false
+        }
       },
       content
     }

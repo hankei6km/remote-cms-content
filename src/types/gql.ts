@@ -88,8 +88,7 @@ export abstract class ClientGqlBase extends ClientBase {
           }
         })
         .then((res) => {
-          const data = res.data
-          const t = this._execTransform(data)
+          const t = this._execTransform(res)
           const content = this.extractArrayItem(t)
           const total = this.extractTotal(t)
           const next: FetchResultNext =

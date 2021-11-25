@@ -104,7 +104,7 @@ export type OpValue = [OpKind, string, any]
 export type TransformContent = (
   content: any,
   arrayPath?: string[]
-) => RawRecord[]
+) => RawRecord[] | Record<string, RawRecord[] | number>
 
 export type ClientChain = {
   api: (name: string) => ClientChain
@@ -191,7 +191,7 @@ export abstract class ClientBase {
   }
   protected _execTransform(content: any): RawRecord[] {
     if (this._transformer) {
-      return this._transformer(content, this._arrayPath)
+      return this._transformer(content, this._arrayPath) as RawRecord[] // trasformer 内で検証はされている
     }
     return content
   }

@@ -758,7 +758,7 @@ describe('mappingFlds', () => {
         }
       )
     ).rejects.toThrowError(
-      /^transformFldValue: transform=\$\${name:title} message=Key/
+      /^ResRecord.execTransform: transform=\$\${name:title} message=Key/
     )
   })
   test('should skip no exist flds', async () => {

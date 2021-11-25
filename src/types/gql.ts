@@ -23,7 +23,8 @@ import {
   ClientOpts,
   FetchParams,
   FetchResult,
-  RawRecord
+  RawRecord,
+  TransformContent
 } from '../types/client.js'
 //ApolloProvider,
 
@@ -46,11 +47,16 @@ export abstract class ClientGqlBase extends ClientBase {
     this._arrayPath = this.arrayPath()
     this._link = link
   }
-  abstract arrayPath(): string[]
-  abstract extractArrayItem(o: object): RawRecord[]
-  abstract _extractTotal(o: object): number
-  extractTotal(o: object): number {
-    const ret = this._extractTotal(o)
+  arrayPath() {
+    return ['items']
+  }
+  extractArrayItem(o: ReturnType<TransformContent>): RawRecord[] {
+    // ここが実行される時点で arrayPath は array であることが検証されている.
+    return (o as any)['items'] as RawRecord[]
+  }
+  extractTotal(o: ReturnType<TransformContent>): number {
+    // ここが実行される時点で o は RawRecord[] でないことが検証されている.
+    const ret = (o as any).total
     if (typeof ret !== 'number') {
       throw new Error('ClientGqlBase: total field not found')
     }

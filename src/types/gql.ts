@@ -46,11 +46,15 @@ export abstract class ClientGqlBase extends ClientBase {
     this._arrayPath = this.arrayPath()
     this._link = link
   }
-  abstract arrayPath(): string[]
-  abstract extractArrayItem(o: object): RawRecord[]
-  abstract _extractTotal(o: object): number
+  arrayPath() {
+    return ['items']
+  }
+  extractArrayItem(o: object): RawRecord[] {
+    // ここが実行される時点で arrayPath は array であることが検証されている.
+    return (o as any)['items'] as RawRecord[]
+  }
   extractTotal(o: object): number {
-    const ret = this._extractTotal(o)
+    const ret = (o as any).total
     if (typeof ret !== 'number') {
       throw new Error('ClientGqlBase: total field not found')
     }

@@ -57,17 +57,6 @@ class ClienteGqlTest extends ClientGqlBase {
   kind(): ClientKind {
     return 'contentful:gql'
   }
-  arrayPath() {
-    return ['items']
-  }
-  extractArrayItem(o: object): RawRecord[] {
-    // ここが実行される時点で arrayPath は array であることが検証されている.
-    return (o as any)['items'] as RawRecord[]
-  }
-  _extractTotal(o: object): number {
-    // 呼び出し元のメソッドで number であることが検証される.
-    return (o as any).total
-  }
 }
 
 describe('ClientGql', () => {

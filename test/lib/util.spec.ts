@@ -28,7 +28,8 @@ const {
   readQuery,
   decodeVars,
   apolloErrToMessages,
-  yargsArrayFromEnvVars
+  yargsArrayFromEnvVars,
+  isJsonataQuery
 } = await import('../../src/lib/util.js')
 
 afterEach(() => {
@@ -223,5 +224,19 @@ describe('yargsArrayFromEnvVars', () => {
     expect(() => yargsArrayFromEnvVars({ A: 'a', B: 'b' })).toThrowError(
       /is not number/
     )
+  })
+})
+
+describe('isJsonataQueryRegExp', () => {
+  it('should return true', () => {
+    expect(isJsonataQuery('p1.p2')).toBeTruthy()
+    expect(isJsonataQuery('p1[0]')).toBeTruthy()
+    expect(isJsonataQuery('項目1.項目2')).toBeTruthy()
+    expect(isJsonataQuery('$sum(items)')).toBeTruthy()
+  })
+  it('should return false', () => {
+    expect(isJsonataQuery('p1')).toBeFalsy()
+    expect(isJsonataQuery('postCollection')).toBeFalsy()
+    expect(isJsonataQuery('項目')).toBeFalsy()
   })
 })

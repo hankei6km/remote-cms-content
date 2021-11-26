@@ -68,9 +68,6 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "transform": {
-                                "type": "string"
                             }
                         },
                         "required": [
@@ -93,9 +90,6 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "srcName": {
-                                "type": "string"
-                            },
-                            "transform": {
                                 "type": "string"
                             }
                         },
@@ -120,9 +114,6 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "transform": {
-                                "type": "string"
                             }
                         },
                         "required": [
@@ -146,9 +137,6 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "transform": {
-                                "type": "string"
                             }
                         },
                         "required": [
@@ -171,9 +159,6 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "srcName": {
-                                "type": "string"
-                            },
-                            "transform": {
                                 "type": "string"
                             }
                         },
@@ -203,9 +188,6 @@ export const mapConfigSchema =
                                 "type": "boolean"
                             },
                             "srcName": {
-                                "type": "string"
-                            },
-                            "transform": {
                                 "type": "string"
                             }
                         },
@@ -256,9 +238,6 @@ export const mapConfigSchema =
                             },
                             "srcName": {
                                 "type": "string"
-                            },
-                            "transform": {
-                                "type": "string"
                             }
                         },
                         "required": [
@@ -282,9 +261,6 @@ export const mapConfigSchema =
                                 "type": "string"
                             },
                             "srcName": {
-                                "type": "string"
-                            },
-                            "transform": {
                                 "type": "string"
                             }
                         },
@@ -389,9 +365,6 @@ export const mapConfigSchema =
                                     }
                                 },
                                 "type": "object"
-                            },
-                            "transform": {
-                                "type": "string"
                             }
                         },
                         "required": [

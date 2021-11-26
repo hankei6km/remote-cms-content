@@ -199,61 +199,22 @@ export function queryEquality(filter: OpValue[]): Record<string, any> {
 }
 
 export class CtfRecord extends ResRecord {
-  has(map: MapFld): boolean {
-    const n = map.srcName.split('.', 2)
-    if (n.length === 2) {
-      if (n[0] === 'fields') {
-        const f = this.record[n[0]]
-        if (typeof f === 'object') {
-          if ((f as any).hasOwnProperty(n[1])) {
-            const v = (f as any)[n[1]]
-            if (v !== null) {
-              return true
-            }
-          }
-        }
-      }
-      return false
-    }
-    if (this.record.hasOwnProperty(map.srcName)) {
-      const v = this.record[map.srcName]
-      if (v !== null) {
-        return true
-      }
-    }
-    return false
-  }
   isAsyncFld(map: MapFld): boolean {
     return map.fldType === 'html'
   }
-  _getValue(fldName: string) {
-    const n = fldName.split('.', 2)
-    if (n.length === 2) {
-      if (n[0] === 'fields') {
-        const f = this.record[n[0]]
-        if (typeof f === 'object') {
-          return (f as any)[n[1]]
-        }
-      }
-    }
-    return this.record[fldName]
-  }
-  getSync(map: MapFld): boolean {
-    return this.execTransform(map, this._getValue(map.srcName))
-  }
   async getAsync(map: MapFld): Promise<unknown> {
-    const v = this.execTransform(map, this._getValue(map.srcName))
+    const v = this._getValue(map)
     if (map.fldType === 'html') {
       // https://www.contentful.com/blog/2021/05/27/rich-text-field-tips-and-tricks/
       // GraphQL では asset 等は埋め込まれないので、links から取得する必要がある.
       if (v && typeof v === 'object') {
-        if (v.nodeType === 'document') {
+        if ((v as any).nodeType === 'document') {
           return richTextToHtml(v as Document)
         } else if (
-          typeof v.json === 'object' &&
-          v.json.nodeType === 'document'
+          typeof (v as any).json === 'object' &&
+          (v as any).json.nodeType === 'document'
         ) {
-          return richTextToHtml(v.json as Document, v.links)
+          return richTextToHtml((v as any).json as Document, (v as any).links)
         }
       }
     }

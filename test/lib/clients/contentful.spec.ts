@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { compileMapFld } from '../../../src/lib/map.js'
 
 const mockDataRest = {
   sys: {},
@@ -97,139 +98,51 @@ afterEach(async () => {
 })
 
 describe('CtfRecord', () => {
-  it('should return true from has', () => {
-    expect(
-      new CtfRecord({ text: 'test1' }).has({
-        srcName: 'text',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toBeTruthy()
-    expect(
-      new CtfRecord({ fields: { text: 'test1' } }).has({
-        srcName: 'fields.text',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toBeTruthy()
-  })
-  it('should return false from has', () => {
-    expect(
-      new CtfRecord({ text: 'test1' }).has({
-        srcName: 'abc',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toBeFalsy()
-    expect(
-      new CtfRecord({ text: 'test1' }).has({
-        srcName: 'fields.text',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toBeFalsy()
-    expect(
-      new CtfRecord({ fields: { text: 'test1' } }).has({
-        srcName: 'fields.abc',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toBeFalsy()
-  })
-  it('should return false from has(null)', () => {
-    expect(
-      new CtfRecord({ text: null }).has({
-        srcName: 'text',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toBeFalsy()
-    expect(
-      new CtfRecord({ fields: { text: null } }).has({
-        srcName: 'fields.text',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toBeFalsy()
-  })
   it('should return true from isAsyncFld', () => {
     expect(
-      new CtfRecord({}).isAsyncFld({
-        srcName: '',
-        dstName: '',
-        fldType: 'html'
-      })
+      new CtfRecord({}).isAsyncFld(
+        compileMapFld({
+          srcName: '',
+          dstName: '',
+          fldType: 'html'
+        })
+      )
     ).toBeTruthy()
   })
   it('should return false from isAsyncFld', () => {
     expect(
-      new CtfRecord({}).isAsyncFld({
-        srcName: '',
-        dstName: '',
-        fldType: 'string'
-      })
+      new CtfRecord({}).isAsyncFld(
+        compileMapFld({
+          srcName: '',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
     ).toBeFalsy()
-  })
-  it('should get the value of field', () => {
-    expect(
-      new CtfRecord({ text: 'test1' }).getSync({
-        srcName: 'text',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toEqual('test1')
-  })
-  it('should get the value of field that is contained "fields"', () => {
-    expect(
-      new CtfRecord({ fields: { text: 'test1' } }).getSync({
-        srcName: 'fields.text',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toEqual('test1')
-  })
-  it('should return undefined', () => {
-    expect(
-      new CtfRecord({ text: 'test1' }).getSync({
-        srcName: 'fields.abc',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toEqual(undefined)
-    expect(
-      new CtfRecord({ fields: { text: 'test1' } }).getSync({
-        srcName: 'fields.abc',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toEqual(undefined)
-    expect(
-      new CtfRecord({ text: 'test1' }).getSync({
-        srcName: 'fields.text',
-        dstName: '',
-        fldType: 'string'
-      })
-    ).toEqual(undefined)
   })
   it('should return HTML', async () => {
     expect(
-      new CtfRecord({
+      await new CtfRecord({
         fields: { content: mockDataRest.items[0].fields.richt }
-      }).getAsync({
-        srcName: 'fields.content',
-        dstName: '',
-        fldType: 'html'
-      })
-    ).resolves.toEqual('<p>Hello world!</p>')
+      }).getAsync(
+        compileMapFld({
+          srcName: 'fields.content',
+          dstName: '',
+          fldType: 'html'
+        })
+      )
+    ).toEqual('<p>Hello world!</p>')
     expect(
-      new CtfRecord({
+      await new CtfRecord({
         fields: { content: mockDataRest.items[1].fields.richt }
-      }).getAsync({
-        srcName: 'fields.content',
-        dstName: '',
-        fldType: 'html'
-      })
-    ).resolves.toEqual('<p>Hello world!</p>')
+      }).getAsync(
+        compileMapFld({
+          srcName: 'fields.content',
+          dstName: '',
+          fldType: 'html'
+        })
+      )
+    ).toEqual('<p>Hello world!</p>')
   })
 })
 

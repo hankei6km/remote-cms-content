@@ -109,3 +109,8 @@ export function yargsArrayFromEnvVars(arg: any): any {
   }
   return arg
 }
+
+const isJsonataQueryRegExp = /[\.\[\]\^(){}*%#@$=!<>&?:~|]/
+export function isJsonataQuery(s: string): boolean {
+  return s.match(isJsonataQueryRegExp) !== null
+}

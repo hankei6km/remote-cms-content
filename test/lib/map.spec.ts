@@ -98,10 +98,9 @@ describe('compileMapConfig', () => {
       typeof compileMapConfig({
         flds: [
           {
-            srcName: 'objectwithJsonataFld',
+            srcName: '*[title="1234"].image',
             dstName: 'objectwithJsonataFld',
-            fldType: 'object',
-            transform: '*[title="1234"].image'
+            fldType: 'object'
           }
         ]
       }).flds[0].transformJsonata
@@ -132,15 +131,14 @@ describe('compileMapConfig', () => {
       compileMapConfig({
         flds: [
           {
-            srcName: 'test',
+            srcName: '$$.{',
             dstName: 'test',
-            fldType: 'object',
-            transform: '$$.{'
+            fldType: 'object'
           }
         ]
       })
     ).toThrowError(
-      'compileMapConfig: compile jsonata: srcName=test, transform=$$.{, message=Expected ":" before end of expression'
+      'compileMapFld: compile jsonata: srcName=$$.{, message=Expected ":" before end of expression'
     )
   })
 })
@@ -388,7 +386,7 @@ describe('mappingFlds', () => {
           本文: '<p>test html1</p><p>test html2</p>',
           'null テスト': null
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: 'タイトル',
@@ -457,7 +455,7 @@ describe('mappingFlds', () => {
               fldType: 'boolean'
             }
           ]
-        }
+        })
       )
     ).toEqual({
       _RowNumber: 1,
@@ -493,7 +491,7 @@ describe('mappingFlds', () => {
           updatedAt: n,
           タイトル: 'Title'
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: 'タイトル',
@@ -506,7 +504,7 @@ describe('mappingFlds', () => {
               fldType: 'string'
             }
           ]
-        }
+        })
       )
     ).toEqual({
       _RowNumber: 1,
@@ -557,23 +555,21 @@ describe('mappingFlds', () => {
             html: '<p>test html1</p><p>test html2</p>'
           }
         }),
-        {
+        compileMapConfig({
           flds: [
             {
-              srcName: 'images',
+              srcName: '*[title="1234"].image',
               dstName: 'image',
-              fldType: 'image',
-              transformJsonata: jsonata('*[title="1234"].image')
+              fldType: 'image'
             },
             {
-              srcName: 'content',
+              srcName: 'content.html',
               dstName: 'content',
               fldType: 'html',
-              transformJsonata: jsonata('html'),
               convert: 'markdown'
             }
           ]
-        }
+        })
       )
     ).toEqual({
       _RowNumber: 1,
@@ -599,7 +595,7 @@ describe('mappingFlds', () => {
           updatedAt: n,
           名前: 'file.md'
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: '名前',
@@ -607,7 +603,7 @@ describe('mappingFlds', () => {
               fldType: 'string'
             }
           ]
-        }
+        })
       )
     ).rejects.toThrowError(
       `mappingFlds: invalid id: value = id.string, params = id, id, id`
@@ -620,7 +616,7 @@ describe('mappingFlds', () => {
           updatedAt: n,
           名前: 'file.md'
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: '名前',
@@ -628,7 +624,7 @@ describe('mappingFlds', () => {
               fldType: 'string'
             }
           ]
-        }
+        })
       )
     ).rejects.toThrowError(
       `mappingFlds: invalid id: value = undefined, params = id, id, id`
@@ -642,7 +638,7 @@ describe('mappingFlds', () => {
           updatedAt: n,
           名前: 'file.md'
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: '名前',
@@ -650,7 +646,7 @@ describe('mappingFlds', () => {
               fldType: 'id'
             }
           ]
-        }
+        })
       )
     ).rejects.toThrowError(
       `mappingFlds: invalid id: value = file.md, params = 名前, filename, id`
@@ -667,7 +663,7 @@ describe('mappingFlds', () => {
           updatedAt: n,
           有効: ''
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: '有効',
@@ -675,7 +671,7 @@ describe('mappingFlds', () => {
               fldType: 'boolean'
             }
           ]
-        }
+        })
       )
     ).rejects.toThrowError(
       `mappingFlds: invalid type: actually type = string, params = 有効, enabled, boolean`
@@ -689,7 +685,7 @@ describe('mappingFlds', () => {
           updatedAt: n,
           回数: '21'
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: '回数',
@@ -697,7 +693,7 @@ describe('mappingFlds', () => {
               fldType: 'number'
             }
           ]
-        }
+        })
       )
     ).rejects.toThrowError(
       `mappingFlds: invalid type: actually type = string, params = 回数, count, number`
@@ -711,7 +707,7 @@ describe('mappingFlds', () => {
           updatedAt: n,
           本文: 21
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: '本文',
@@ -719,7 +715,7 @@ describe('mappingFlds', () => {
               fldType: 'html'
             }
           ]
-        }
+        })
       )
     ).rejects.toThrowError(
       `mappingFlds: invalid type: actually type = number, params = 本文, content, html`
@@ -745,20 +741,18 @@ describe('mappingFlds', () => {
             }
           ]
         }),
-        {
+        compileMapConfig({
           flds: [
             {
-              srcName: 'list',
+              srcName: '$${name:title}',
               dstName: 'list',
-              fldType: 'object',
-              transform: '$${name:title}',
-              transformJsonata: jsonata('$${name:title}')
+              fldType: 'object'
             }
           ]
-        }
+        })
       )
     ).rejects.toThrowError(
-      /^ResRecord.execTransform: transform=\$\${name:title} message=Key/
+      /^ResRecord.execTransform: srcName=\$\${name:title} message=Key/
     )
   })
   test('should skip no exist flds', async () => {
@@ -773,7 +767,7 @@ describe('mappingFlds', () => {
           title: 'title1',
           回数: 21
         }),
-        {
+        compileMapConfig({
           flds: [
             {
               srcName: 'タイトル',
@@ -786,7 +780,7 @@ describe('mappingFlds', () => {
               fldType: 'number'
             }
           ]
-        }
+        })
       )
     ).toEqual({
       _RowNumber: 1,
@@ -818,7 +812,7 @@ describe('mappingFlds', () => {
             }
           ]
         }),
-        {
+        compileMapConfig({
           passthruUnmapped: true,
           flds: [
             {
@@ -832,7 +826,7 @@ describe('mappingFlds', () => {
               fldType: 'number'
             }
           ]
-        }
+        })
       )
     ).toEqual({
       _RowNumber: 1,

@@ -131,7 +131,7 @@ describe('saveContentFile()', () => {
         list: undefined
       },
       '/path',
-      0
+      { fldName: 'position', value: 0 }
     )
     await expect(res).resolves.toEqual(null)
     expect(mockWriteFile).toHaveBeenLastCalledWith(
@@ -162,7 +162,7 @@ markdown
         image: 'アプリ_Images/test.png'
       },
       '/path/error',
-      0
+      { fldName: 'position', value: 0 }
     )
     expect(String(await res)).toMatch(/dummy error/)
   })
@@ -298,16 +298,29 @@ describe('saveRemoteContent()', () => {
     expect(mockWriteFile.mock.calls[0][1]).toContain('url: /images/test1.png')
     expect(mockWriteFile.mock.calls[0][1]).toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
-    expect(mockWriteFile.mock.calls[0][1]).toContain('position: 0')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('position: 1')
     expect(mockWriteFile.mock.calls[0][1]).toContain('markdown1')
     expect(mockWriteFile.mock.calls[1][0]).toEqual('/path/content/idstring2.md')
     expect(mockWriteFile.mock.calls[1][1]).toContain('title: Title2')
     expect(mockWriteFile.mock.calls[1][1]).toContain('url: /images/test2.png')
     expect(mockWriteFile.mock.calls[0][1]).toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
-    expect(mockWriteFile.mock.calls[1][1]).toContain('position: 1')
+    expect(mockWriteFile.mock.calls[1][1]).toContain('position: 2')
     expect(mockWriteFile.mock.calls[1][1]).toContain('markdown2')
   })
+  const paginateSaveOption = {
+    apiName: 'tbl',
+    dstContentDir: '/path/content',
+    dstImagesDir: '/path/static/images',
+    staticRoot: '/path/static',
+    skip: 5,
+    limit: 90,
+    pageSize: 30,
+    filter: [],
+    query: [],
+    vars: [],
+    varsStr: []
+  }
   it('should get remote content and save as local files with paginate', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       flds: []
@@ -315,25 +328,89 @@ describe('saveRemoteContent()', () => {
     const res = saveRemoteContent({
       // paginate させるために、他とは違う方法で client を生成している.
       client: new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100),
-      apiName: 'tbl',
       mapConfig,
-      dstContentDir: '/path/content',
-      dstImagesDir: '/path/static/images',
-      staticRoot: '/path/static',
-      skip: 5,
-      limit: 90,
-      pageSize: 30,
-      filter: [],
-      query: [],
-      vars: [],
-      varsStr: []
+      ...paginateSaveOption
     })
     await expect(res).resolves.toEqual(null)
     for (let idx = 0; idx < 90; idx++) {
       expect(mockWriteFile.mock.calls[idx][0]).toEqual(
         `/path/content/id${idx + 5}.md`
       )
-      expect(mockWriteFile.mock.calls[idx][1]).toContain(`position: ${idx}`)
+      expect(mockWriteFile.mock.calls[idx][1]).toContain(`position: ${idx + 1}`)
+    }
+  })
+  it('should use configured position', async () => {
+    const start = 3
+    const mapConfig: MapConfig = compileMapConfig({
+      position: {
+        start
+      },
+      flds: []
+    })
+    const res = saveRemoteContent({
+      // paginate させるために、他とは違う方法で client を生成している.
+      client: new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100),
+      mapConfig,
+      ...paginateSaveOption
+    })
+    await expect(res).resolves.toEqual(null)
+    for (let idx = 0; idx < 90; idx++) {
+      expect(mockWriteFile.mock.calls[idx][0]).toEqual(
+        `/path/content/id${idx + 5}.md`
+      )
+      expect(mockWriteFile.mock.calls[idx][1]).toContain(
+        `position: ${idx + start}`
+      )
+    }
+  })
+  it('should use configured position(fldName)', async () => {
+    const start = 3
+    const mapConfig: MapConfig = compileMapConfig({
+      position: {
+        fldName: 'index',
+        start
+      },
+      flds: []
+    })
+    const res = saveRemoteContent({
+      // paginate させるために、他とは違う方法で client を生成している.
+      client: new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100),
+      mapConfig,
+      ...paginateSaveOption
+    })
+    await expect(res).resolves.toEqual(null)
+    for (let idx = 0; idx < 90; idx++) {
+      expect(mockWriteFile.mock.calls[idx][0]).toEqual(
+        `/path/content/id${idx + 5}.md`
+      )
+      expect(mockWriteFile.mock.calls[idx][1]).toContain(
+        `index: ${idx + start}`
+      )
+    }
+  })
+  it('should use positionStart option', async () => {
+    const start = 3
+    const mapConfig: MapConfig = compileMapConfig({
+      position: {
+        start: 5 // これは使われない.
+      },
+      flds: []
+    })
+    const res = saveRemoteContent({
+      // paginate させるために、他とは違う方法で client を生成している.
+      client: new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100),
+      mapConfig,
+      ...paginateSaveOption,
+      positioStart: start
+    })
+    await expect(res).resolves.toEqual(null)
+    for (let idx = 0; idx < 90; idx++) {
+      expect(mockWriteFile.mock.calls[idx][0]).toEqual(
+        `/path/content/id${idx + 5}.md`
+      )
+      expect(mockWriteFile.mock.calls[idx][1]).toContain(
+        `position: ${idx + start}`
+      )
     }
   })
   it('should get remote content and save as local files with transform content', async () => {
@@ -421,14 +498,14 @@ describe('saveRemoteContent()', () => {
     expect(mockWriteFile.mock.calls[0][1]).toContain('url: /images/test1.png')
     expect(mockWriteFile.mock.calls[0][1]).toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
-    expect(mockWriteFile.mock.calls[0][1]).toContain('position: 0')
+    expect(mockWriteFile.mock.calls[0][1]).toContain('position: 1')
     expect(mockWriteFile.mock.calls[0][1]).toContain('markdown1')
     expect(mockWriteFile.mock.calls[1][0]).toEqual('/path/content/idstring2.md')
     expect(mockWriteFile.mock.calls[1][1]).toContain('title: Title2')
     expect(mockWriteFile.mock.calls[1][1]).toContain('url: /images/test2.png')
     expect(mockWriteFile.mock.calls[0][1]).toContain('width: 200')
     expect(mockWriteFile.mock.calls[0][1]).toContain('height: 100')
-    expect(mockWriteFile.mock.calls[1][1]).toContain('position: 1')
+    expect(mockWriteFile.mock.calls[1][1]).toContain('position: 2')
     expect(mockWriteFile.mock.calls[1][1]).toContain('markdown2')
   })
   it('should get remote content and save as local files without setSize options', async () => {

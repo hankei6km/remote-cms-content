@@ -428,6 +428,18 @@ export const mapConfigSchema =
         "passthruUnmapped": {
             "type": "boolean"
         },
+        "position": {
+            "additionalProperties": false,
+            "properties": {
+                "fldName": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "number"
+                }
+            },
+            "type": "object"
+        },
         "transform": {
             "type": "string"
         }

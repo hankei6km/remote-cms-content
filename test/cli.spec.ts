@@ -107,6 +107,70 @@ describe('cli()', () => {
     expect(outData).toEqual('')
     expect(errData).toEqual('')
   })
+  it('should return stdout with exitcode=0 from save command with postionStart', async () => {
+    const stdout = new PassThrough()
+    const stderr = new PassThrough()
+    let outData = ''
+    stdout.on('data', (d) => (outData = outData + d))
+    let errData = ''
+    stderr.on('data', (d) => (errData = errData + d))
+
+    const res = cli({
+      command: 'save',
+      stdout,
+      stderr,
+      clientKind: 'appsheet',
+      apiBaseURL: 'http://localhost:3000',
+      credential: ['appid', 'secret'],
+      mapConfig: 'test/assets/mapconfig.json',
+      saveOpts: {
+        apiName: 'tbl',
+        dstContentDir: '/content/tbl',
+        dstImagesDir: '/static/tbl',
+        staticRoot: '/static',
+        skip: 0,
+        filter: [],
+        positioStart: 3,
+        query: [],
+        vars: [],
+        varsStr: []
+      }
+    })
+    expect(await res).toEqual(0)
+    //const { mockSaveRemoteContent } = require('../src/lib/content')._getMocks()
+    const { mockSaveRemoteContent } = (mockContent as any)._getMocks()
+    expect(mockSaveRemoteContent.mock.calls[0]).toEqual([
+      {
+        client: expect.any(Object),
+        apiName: 'tbl',
+        mapConfig: {
+          flds: [
+            {
+              srcName: 'タイトル',
+              dstName: 'title',
+              fldType: 'string'
+            },
+            {
+              srcName: '画像',
+              dstName: 'image',
+              fldType: 'image'
+            }
+          ]
+        },
+        dstContentDir: '/content/tbl',
+        dstImagesDir: '/static/tbl',
+        staticRoot: '/static',
+        skip: 0,
+        positioStart: 3,
+        filter: [],
+        query: [],
+        vars: [],
+        varsStr: []
+      }
+    ])
+    expect(outData).toEqual('')
+    expect(errData).toEqual('')
+  })
   it('should return stdout with exitcode=0 from save command with filter', async () => {
     const stdout = new PassThrough()
     const stderr = new PassThrough()

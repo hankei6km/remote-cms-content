@@ -33,6 +33,12 @@ import { ClientKindValues } from './types/client.js'
               type: 'number',
               description: 'page size to fetching content with paginate'
             },
+            'position-start': {
+              type: 'number',
+              required: false,
+              default: 1,
+              description: 'the start value of position field'
+            },
             filter: {
               type: 'string',
               array: true,
@@ -121,6 +127,7 @@ import { ClientKindValues } from './types/client.js'
         skip: argv['skip'] !== undefined ? argv['skip'] : 0,
         limit: argv['limit'],
         pageSize: argv['page-size'],
+        positioStart: argv['position-start'],
         filter: argv['filter'] || [],
         query: argv['query'] || [],
         vars: argv['vars'] || [],

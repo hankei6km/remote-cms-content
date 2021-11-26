@@ -115,5 +115,14 @@ export type MapConfig = {
    * @ignore
    */
   transformJsonata?: Expression
+  position?: {
+    fldName?: string
+    start?: number
+  }
   flds: MapFlds
+}
+
+export const defaultPosition = {
+  fldName: 'position',
+  start: 1
 }

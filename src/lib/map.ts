@@ -4,6 +4,7 @@ import Ajv from 'ajv'
 import jsonata from 'jsonata'
 import {
   BaseFlds,
+  defaultPosition,
   MapConfig,
   MapFld,
   MapFlds,

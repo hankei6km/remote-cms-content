@@ -3,6 +3,7 @@ import rehypeParse from 'rehype-parse'
 import rehype2Remark, { Options } from 'rehype-remark'
 // import { Handle } from 'hast-util-to-mdast';
 import rehypeStringify from 'rehype-stringify'
+import remarkGfm from 'remark-gfm'
 import remarkStringify from 'remark-stringify'
 import { Root, Node, Element, Text } from 'hast'
 // import visit from 'unist-util-visit';
@@ -161,6 +162,7 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(rehype2Remark, {
       handlers: { pre: codeDockHandler, br: brHandler }
     } as unknown as Options)
+    .use(remarkGfm)
     .use(remarkStringify)
     .freeze()
 }

@@ -8,11 +8,13 @@ import {
   validId
 } from '../../src/lib/map.js'
 import { ResRecord } from '../../src/types/client.js'
-import { MapConfig } from '../../src/types/map.js'
+import { defaultPosition, MapConfig } from '../../src/types/map.js'
 
 describe('compileMapConfig', () => {
   test('should return MapConfig', () => {
-    expect(compileMapConfig({ flds: [] })).toEqual({ flds: [] })
+    expect(compileMapConfig({ flds: [] })).toEqual({
+      flds: []
+    })
     //const mapConfig: MapConfig = {
     const mapConfig = {
       passthruUnmapped: false,
@@ -24,6 +26,7 @@ describe('compileMapConfig', () => {
         }
       },
       transform: 'Account.Order',
+      position: { fldName: 'index', start: 0 },
       flds: [
         {
           srcName: 'idFld',
@@ -94,6 +97,26 @@ describe('compileMapConfig', () => {
         flds: []
       }).transformJsonata
     ).toEqual('object')
+    expect(compileMapConfig({ passthruUnmapped: true, flds: [] })).toEqual({
+      passthruUnmapped: true,
+      flds: []
+    })
+    expect(
+      compileMapConfig({
+        position: {
+          fldName: 'index'
+        },
+        flds: []
+      }).position
+    ).toEqual({ fldName: 'index' })
+    expect(
+      compileMapConfig({
+        position: {
+          start: 10
+        },
+        flds: []
+      }).position
+    ).toEqual({ start: 10 })
     expect(
       typeof compileMapConfig({
         flds: [
@@ -105,10 +128,6 @@ describe('compileMapConfig', () => {
         ]
       }).flds[0].transformJsonata
     ).toEqual('object')
-    expect(compileMapConfig({ passthruUnmapped: true, flds: [] })).toEqual({
-      passthruUnmapped: true,
-      flds: []
-    })
   })
   test('should throw error when invalid data passed', () => {
     expect(() => compileMapConfig({})).toThrowError(/flds/)
@@ -145,7 +164,7 @@ describe('compileMapConfig', () => {
 
 describe('loadMapConfig', () => {
   test('should load MapConfig from json file', async () => {
-    expect(loadMapConfig('test/assets/mapconfig.json')).resolves.toEqual({
+    expect(await loadMapConfig('test/assets/mapconfig.json')).toEqual({
       flds: [
         {
           srcName: 'タイトル',

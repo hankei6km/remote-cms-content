@@ -1,7 +1,12 @@
 import path from 'path'
 import { writeFile } from 'fs/promises'
 import matter from 'gray-matter'
-import { BaseFlds, MapConfig, MapFldsImage } from '../types/map.js'
+import {
+  BaseFlds,
+  defaultPosition,
+  MapConfig,
+  MapFldsImage
+} from '../types/map.js'
 import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
 import { TransformContent } from '../types/client.js'
 import { SaveRemoteContentOptions } from '../types/content.js'
@@ -10,7 +15,7 @@ import { imageInfoFromSrc, saveImageFile } from './media.js'
 export async function saveContentFile(
   flds: BaseFlds,
   dstDir: string,
-  position: number
+  position: { fldName: string; value: number }
 ): Promise<Error | null> {
   let ret: Error | null = null
 
@@ -28,7 +33,7 @@ export async function saveContentFile(
     // content は string を期待しているが、異なる場合もある、かな.
     const file = matter.stringify(content !== undefined ? `${content}` : '', {
       ...metaData,
-      position
+      [position.fldName]: position.value
     })
     await writeFile(savePath, file)
   } catch (err: any) {
@@ -112,6 +117,7 @@ export async function saveRemoteContent({
   skip,
   limit,
   pageSize,
+  positioStart,
   filter,
   query,
   vars,
@@ -130,7 +136,13 @@ export async function saveRemoteContent({
       .query(query)
       .vars(vars)
       .vars(varsStr, true)
-    let position = 0
+    const positionConfig = Object.assign(
+      {},
+      defaultPosition,
+      mapConfig.position
+    )
+    let position: number =
+      typeof positioStart === 'number' ? positioStart : positionConfig.start
     for await (let res of c.fetch()) {
       const contenSrc = res.content
       const len = contenSrc.length
@@ -173,7 +185,10 @@ export async function saveRemoteContent({
         }
         const flds: BaseFlds = { ...content[idx] }
         fldsArray.forEach(([k, v]) => (flds[k] = v))
-        ret = await saveContentFile(flds, dstContentDir, position++)
+        ret = await saveContentFile(flds, dstContentDir, {
+          fldName: positionConfig.fldName,
+          value: position++
+        })
         if (ret) {
           break
         }

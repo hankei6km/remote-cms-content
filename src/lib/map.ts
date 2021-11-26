@@ -2,14 +2,37 @@ import path from 'path'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
 import jsonata from 'jsonata'
-import { BaseFlds, MapConfig, MapFld, MapFldsImage } from '../types/map.js'
+import {
+  BaseFlds,
+  MapConfig,
+  MapFld,
+  MapFlds,
+  MapFldsImage
+} from '../types/map.js'
 import { mapConfigSchema } from '../types/mapConfigSchema.js'
 import { ImageInfo } from '../types/media.js'
 import { htmlTo } from './html.js'
 import { ResRecord } from '../types/client.js'
+import { isJsonataQuery } from './util.js'
 
 const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
+
+export function compileMapFld(m: MapFld): MapFld {
+  if (isJsonataQuery(m.srcName)) {
+    try {
+      m.transformJsonata = jsonata(m.srcName)
+    } catch (err: any) {
+      throw new Error(
+        `compileMapFld: compile jsonata: srcName=${m.srcName}, message=${err.message}`
+      )
+    }
+  }
+  return m
+}
+export function compileMapFlds(mapFlds: MapFlds): MapFlds {
+  return mapFlds.map((m) => compileMapFld(m))
+}
 
 export function compileMapConfig(mapConfig: any): MapConfig {
   if (!validate(mapConfig) && validate.errors) {
@@ -30,17 +53,7 @@ export function compileMapConfig(mapConfig: any): MapConfig {
       )
     }
   }
-  ret.flds.forEach((m) => {
-    if (typeof m.transform === 'string') {
-      try {
-        m.transformJsonata = jsonata(m.transform)
-      } catch (err: any) {
-        throw new Error(
-          `compileMapConfig: compile jsonata: srcName=${m.srcName}, transform=${m.transform}, message=${err.message}`
-        )
-      }
-    }
-  })
+  ret.flds = compileMapFlds(ret.flds)
   return ret
 }
 
@@ -154,8 +167,8 @@ export async function mappingFlds(
   const mapFldsLen = mapConfig.flds.length
   for (let mapFldsIdx = 0; mapFldsIdx < mapFldsLen; mapFldsIdx++) {
     const m = mapConfig.flds[mapFldsIdx]
-    if (s.has(m)) {
-      const srcValue = s.isAsyncFld(m) ? await s.getAsync(m) : s.getSync(m)
+    const srcValue = s.isAsyncFld(m) ? await s.getAsync(m) : s.getSync(m)
+    if (srcValue !== undefined && srcValue !== null) {
       const srcFldType = typeof srcValue
       switch (m.fldType) {
         case 'id':

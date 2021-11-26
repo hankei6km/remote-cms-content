@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { compileMapFld } from '../../src/lib/map.js'
 import { ResRecord } from '../../src/types/client.js'
 
 // > ENOENT: no such file or directory, open 'zlib'
@@ -22,6 +23,129 @@ jest.unstable_mockModule('../../src/lib/util.js', async () => {
 
 const { client } = await import('../../src/lib/client.js')
 const { ClientTest } = await import('./clientTest.js')
+
+describe('ResRecord', () => {
+  it('should return false from isAsyncFld', () => {
+    expect(
+      new ResRecord({}).isAsyncFld(
+        compileMapFld({
+          srcName: '',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toBeFalsy()
+    expect(
+      new ResRecord({}).isAsyncFld(
+        compileMapFld({
+          srcName: '',
+          dstName: '',
+          fldType: 'html'
+        })
+      )
+    ).toBeFalsy()
+  })
+  it('should get the value of field', () => {
+    expect(
+      new ResRecord({ text: 'test1' }).getSync(
+        compileMapFld({
+          srcName: 'text',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toEqual('test1')
+  })
+  it('should get the value of field that is contained "fields"', () => {
+    expect(
+      new ResRecord({ fields: { text: 'test1' } }).getSync(
+        compileMapFld({
+          srcName: 'fields.text',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toEqual('test1')
+  })
+  it('should return undefined', () => {
+    expect(
+      new ResRecord({ text: 'test1' }).getSync(
+        compileMapFld({
+          srcName: 'fields.abc',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toEqual(undefined)
+    expect(
+      new ResRecord({ fields: { text: 'test1' } }).getSync(
+        compileMapFld({
+          srcName: 'fields.abc',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toEqual(undefined)
+    expect(
+      new ResRecord({ text: 'test1' }).getSync(
+        compileMapFld({
+          srcName: 'fields.text',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toEqual(undefined)
+  })
+  it('should return undefined', () => {
+    expect(
+      new ResRecord({ text: 'test1' }).getSync(
+        compileMapFld({
+          srcName: 'abc',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toBeUndefined()
+    expect(
+      new ResRecord({ text: 'test1' }).getSync(
+        compileMapFld({
+          srcName: 'fields.text',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toBeUndefined()
+    expect(
+      new ResRecord({ fields: { text: 'test1' } }).getSync(
+        compileMapFld({
+          srcName: 'fields.abc',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toBeUndefined()
+  })
+  it('should return null', () => {
+    expect(
+      new ResRecord({ text: null }).getSync(
+        compileMapFld({
+          srcName: 'text',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toBeNull()
+    expect(
+      new ResRecord({ fields: { text: null } }).getSync(
+        compileMapFld({
+          srcName: 'fields.text',
+          dstName: '',
+          fldType: 'string'
+        })
+      )
+    ).toBeNull()
+  })
+})
 
 describe('ClientBase', () => {
   it('should fetch all content', async () => {

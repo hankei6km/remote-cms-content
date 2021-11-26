@@ -10,7 +10,6 @@ export type BaseFlds = {
 export type MapFldsBase = {
   srcName: string
   dstName: string
-  transform?: string
   /**
    * @ignore
    */

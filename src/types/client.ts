@@ -67,19 +67,24 @@ export class ResRecord {
         return m.transformJsonata.evaluate(value)
       } catch (err: any) {
         throw new Error(
-          `ResRecord.execTransform: transform=${m.transform} message=${
+          `ResRecord.execTransform: srcName=${m.srcName} message=${
             err.message
           } value=${JSON.stringify(value)}`
         )
       }
+    } else if (valueType === 'object') {
+      return (value as any)[m.srcName]
     }
     return value
   }
+  protected _getValue(map: MapFld): unknown {
+    return this.execTransform(map, this.record)
+  }
   getSync(map: MapFld): unknown {
-    return this.execTransform(map, this.record[map.srcName])
+    return this._getValue(map)
   }
   async getAsync(map: MapFld): Promise<unknown> {
-    return this.execTransform(map, this.record[map.srcName])
+    return this._getValue(map)
   }
 }
 

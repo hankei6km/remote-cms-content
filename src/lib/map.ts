@@ -1,6 +1,7 @@
 import path from 'path'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
+import yaml from 'js-yaml'
 import jsonata from 'jsonata'
 import {
   BaseFlds,
@@ -58,12 +59,14 @@ export function compileMapConfig(mapConfig: any): MapConfig {
   return ret
 }
 
-export async function loadMapConfig(jsonFile: string): Promise<MapConfig> {
+export async function loadMapConfig(fileName: string): Promise<MapConfig> {
   try {
-    const s = await readFile(jsonFile)
-    return compileMapConfig(JSON.parse(s.toString()))
+    const s = (await readFile(fileName)).toString()
+    const e = path.extname(fileName)
+    const o = e === '.yaml' || e === '.yml' ? yaml.load(s) : JSON.parse(s)
+    return compileMapConfig(o)
   } catch (err) {
-    throw new Error(`loadMapConfig: jsonFile=${jsonFile} ${err}`)
+    throw new Error(`loadMapConfig: fileName=${fileName} ${err}`)
   }
 }
 

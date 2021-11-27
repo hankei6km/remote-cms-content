@@ -1,0 +1,8 @@
+flds:
+  - srcName: タイトル
+    dstName: title
+    fldType: string
+  - srcName: 画像
+    dstName: image
+    fldType: image
+

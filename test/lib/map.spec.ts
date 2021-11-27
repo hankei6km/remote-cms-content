@@ -163,35 +163,57 @@ describe('compileMapConfig', () => {
 })
 
 describe('loadMapConfig', () => {
+  const mapConfig = {
+    flds: [
+      {
+        srcName: 'タイトル',
+        dstName: 'title',
+        fldType: 'string'
+      },
+      {
+        srcName: '画像',
+        dstName: 'image',
+        fldType: 'image'
+      }
+    ]
+  }
   test('should load MapConfig from json file', async () => {
-    expect(await loadMapConfig('test/assets/mapconfig.json')).toEqual({
-      flds: [
-        {
-          srcName: 'タイトル',
-          dstName: 'title',
-          fldType: 'string'
-        },
-        {
-          srcName: '画像',
-          dstName: 'image',
-          fldType: 'image'
-        }
-      ]
-    })
+    expect(await loadMapConfig('test/assets/mapconfig.json')).toEqual(mapConfig)
   })
-  test('should throw error when invalid type loaded', async () => {
-    expect(
+  test('should load MapConfig from yaml file', async () => {
+    expect(await loadMapConfig('test/assets/mapconfig.yaml')).toEqual(mapConfig)
+  })
+  test('should load MapConfig from yml file', async () => {
+    expect(await loadMapConfig('test/assets/mapconfig.yml')).toEqual(mapConfig)
+  })
+  test('should throw error when invalid type loaded(json)', async () => {
+    await expect(
       loadMapConfig('test/assets/mapconfig_type_err.json')
     ).rejects.toThrowError(/flds/)
   })
+  test('should throw error when invalid type loaded(yaml)', async () => {
+    await expect(
+      loadMapConfig('test/assets/mapconfig_type_err.yaml')
+    ).rejects.toThrowError(/flds/)
+  })
   test('should throw error when invalid json loaded', async () => {
-    expect(
+    await expect(
       loadMapConfig('test/assets/mapconfig_invalid.json')
     ).rejects.toThrowError(/SyntaxError/)
   })
+  test('should throw error when invalid yaml loaded', async () => {
+    await expect(
+      loadMapConfig('test/assets/mapconfig_invalid.yaml')
+    ).rejects.toThrowError(/YAMLException/)
+  })
   test('should throw error when not exist json loaded', async () => {
-    expect(
+    await expect(
       loadMapConfig('test/assets/mapconfig_not_exist.json')
+    ).rejects.toThrowError(/ENOENT/)
+  })
+  test('should throw error when not exist yaml loaded', async () => {
+    await expect(
+      loadMapConfig('test/assets/mapconfig_not_exist.yaml')
     ).rejects.toThrowError(/ENOENT/)
   })
 })

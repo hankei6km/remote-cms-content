@@ -7,7 +7,8 @@ export const ClientKindValues = [
   'contentful',
   'contentful:gql',
   'graphcms:gql',
-  'microcms'
+  'microcms',
+  'prismic:gql'
 ] as const
 export type ClientKind = typeof ClientKindValues[number]
 

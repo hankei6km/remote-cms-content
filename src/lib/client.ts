@@ -19,6 +19,9 @@ export async function client(
   } else if (kind === 'microcms') {
     const { ClientMicroCMS } = await import('./clients/microcms.js')
     return new ClientMicroCMS(opts)
+  } else if (kind === 'prismic:gql') {
+    const { ClientPrismicGql } = await import('./clients/prismic.js')
+    return new ClientPrismicGql(opts)
   }
   throw new Error(`client: unknown kind ${kind}`)
 }

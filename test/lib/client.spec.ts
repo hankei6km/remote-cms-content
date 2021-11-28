@@ -339,6 +339,13 @@ describe('client', () => {
     })
     expect(c.kind()).toEqual('graphcms:gql')
   })
+  it('should return prismic:gql client instanse', async () => {
+    const c = await client('prismic:gql', {
+      apiBaseURL: '',
+      credential: ['repository-name', 'pat']
+    })
+    expect(c.kind()).toEqual('prismic:gql')
+  })
   it('should return microcms client instanse', async () => {
     const c = await client('microcms', {
       apiBaseURL: 'http://localhost:3000',

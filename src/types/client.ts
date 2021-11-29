@@ -1,3 +1,4 @@
+import { printInfo } from '../lib/log.js'
 import { readQuery, decodeVars } from '../lib/util.js'
 import { GqlVars } from './gql.js'
 import { MapFld } from './map.js'
@@ -218,6 +219,7 @@ export abstract class ClientBase {
     let limit = this._limit
     const query = this._query
     let count = 0
+    let repeat = 0
 
     if (this._setupErr) {
       throw new Error(`ClientBase: ${this._setupErr}`)
@@ -228,7 +230,12 @@ export abstract class ClientBase {
       content: []
     }
     let complete = false
+
+    printInfo(
+      `ClientBase.fetch: start${limit != undefined ? ` limit=${limit}` : ''}`
+    )
     while (!complete) {
+      repeat = repeat + 1
       if (pageSize !== undefined && limit !== undefined) {
         // pageSize が指定されていた場合、最後の fetch 時のサイズを調整する.
         const s = limit - count
@@ -237,7 +244,15 @@ export abstract class ClientBase {
         }
       }
 
+      printInfo(
+        `ClientBase.fetch: repeat=${repeat} skip=${skip}${
+          pageSize !== undefined ? `, pageSize=${pageSize}` : ''
+        }`
+      )
+
       res = await this._fetch({ skip, pageSize, query })
+
+      printInfo(`ClientBase.fetch:   count=${res.fetch.count}`)
 
       count = count + res.fetch.count
       if (limit !== undefined) {

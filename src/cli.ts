@@ -1,6 +1,7 @@
 import { Writable } from 'stream'
 import { client } from './lib/client.js'
 import { saveRemoteContent } from './lib/content.js'
+import { initLog, printErr } from './lib/log.js'
 import { loadMapConfig } from './lib/map.js'
 import { decodeFilter } from './lib/util.js'
 import { ClientKind, OpValue } from './types/client.js'
@@ -42,6 +43,7 @@ export const cli = async ({
   saveOpts
 }: Opts): Promise<number> => {
   let cliErr: Error | null = null
+  initLog(stdout, stderr)
   try {
     switch (command) {
       case 'save':
@@ -62,8 +64,7 @@ export const cli = async ({
     cliErr = err
   }
   if (cliErr) {
-    stderr.write(cliErr.toString())
-    stderr.write('\n')
+    printErr(cliErr.toString())
     return 1
   }
   return 0

@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals'
+import { initLog } from '../../src/lib/log.js'
 import { compileMapFld } from '../../src/lib/map.js'
 import { ResRecord } from '../../src/types/client.js'
+import { mockStreams } from '../util.js'
 
 // > ENOENT: no such file or directory, open 'zlib'
 // になる対応.
@@ -19,6 +21,10 @@ jest.unstable_mockModule('../../src/lib/util.js', async () => {
     readQuery: (v: string) => (v === 'error' ? new Error('query error') : v), // ファイル読み込みではなく、文字列をそのまま返す.
     ...utils
   }
+})
+
+afterEach(() => {
+  initLog(undefined, undefined)
 })
 
 const { client } = await import('../../src/lib/client.js')
@@ -287,6 +293,24 @@ describe('ClientBase', () => {
       done: true
     })
     expect(c._fetch).toHaveBeenCalledTimes(3)
+  })
+  it('should print info from fetch method', async () => {
+    const info = { o: '', e: '' }
+    initLog(...mockStreams(info))
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100)
+    for await (let _res of c.pageSize(30).fetch()) {
+    }
+    expect(info.o).toMatchSnapshot()
+    expect(info.e).toEqual('')
+  })
+  it('should print info from fetch method(limit)', async () => {
+    const info = { o: '', e: '' }
+    initLog(...mockStreams(info))
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100)
+    for await (let _res of c.pageSize(30).limit(50).fetch()) {
+    }
+    expect(info.o).toMatchSnapshot()
+    expect(info.e).toEqual('')
   })
   it('should throw error when error occured in chain(query)', async () => {
     const c = new ClientTest({ apiBaseURL: '', credential: [] }).query([

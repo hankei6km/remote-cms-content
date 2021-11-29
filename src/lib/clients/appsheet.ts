@@ -119,7 +119,8 @@ export class ClientAppSheet extends ClientBase {
           kind: 'page',
           // AppSheet では skip などがないので paginate は一旦保留
           // (やるならソートキーに _RowNumber を含めて対応か)
-          hasNextPage: false
+          hasNextPage: false,
+          endCursor: undefined
         }
       },
       content

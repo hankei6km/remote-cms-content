@@ -103,6 +103,7 @@ export type FetchResultNextTotal = {
 export type FetchResultNextPageInfo = {
   kind: 'page'
   hasNextPage: boolean
+  endCursor: string | undefined
 }
 export type FetchResultNext = FetchResultNextTotal | FetchResultNextPageInfo
 export type FetchResult = {
@@ -226,7 +227,10 @@ export abstract class ClientBase {
     }
 
     let res: FetchResult = {
-      fetch: { count: 0, next: { kind: 'page', hasNextPage: true } },
+      fetch: {
+        count: 0,
+        next: { kind: 'page', hasNextPage: true, endCursor: undefined }
+      },
       content: []
     }
     let complete = false

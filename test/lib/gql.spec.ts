@@ -238,7 +238,10 @@ describe('ClientGql', () => {
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { next: { kind: 'page', hasNextPage: true }, count: 10 },
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          count: 10
+        },
         content: mockData.data.testCollection.items
           .slice(0, 10)
           .map((v) => new ResRecord(v))
@@ -251,7 +254,10 @@ describe('ClientGql', () => {
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { next: { kind: 'page', hasNextPage: true }, count: 10 },
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          count: 10
+        },
         content: mockData.data.testCollection.items
           .slice(10, 20)
           .map((v) => new ResRecord(v))
@@ -264,7 +270,10 @@ describe('ClientGql', () => {
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { next: { kind: 'page', hasNextPage: true }, count: 5 },
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          count: 5
+        },
         content: mockData.data.testCollection.items
           .slice(20, 25)
           .map((v) => new ResRecord(v))
@@ -278,7 +287,10 @@ describe('ClientGql', () => {
     // has では空振り(empry を fetch)が 1 回余分に実行される.
     expect(await g.next()).toEqual({
       value: {
-        fetch: { next: { kind: 'page', hasNextPage: false }, count: 0 },
+        fetch: {
+          next: { kind: 'page', hasNextPage: false, endCursor: undefined },
+          count: 0
+        },
         content: []
       },
       done: false
@@ -316,7 +328,10 @@ describe('ClientGql', () => {
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { next: { kind: 'page', hasNextPage: true }, count: 10 },
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          count: 10
+        },
         content: mockData.data.testCollection.items
           .slice(0, 10)
           .map((v) => new ResRecord(v))
@@ -329,7 +344,10 @@ describe('ClientGql', () => {
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { next: { kind: 'page', hasNextPage: true }, count: 10 },
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          count: 10
+        },
         content: mockData.data.testCollection.items
           .slice(10, 20)
           .map((v) => new ResRecord(v))
@@ -342,7 +360,10 @@ describe('ClientGql', () => {
 
     expect(await g.next()).toEqual({
       value: {
-        fetch: { next: { kind: 'page', hasNextPage: true }, count: 4 },
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          count: 4
+        },
         content: mockData.data.testCollection.items
           .slice(20, 24)
           .map((v) => new ResRecord(v))

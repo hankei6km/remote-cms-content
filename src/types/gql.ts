@@ -94,7 +94,7 @@ export abstract class ClientGqlBase extends ClientBase {
           const next: FetchResultNext =
             total !== undefined
               ? { kind: 'total', total }
-              : { kind: 'has', hasNext: content.length > 0 } // content が空なら次はない.
+              : { kind: 'page', hasNextPage: content.length > 0 } // content が空なら次はない.
           resolve({
             fetch: {
               count: content.length,

@@ -94,7 +94,7 @@ describe('client_appsheet', () => {
       data: mockData
     })
     expect((await next).value).toEqual({
-      fetch: { next: { kind: 'has', hasNext: false }, count: 2 },
+      fetch: { next: { kind: 'page', hasNextPage: false }, count: 2 },
       content: mockData.map((v) => new ResRecord(v))
     })
     expect((await g.next()).done).toBeTruthy()
@@ -143,7 +143,7 @@ describe('client_appsheet', () => {
       data: mockData
     })
     expect((await next).value).toEqual({
-      fetch: { next: { kind: 'has', hasNext: false }, count: 2 },
+      fetch: { next: { kind: 'page', hasNextPage: false }, count: 2 },
       content: mockData.map((v) => new ResRecord(v))
     })
     expect((await g.next()).done).toBeTruthy()

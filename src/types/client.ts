@@ -100,11 +100,11 @@ export type FetchResultNextTotal = {
   kind: 'total'
   total: number
 }
-export type FetchResultNextHas = {
-  kind: 'has'
-  hasNext: boolean
+export type FetchResultNextPageInfo = {
+  kind: 'page'
+  hasNextPage: boolean
 }
-export type FetchResultNext = FetchResultNextTotal | FetchResultNextHas
+export type FetchResultNext = FetchResultNextTotal | FetchResultNextPageInfo
 export type FetchResult = {
   fetch: {
     // fetch したレコード件数(transform 後の content のレコードではない)
@@ -226,7 +226,7 @@ export abstract class ClientBase {
     }
 
     let res: FetchResult = {
-      fetch: { count: 0, next: { kind: 'has', hasNext: true } },
+      fetch: { count: 0, next: { kind: 'page', hasNextPage: true } },
       content: []
     }
     let complete = false
@@ -268,8 +268,8 @@ export abstract class ClientBase {
         }
       }
       skip = skip + res.fetch.count
-      if (res.fetch.next.kind === 'has') {
-        if (!res.fetch.next.hasNext) {
+      if (res.fetch.next.kind === 'page') {
+        if (!res.fetch.next.hasNextPage) {
           // 次はないので終了
           complete = true
         } else {

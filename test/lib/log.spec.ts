@@ -1,16 +1,13 @@
-import { PassThrough } from 'stream'
+import { mockStreams } from '../util.js'
 import { initLog, printErr, printInfo, printWarn } from '../../src/lib/log.js'
 
-function mockStreams(res: {
-  o: string
-  e: string
-}): [PassThrough, PassThrough] {
-  const stdout = new PassThrough()
-  const stderr = new PassThrough()
-  stdout.on('data', (d) => (res.o = `${res.o}${d}`))
-  stderr.on('data', (d) => (res.e = `${res.e}${d}`))
-  return [stdout, stderr]
-}
+beforeAll(() => {
+  initLog(undefined, undefined)
+})
+
+afterAll(() => {
+  initLog(undefined, undefined)
+})
 
 describe('initLog()', () => {
   it('should print string to stdout(info)', () => {
@@ -30,5 +27,23 @@ describe('initLog()', () => {
     initLog(...mockStreams(res))
     printErr('test')
     expect(res).toEqual({ o: '', e: 'test\n' })
+  })
+  it('should no print string to stdout(info)', () => {
+    const res = { o: '', e: '' }
+    initLog(undefined, undefined)
+    printInfo('test')
+    expect(res).toEqual({ o: '', e: '' })
+  })
+  it('should not print string to stdout(warn)', () => {
+    const res = { o: '', e: '' }
+    initLog(undefined, undefined)
+    printWarn('test')
+    expect(res).toEqual({ o: '', e: '' })
+  })
+  it('should noty print string to stderr(err)', () => {
+    const res = { o: '', e: '' }
+    initLog(undefined, undefined)
+    printErr('test')
+    expect(res).toEqual({ o: '', e: '' })
   })
 })

@@ -116,10 +116,11 @@ export class ClientAppSheet extends ClientBase {
       fetch: {
         count: res.data.length,
         next: {
-          kind: 'has',
+          kind: 'page',
           // AppSheet では skip などがないので paginate は一旦保留
           // (やるならソートキーに _RowNumber を含めて対応か)
-          hasNext: false
+          hasNextPage: false,
+          endCursor: undefined
         }
       },
       content

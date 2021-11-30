@@ -93,6 +93,7 @@ export class ResRecord {
 export type FetchParams = {
   skip: number
   pageSize?: number
+  endCursor?: string | null
   query: string[]
 }
 
@@ -100,11 +101,12 @@ export type FetchResultNextTotal = {
   kind: 'total'
   total: number
 }
-export type FetchResultNextHas = {
-  kind: 'has'
-  hasNext: boolean
+export type FetchResultNextPageInfo = {
+  kind: 'page'
+  hasNextPage: boolean
+  endCursor: string | null | undefined
 }
-export type FetchResultNext = FetchResultNextTotal | FetchResultNextHas
+export type FetchResultNext = FetchResultNextTotal | FetchResultNextPageInfo
 export type FetchResult = {
   fetch: {
     // fetch したレコード件数(transform 後の content のレコードではない)
@@ -220,13 +222,17 @@ export abstract class ClientBase {
     const query = this._query
     let count = 0
     let repeat = 0
+    let endCursor: string | undefined | null = null
 
     if (this._setupErr) {
       throw new Error(`ClientBase: ${this._setupErr}`)
     }
 
     let res: FetchResult = {
-      fetch: { count: 0, next: { kind: 'has', hasNext: true } },
+      fetch: {
+        count: 0,
+        next: { kind: 'page', hasNextPage: true, endCursor: null }
+      },
       content: []
     }
     let complete = false
@@ -246,11 +252,11 @@ export abstract class ClientBase {
 
       printInfo(
         `ClientBase.fetch: repeat=${repeat} skip=${skip}${
-          pageSize !== undefined ? `, pageSize=${pageSize}` : ''
-        }`
+          typeof endCursor === 'string' ? `, cursor=****` : ''
+        }${pageSize !== undefined ? `, pageSize=${pageSize}` : ''}`
       )
 
-      res = await this._fetch({ skip, pageSize, query })
+      res = await this._fetch({ skip, pageSize, endCursor, query })
 
       printInfo(`ClientBase.fetch:   count=${res.fetch.count}`)
 
@@ -268,8 +274,9 @@ export abstract class ClientBase {
         }
       }
       skip = skip + res.fetch.count
-      if (res.fetch.next.kind === 'has') {
-        if (!res.fetch.next.hasNext) {
+      if (res.fetch.next.kind === 'page') {
+        endCursor = res.fetch.next.endCursor
+        if (!res.fetch.next.hasNextPage) {
           // 次はないので終了
           complete = true
         } else {

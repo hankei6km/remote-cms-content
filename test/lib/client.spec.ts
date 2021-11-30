@@ -167,6 +167,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 0,
       pageSize: undefined,
+      endCursor: null,
       query: []
     })
     expect(await g.next()).toEqual({
@@ -188,6 +189,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 0,
       pageSize: 30,
+      endCursor: null,
       query: []
     })
     expect(await g.next()).toEqual({
@@ -200,6 +202,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 30,
       pageSize: 30,
+      endCursor: null,
       query: []
     })
     expect(await g.next()).toEqual({
@@ -212,6 +215,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 60,
       pageSize: 30,
+      endCursor: null,
       query: []
     })
     expect(await g.next()).toEqual({
@@ -224,6 +228,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 90,
       pageSize: 30,
+      endCursor: null,
       query: []
     }) // limit を指定していない.
     expect(await g.next()).toEqual({
@@ -245,6 +250,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 5,
       pageSize: undefined,
+      endCursor: null,
       query: []
     })
     expect(c._fetch).toHaveBeenCalledTimes(1)
@@ -262,6 +268,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 5,
       pageSize: 30,
+      endCursor: null,
       query: []
     })
     expect(await g.next()).toEqual({
@@ -274,6 +281,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 35,
       pageSize: 30,
+      endCursor: null,
       query: []
     })
     expect(await g.next()).toEqual({
@@ -286,6 +294,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 65,
       pageSize: 15,
+      endCursor: null,
       query: []
     })
     expect(await g.next()).toEqual({

@@ -56,8 +56,16 @@ export abstract class ClientGqlBase extends ClientBase {
     return (o as any)['items'] as RawRecord[]
   }
   extractTotal(o: ReturnType<TransformContent>): number | undefined {
-    // GraphQL の場合は参照している field でも skip などが使えるので、
-    // total が undefined も許容する(件数で終端が判別できる).
+    // ~~GraphQL の場合は参照している field でも skip などが使えるので、~~
+    // ~~total が undefined も許容する(件数で終端が判別できる).~~
+    // 参照している field の挙動.
+    // - Contentful - skip などが使える
+    // - GraphCMS - skip などが使える、ただし total が取得できない
+    // - Prismic - skip などは使えない
+    // - Storyblok - skip などは使えない
+    //   (Content タブで folder 内の順番を変更できるので参照は使わないと思われる)
+    //
+    // pageInfo を使う場合があるので undefined も許容する.
 
     // ここが実行される時点で o は RawRecord[] でないことが検証されている.
     const ret = (o as any).total
@@ -66,7 +74,29 @@ export abstract class ClientGqlBase extends ClientBase {
       return ret
     }
     throw new Error(
-      'ClientGqlBase: total field type is invalid. actually type=${t}'
+      `ClientGqlBase: total field type is invalid. actually type=${t}`
+    )
+  }
+  extractHasNextPage(o: ReturnType<TransformContent>): boolean | undefined {
+    const ret = (o as any).pageInfo?.hasNextPage
+    const t = typeof ret
+    if (ret === undefined || t === 'boolean') {
+      return ret
+    }
+    throw new Error(
+      `ClientGqlBase: pageInfo?.hasNextPage field type is invalid. actually type=${t}`
+    )
+  }
+  extractEndCursor(o: ReturnType<TransformContent>): string | null {
+    const ret = (o as any).pageInfo?.endCursor
+    const t = typeof ret
+    if (ret === undefined) {
+      return null
+    } else if (t === 'string') {
+      return ret
+    }
+    throw new Error(
+      `ClientGqlBase: pageInfo?.endCursor field type is invalid. actually type=${t}`
     )
   }
   request(): ClientChain {
@@ -76,7 +106,12 @@ export abstract class ClientGqlBase extends ClientBase {
     })
     return this
   }
-  async _fetch({ skip, pageSize, query }: FetchParams): Promise<FetchResult> {
+  async _fetch({
+    skip,
+    pageSize,
+    endCursor,
+    query
+  }: FetchParams): Promise<FetchResult> {
     return new Promise((resolve, reject) => {
       this._gqlClient
         .query({
@@ -84,6 +119,7 @@ export abstract class ClientGqlBase extends ClientBase {
           variables: {
             skip,
             pageSize,
+            endCursor,
             ...this._vars
           }
         })
@@ -91,14 +127,19 @@ export abstract class ClientGqlBase extends ClientBase {
           const t = this._execTransform(res)
           const content = this.extractArrayItem(t)
           const total = this.extractTotal(t)
+          const hasNextPage = this.extractHasNextPage(t)
+          const endCursor = this.extractEndCursor(t)
           const next: FetchResultNext =
             total !== undefined
               ? { kind: 'total', total }
               : {
                   kind: 'page',
-                  hasNextPage: content.length > 0,
-                  endCursor: undefined
-                } // content が空なら次はない.
+                  hasNextPage:
+                    hasNextPage !== undefined // hasNextPage が取得できていれば従う.
+                      ? hasNextPage
+                      : content.length > 0, // content が空なら次はない.
+                  endCursor
+                }
           resolve({
             fetch: {
               count: content.length,

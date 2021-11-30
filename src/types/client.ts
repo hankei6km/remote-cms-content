@@ -93,6 +93,7 @@ export class ResRecord {
 export type FetchParams = {
   skip: number
   pageSize?: number
+  endCursor?: string | null
   query: string[]
 }
 
@@ -103,7 +104,7 @@ export type FetchResultNextTotal = {
 export type FetchResultNextPageInfo = {
   kind: 'page'
   hasNextPage: boolean
-  endCursor: string | undefined
+  endCursor: string | null | undefined
 }
 export type FetchResultNext = FetchResultNextTotal | FetchResultNextPageInfo
 export type FetchResult = {
@@ -221,6 +222,7 @@ export abstract class ClientBase {
     const query = this._query
     let count = 0
     let repeat = 0
+    let endCursor: string | undefined | null = null
 
     if (this._setupErr) {
       throw new Error(`ClientBase: ${this._setupErr}`)
@@ -229,7 +231,7 @@ export abstract class ClientBase {
     let res: FetchResult = {
       fetch: {
         count: 0,
-        next: { kind: 'page', hasNextPage: true, endCursor: undefined }
+        next: { kind: 'page', hasNextPage: true, endCursor: null }
       },
       content: []
     }
@@ -250,11 +252,11 @@ export abstract class ClientBase {
 
       printInfo(
         `ClientBase.fetch: repeat=${repeat} skip=${skip}${
-          pageSize !== undefined ? `, pageSize=${pageSize}` : ''
-        }`
+          typeof endCursor === 'string' ? `, cursor=****` : ''
+        }${pageSize !== undefined ? `, pageSize=${pageSize}` : ''}`
       )
 
-      res = await this._fetch({ skip, pageSize, query })
+      res = await this._fetch({ skip, pageSize, endCursor, query })
 
       printInfo(`ClientBase.fetch:   count=${res.fetch.count}`)
 
@@ -273,6 +275,7 @@ export abstract class ClientBase {
       }
       skip = skip + res.fetch.count
       if (res.fetch.next.kind === 'page') {
+        endCursor = res.fetch.next.endCursor
         if (!res.fetch.next.hasNextPage) {
           // 次はないので終了
           complete = true

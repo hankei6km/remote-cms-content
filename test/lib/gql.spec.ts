@@ -23,7 +23,7 @@ const testLink = new ApolloLink((operation, forward) => {
 })
 
 const mockFetchLink = (
-  mockData: Record<string, any>
+  mockData: Record<string, any> // mockData は template 的に動作する(わかりにくい)
 ): [any, ApolloLinkAsType] => {
   // const mockFetch = jest.fn().mockResolvedValue({
   //   status: 200,
@@ -31,10 +31,28 @@ const mockFetchLink = (
   // } as never)
   const data = JSON.parse(JSON.stringify(mockData.data))
   const items = data.testCollection.items
+  const pageInfo = data.testCollection.pageInfo
   const mockFetch = jest.fn(async (_u: string, p: any) => {
     const v = JSON.parse(p.body).variables
-    const end = v.pageSize === undefined ? undefined : v.skip + v.pageSize
-    data.testCollection.items = items.slice(v.skip, end)
+    const start =
+      v.skip !== undefined
+        ? v.skip
+        : v.endCursor === null
+        ? 0
+        : items.findIndex(({ cursor }: any) => {
+            return cursor === v.endCursor
+          }) + 1
+    const end = v.pageSize === undefined ? undefined : start + v.pageSize
+    data.testCollection.items = items.slice(start, end)
+    if (pageInfo) {
+      // pageInfo を含んでいたので更新する
+      data.testCollection.pageInfo = {
+        hasNextPage: end < items.length,
+        endCursor:
+          data.testCollection.items[data.testCollection.items.length - 1]
+            ?.cursor
+      }
+    }
     return new Promise((resolve) => {
       process.nextTick(() =>
         resolve({
@@ -85,10 +103,34 @@ describe('ClientGql', () => {
       }
       `
   ]
+  const queryEndCursor = [
+    `
+      query GetItems($endCursor:string, $pageSize: Int, $var1: Int) {
+        testCollection(cursor: $endCursor, limt: $pageSize, var1: $var1) {
+          items {
+            title
+            content
+            cursor
+          }
+          pageInfo{
+            hasNextPage
+            endCursor
+          }
+        }
+      }
+      `
+  ]
   const genItems = (n: number) => {
     return new Array(n).fill({}).map((_v, i) => ({
       title: `title${i}`,
       content: `text${i}`
+    }))
+  }
+  const genItemsCursor = (n: number) => {
+    return new Array(n).fill({}).map((_v, i) => ({
+      title: `title${i}`,
+      content: `text${i}`,
+      cursor: `cursor${i}`
     }))
   }
   it('should fetch all content', async () => {
@@ -215,7 +257,7 @@ describe('ClientGql', () => {
       done: true
     })
   })
-  it('should fetch all content with "has"', async () => {
+  it('should fetch all content without total', async () => {
     const mockData = {
       data: {
         testCollection: {
@@ -239,7 +281,7 @@ describe('ClientGql', () => {
     expect(await g.next()).toEqual({
       value: {
         fetch: {
-          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          next: { kind: 'page', hasNextPage: true, endCursor: null },
           count: 10
         },
         content: mockData.data.testCollection.items
@@ -255,7 +297,7 @@ describe('ClientGql', () => {
     expect(await g.next()).toEqual({
       value: {
         fetch: {
-          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          next: { kind: 'page', hasNextPage: true, endCursor: null },
           count: 10
         },
         content: mockData.data.testCollection.items
@@ -271,7 +313,7 @@ describe('ClientGql', () => {
     expect(await g.next()).toEqual({
       value: {
         fetch: {
-          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          next: { kind: 'page', hasNextPage: true, endCursor: null },
           count: 5
         },
         content: mockData.data.testCollection.items
@@ -288,7 +330,7 @@ describe('ClientGql', () => {
     expect(await g.next()).toEqual({
       value: {
         fetch: {
-          next: { kind: 'page', hasNextPage: false, endCursor: undefined },
+          next: { kind: 'page', hasNextPage: false, endCursor: null },
           count: 0
         },
         content: []
@@ -304,7 +346,7 @@ describe('ClientGql', () => {
       done: true
     })
   })
-  it('should fetch all content with "has" and limit', async () => {
+  it('should fetch all content without total and limit', async () => {
     const mockData = {
       data: {
         testCollection: {
@@ -329,7 +371,7 @@ describe('ClientGql', () => {
     expect(await g.next()).toEqual({
       value: {
         fetch: {
-          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          next: { kind: 'page', hasNextPage: true, endCursor: null },
           count: 10
         },
         content: mockData.data.testCollection.items
@@ -345,7 +387,7 @@ describe('ClientGql', () => {
     expect(await g.next()).toEqual({
       value: {
         fetch: {
-          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          next: { kind: 'page', hasNextPage: true, endCursor: null },
           count: 10
         },
         content: mockData.data.testCollection.items
@@ -361,7 +403,7 @@ describe('ClientGql', () => {
     expect(await g.next()).toEqual({
       value: {
         fetch: {
-          next: { kind: 'page', hasNextPage: true, endCursor: undefined },
+          next: { kind: 'page', hasNextPage: true, endCursor: null },
           count: 4
         },
         content: mockData.data.testCollection.items
@@ -375,6 +417,81 @@ describe('ClientGql', () => {
     expect(body.variables).toEqual({ skip: 20, pageSize: 4 })
 
     // limit で終了する場合は has でも空振りしない.
+    expect(await g.next()).toEqual({
+      value: undefined,
+      done: true
+    })
+  })
+  it('should fetch all content with endCursor', async () => {
+    const mockData = {
+      data: {
+        testCollection: {
+          items: genItemsCursor(25),
+          pageInfo: {}
+        }
+      },
+      errors: {}
+    }
+    const [mockFetch, mockLink] = mockFetchLink(mockData)
+    const client = new ClienteGqlTest(mockLink, {
+      apiBaseURL: '',
+      credential: []
+    })
+      .request()
+      .pageSize(10)
+      .transform((content) => content.data.testCollection)
+      .query(queryEndCursor)
+    const g = client.fetch()
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: 'cursor9' },
+          count: 10
+        },
+        content: mockData.data.testCollection.items
+          .slice(0, 10)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    let body = JSON.parse((mockFetch.mock.calls[0][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ pageSize: 10, endCursor: null })
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: 'cursor19' },
+          count: 10
+        },
+        content: mockData.data.testCollection.items
+          .slice(10, 20)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    body = JSON.parse((mockFetch.mock.calls[1][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ pageSize: 10, endCursor: 'cursor9' })
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: {
+          next: { kind: 'page', hasNextPage: false, endCursor: 'cursor24' },
+          count: 5
+        },
+        content: mockData.data.testCollection.items
+          .slice(20, 25)
+          .map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    body = JSON.parse((mockFetch.mock.calls[2][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ pageSize: 10, endCursor: 'cursor19' })
+
+    // hasNextPage があるので空振りはしない.
     expect(await g.next()).toEqual({
       value: undefined,
       done: true

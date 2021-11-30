@@ -6,6 +6,8 @@ import { BaseFlds, MapConfig } from '../../src/types/map.js'
 import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media.js'
 import mockAxiosDefault from 'jest-mock-axios'
 import { ClientKind, ClientOpts } from '../../src/types/client.js'
+import { initLog } from '../../src/lib/log.js'
+import { mockStreams } from '../util.js'
 const mockAxios: typeof mockAxiosDefault = (mockAxiosDefault as any).default
 
 jest.unstable_mockModule('axios', async () => {
@@ -243,6 +245,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: [],
       vars: [],
@@ -316,6 +319,7 @@ describe('saveRemoteContent()', () => {
     skip: 5,
     limit: 90,
     pageSize: 30,
+    maxRepeat: 10,
     filter: [],
     query: [],
     vars: [],
@@ -413,6 +417,55 @@ describe('saveRemoteContent()', () => {
       )
     }
   })
+  it('should break loop by max-repeat', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      flds: []
+    })
+    // paginate させるために、他とは違う方法で client を生成している.
+    const client = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(
+      100
+    )
+    const res = saveRemoteContent({
+      client,
+      mapConfig,
+      ...paginateSaveOption,
+      maxRepeat: 2
+    })
+    await expect(res).resolves.toEqual(null)
+    expect(client._fetch).toHaveBeenCalledTimes(2) // max-repeat で制限されている
+    expect(mockWriteFile).toHaveBeenCalledTimes(60)
+    for (let idx = 0; idx < 60; idx++) {
+      expect(mockWriteFile.mock.calls[idx][0]).toEqual(
+        `/path/content/id${idx + 5}.md`
+      )
+      expect(mockWriteFile.mock.calls[idx][1]).toContain(`position: ${idx + 1}`)
+    }
+  })
+  it('should cancel max-repeat', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      flds: []
+    })
+    // paginate させるために、他とは違う方法で client を生成している.
+    const client = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(
+      100
+    )
+    const res = saveRemoteContent({
+      client,
+      mapConfig,
+      ...paginateSaveOption,
+      pageSize: 5,
+      maxRepeat: 0
+    })
+    await expect(res).resolves.toEqual(null)
+    expect(client._fetch).toHaveBeenCalledTimes(18) // max-repate に制限されていない
+    expect(mockWriteFile).toHaveBeenCalledTimes(90)
+    for (let idx = 0; idx < 90; idx++) {
+      expect(mockWriteFile.mock.calls[idx][0]).toEqual(
+        `/path/content/id${idx + 5}.md`
+      )
+      expect(mockWriteFile.mock.calls[idx][1]).toContain(`position: ${idx + 1}`)
+    }
+  })
   it('should get remote content and save as local files with transform content', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       media: { image: { fileNameField: 'fileName', download: true } },
@@ -435,6 +488,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: [],
       vars: [],
@@ -530,6 +584,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: [],
       vars: [],
@@ -569,6 +624,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       skip: 0,
+      maxRepeat: 10,
       filter: [['eq', 'fields.id', 'index']],
       query: [],
       vars: [],
@@ -591,6 +647,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: ['test1.gql', 'test2.gql'],
       vars: [],
@@ -613,6 +670,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: [],
       vars: ['abc=123'],
@@ -640,6 +698,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: [],
       vars: [],
@@ -664,6 +723,50 @@ describe('saveRemoteContent()', () => {
       `url: 'http://localhost:3000/path/to/?fileName=test1.png'`
     )
   })
+  it('should print info from saveRemoteContent', async () => {
+    const info = { o: '', e: '' }
+    initLog(...mockStreams(info))
+    const mapConfig: MapConfig = compileMapConfig({
+      flds: [
+        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
+        { srcName: '画像', dstName: 'image', fldType: 'image' }
+      ]
+    })
+    const res = saveRemoteContent({
+      client: await client('appsheet', {
+        apiBaseURL: 'https://api.appsheet.com/api/v2/',
+        apiName: 'tbl',
+        credential: ['appId', 'secret']
+      }),
+      apiName: 'tbl',
+      mapConfig,
+      dstContentDir: '/path/content',
+      dstImagesDir: '/path/static/images',
+      staticRoot: '',
+      skip: 0,
+      maxRepeat: 10,
+      filter: [],
+      query: [],
+      vars: [],
+      varsStr: []
+    })
+    mockAxios.mockResponse({
+      data: [
+        {
+          _RowNumber: 1,
+          id: 'idstring1',
+          createdAt: new Date('2021-09-17T16:50:56.000Z'),
+          updatedAt: new Date('2021-09-17T17:50:56.000Z'),
+          タイトル: 'Title1',
+          画像: 'http://localhost:3000/path/to/?fileName=test1.png',
+          content: 'markdown1'
+        }
+      ]
+    })
+    await expect(res).resolves.toEqual(null)
+    expect(info.o).toMatchSnapshot()
+    expect(info.e).toEqual('')
+  })
   it('should return error when compile transform has failed', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       transform: 'recs',
@@ -681,6 +784,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: [],
       vars: [],
@@ -714,6 +818,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: [],
       vars: [],
@@ -737,6 +842,7 @@ describe('saveRemoteContent()', () => {
       dstImagesDir: '/path/static/images',
       staticRoot: '/path/static',
       skip: 0,
+      maxRepeat: 10,
       filter: [],
       query: [],
       vars: [],

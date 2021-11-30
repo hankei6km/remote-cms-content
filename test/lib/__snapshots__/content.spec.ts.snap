@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`saveRemoteContent() should print info from saveRemoteContent 1`] = `
+"saveRemoteContent: start max-repeat=10
+ClientBase.fetch: start
+ClientBase.fetch: skip=0
+ClientBase.fetch:   count=1
+saveRemoteContent: repeat=1 done
+ClientBase.fetch: done
+saveRemoteContent: done
+"
+`;

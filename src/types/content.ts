@@ -12,6 +12,7 @@ export type SaveRemoteContentOptions = {
   limit?: number
   pageSize?: number
   positioStart?: number
+  maxRepeat: number
   filter: OpValue[]
   query: string[]
   vars: string[]

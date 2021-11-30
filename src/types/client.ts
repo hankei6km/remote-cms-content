@@ -221,7 +221,6 @@ export abstract class ClientBase {
     let limit = this._limit
     const query = this._query
     let count = 0
-    let repeat = 0
     let endCursor: string | undefined | null = null
 
     if (this._setupErr) {
@@ -241,7 +240,6 @@ export abstract class ClientBase {
       `ClientBase.fetch: start${limit != undefined ? ` limit=${limit}` : ''}`
     )
     while (!complete) {
-      repeat = repeat + 1
       if (pageSize !== undefined && limit !== undefined) {
         // pageSize が指定されていた場合、最後の fetch 時のサイズを調整する.
         const s = limit - count
@@ -251,7 +249,7 @@ export abstract class ClientBase {
       }
 
       printInfo(
-        `ClientBase.fetch: repeat=${repeat} skip=${skip}${
+        `ClientBase.fetch: skip=${skip}${
           typeof endCursor === 'string' ? `, cursor=****` : ''
         }${pageSize !== undefined ? `, pageSize=${pageSize}` : ''}`
       )
@@ -293,6 +291,7 @@ export abstract class ClientBase {
       }
       yield res
     }
+    printInfo(`ClientBase.fetch: done`)
   }
   // clientChain: ClientChain = {
   //   api: this.api.bind(this),

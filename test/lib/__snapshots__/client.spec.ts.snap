@@ -2,22 +2,24 @@
 
 exports[`ClientBase should print info from fetch method 1`] = `
 "ClientBase.fetch: start
-ClientBase.fetch: repeat=1 skip=0, pageSize=30
+ClientBase.fetch: skip=0, pageSize=30
 ClientBase.fetch:   count=30
-ClientBase.fetch: repeat=2 skip=30, pageSize=30
+ClientBase.fetch: skip=30, pageSize=30
 ClientBase.fetch:   count=30
-ClientBase.fetch: repeat=3 skip=60, pageSize=30
+ClientBase.fetch: skip=60, pageSize=30
 ClientBase.fetch:   count=30
-ClientBase.fetch: repeat=4 skip=90, pageSize=30
+ClientBase.fetch: skip=90, pageSize=30
 ClientBase.fetch:   count=10
+ClientBase.fetch: done
 "
 `;
 
 exports[`ClientBase should print info from fetch method(limit) 1`] = `
 "ClientBase.fetch: start limit=50
-ClientBase.fetch: repeat=1 skip=0, pageSize=30
+ClientBase.fetch: skip=0, pageSize=30
 ClientBase.fetch:   count=30
-ClientBase.fetch: repeat=2 skip=30, pageSize=20
+ClientBase.fetch: skip=30, pageSize=20
 ClientBase.fetch:   count=20
+ClientBase.fetch: done
 "
 `;

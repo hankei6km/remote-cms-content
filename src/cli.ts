@@ -15,6 +15,7 @@ type SaveOpts = {
   limit?: number
   pageSize?: number
   positioStart?: number
+  maxRepeat: number
   filter: string[]
   query: string[]
   vars: string[]

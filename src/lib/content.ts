@@ -11,6 +11,7 @@ import { fileNameFromURL, isImageDownload, mappingFlds } from './map.js'
 import { TransformContent } from '../types/client.js'
 import { SaveRemoteContentOptions } from '../types/content.js'
 import { imageInfoFromSrc, saveImageFile } from './media.js'
+import { printInfo } from './log.js'
 
 export async function saveContentFile(
   flds: BaseFlds,
@@ -118,6 +119,7 @@ export async function saveRemoteContent({
   limit,
   pageSize,
   positioStart,
+  maxRepeat,
   filter,
   query,
   vars,
@@ -141,8 +143,16 @@ export async function saveRemoteContent({
       defaultPosition,
       mapConfig.position
     )
+    let repeat = 1
     let position: number =
       typeof positioStart === 'number' ? positioStart : positionConfig.start
+
+    printInfo(
+      `saveRemoteContent: start max-repeat=${maxRepeat}${
+        limit != undefined ? ` limit=${limit}` : ''
+      }`
+    )
+
     for await (let res of c.fetch()) {
       const contenSrc = res.content
       const len = contenSrc.length
@@ -193,7 +203,14 @@ export async function saveRemoteContent({
           break
         }
       }
+      printInfo(`saveRemoteContent: repeat=${repeat} done`)
+      repeat = repeat + 1
+      if (maxRepeat > 0 && repeat > maxRepeat) {
+        break
+      }
     }
+
+    printInfo(`saveRemoteContent: done`)
   } catch (err: any) {
     // console.log('err:', err);
     ret = new Error(`saveRemoteContent error: ${err}`)

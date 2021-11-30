@@ -39,6 +39,12 @@ import { ClientKindValues } from './types/client.js'
               default: 1,
               description: 'the start value of position field'
             },
+            'max-repeat': {
+              type: 'number',
+              required: false,
+              default: 10,
+              description: 'maximum number of repeate to save content'
+            },
             filter: {
               type: 'string',
               array: true,
@@ -128,6 +134,7 @@ import { ClientKindValues } from './types/client.js'
         limit: argv['limit'],
         pageSize: argv['page-size'],
         positioStart: argv['position-start'],
+        maxRepeat: argv['max-repeat'],
         filter: argv['filter'] || [],
         query: argv['query'] || [],
         vars: argv['vars'] || [],

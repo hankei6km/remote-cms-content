@@ -6,9 +6,10 @@ import { cli } from './cli.js'
 import { yargsArrayFromEnvVars } from './lib/util.js'
 import { ClientKindValues } from './types/client.js'
 ;(async () => {
+  const envVarsPrefix = process.env['RCC_ENV_VARS_PREFIX'] || 'RCC'
   const argv = await yargs(hideBin(process.argv))
     .scriptName('rcc')
-    .env('RCC')
+    .env(envVarsPrefix)
     .command(
       'save <apiName> <dstContentDir> <dstImagesDir>',
       'save remote content to local directory',

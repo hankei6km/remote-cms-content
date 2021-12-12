@@ -2,7 +2,7 @@ import path from 'path'
 import { writeFile } from 'fs/promises'
 import matter from 'gray-matter'
 import {
-  BaseFlds,
+  MappedFlds,
   defaultPosition,
   MapConfig,
   MapFldsImage
@@ -14,7 +14,7 @@ import { imageInfoFromSrc, saveImageFile } from './media.js'
 import { printInfo } from './log.js'
 
 export async function saveContentFile(
-  flds: BaseFlds,
+  flds: MappedFlds,
   dstDir: string,
   position: { fldName: string; value: number }
 ): Promise<Error | null> {
@@ -156,7 +156,7 @@ export async function saveRemoteContent({
     for await (let res of c.fetch()) {
       const contenSrc = res.content
       const len = contenSrc.length
-      const content: BaseFlds[] = new Array(len) as BaseFlds[]
+      const content: MappedFlds[] = new Array(len) as MappedFlds[]
       for (let idx = 0; idx < len; idx++) {
         content[idx] = await mappingFlds(contenSrc[idx], mapConfig)
       }
@@ -193,7 +193,7 @@ export async function saveRemoteContent({
             c[1] = imageInfo
           }
         }
-        const flds: BaseFlds = { ...content[idx] }
+        const flds: MappedFlds = { ...content[idx] }
         fldsArray.forEach(([k, v]) => (flds[k] = v))
         ret = await saveContentFile(flds, dstContentDir, {
           fldName: positionConfig.fldName,

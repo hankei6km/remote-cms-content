@@ -2,10 +2,14 @@ import { Expression } from 'jsonata'
 
 export type BaseFlds = {
   _RowNumber: number
-  id: string
   createdAt: Date
   updatedAt: Date
-} & Record<string, unknown>
+}
+
+export type MappedFlds = {
+  id: string
+} & BaseFlds &
+  Record<string, unknown>
 
 export type MapFldsBase = {
   srcName: string

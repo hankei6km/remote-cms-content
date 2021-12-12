@@ -16,25 +16,28 @@ import { printInfo } from './log.js'
 export async function saveContentFile(
   flds: MappedFlds,
   dstDir: string,
-  position: { fldName: string; value: number }
+  position: { fldName: string; value: number | undefined }
 ): Promise<Error | null> {
   let ret: Error | null = null
 
   const savePath = `${path.resolve(dstDir, flds.id)}.md`
 
+  const meta: Record<string, unknown> = {}
   try {
     const { content, ...metaData } = flds
     if (typeof metaData === 'object') {
       Object.entries(metaData).forEach(([k, v]) => {
-        if (v === undefined) {
-          delete metaData[k]
+        if (v !== undefined) {
+          meta[k] = v
         }
       })
     }
+    if (position.value !== undefined) {
+      meta[position.fldName] = position.value
+    }
     // content は string を期待しているが、異なる場合もある、かな.
     const file = matter.stringify(content !== undefined ? `${content}` : '', {
-      ...metaData,
-      [position.fldName]: position.value
+      ...meta
     })
     await writeFile(savePath, file)
   } catch (err: any) {
@@ -197,7 +200,7 @@ export async function saveRemoteContent({
         fldsArray.forEach(([k, v]) => (flds[k] = v))
         ret = await saveContentFile(flds, dstContentDir, {
           fldName: positionConfig.fldName,
-          value: position++
+          value: positionConfig.disable === true ? undefined : position++
         })
         if (ret) {
           break

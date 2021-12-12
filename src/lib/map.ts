@@ -5,7 +5,6 @@ import yaml from 'js-yaml'
 import jsonata from 'jsonata'
 import {
   MappedFlds,
-  defaultPosition,
   MapConfig,
   MapFld,
   MapFlds,

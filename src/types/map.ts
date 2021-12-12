@@ -121,6 +121,7 @@ export type MapConfig = {
    */
   transformJsonata?: Expression
   position?: {
+    disable?: boolean
     fldName?: string
     start?: number
   }
@@ -128,6 +129,7 @@ export type MapConfig = {
 }
 
 export const defaultPosition = {
+  disable: false,
   fldName: 'position',
   start: 1
 }

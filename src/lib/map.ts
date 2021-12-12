@@ -4,7 +4,7 @@ import Ajv from 'ajv'
 import yaml from 'js-yaml'
 import jsonata from 'jsonata'
 import {
-  BaseFlds,
+  MappedFlds,
   defaultPosition,
   MapConfig,
   MapFld,
@@ -153,15 +153,17 @@ function throwInvalidType(
 export async function mappingFlds(
   s: ResRecord,
   mapConfig: MapConfig
-): Promise<BaseFlds> {
+): Promise<MappedFlds> {
   const { _RowNumber, id, createdAt, updatedAt } = s.baseFlds()
   const n = new Date()
-  const ret: BaseFlds = {
-    _RowNumber: typeof _RowNumber === 'number' ? _RowNumber! : -1,
-    id: '',
-    createdAt: typeof createdAt === 'string' ? new Date(createdAt) : n,
-    updatedAt: typeof updatedAt === 'string' ? new Date(updatedAt) : n
-  }
+  const ret: MappedFlds = mapConfig.disableBaseFlds
+    ? { id: '' }
+    : {
+        _RowNumber: typeof _RowNumber === 'number' ? _RowNumber! : -1,
+        id: '',
+        createdAt: typeof createdAt === 'string' ? new Date(createdAt) : n,
+        updatedAt: typeof updatedAt === 'string' ? new Date(updatedAt) : n
+      }
   if (validId(id)) {
     ret.id = `${id}`
   } else {

@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
 import { ImageInfo } from '../../src/types/media.js'
-import { BaseFlds, MapConfig } from '../../src/types/map.js'
+import { MappedFlds, MapConfig } from '../../src/types/map.js'
 import { trimStaticRoot, imageInfoFromSrc } from '../../src/lib/media.js'
 import mockAxiosDefault from 'jest-mock-axios'
 import { ClientKind, ClientOpts } from '../../src/types/client.js'
@@ -64,7 +64,7 @@ jest.unstable_mockModule('fs/promises', async () => {
 jest.unstable_mockModule('../../src/lib/media.js', () => {
   let mockImageInfoFromSrc = jest.fn()
   let mockSaveImageFile = jest.fn()
-  const reset = (rows: BaseFlds[]) => {
+  const reset = (rows: MappedFlds[]) => {
     mockImageInfoFromSrc
       .mockReset()
       .mockImplementation((src: any, setSize: any) =>

@@ -1,10 +1,14 @@
 import { Expression } from 'jsonata'
 
 export type BaseFlds = {
-  _RowNumber: number
   id: string
+  _RowNumber: number
   createdAt: Date
   updatedAt: Date
+}
+
+export type MappedFlds = {
+  id: string
 } & Record<string, unknown>
 
 export type MapFldsBase = {
@@ -109,6 +113,7 @@ export type MapConfig = {
       ]
     }
   }
+  disableBaseFlds?: boolean
   passthruUnmapped?: boolean
   transform?: string
   /**

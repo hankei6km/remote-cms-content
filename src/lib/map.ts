@@ -156,12 +156,14 @@ export async function mappingFlds(
 ): Promise<MappedFlds> {
   const { _RowNumber, id, createdAt, updatedAt } = s.baseFlds()
   const n = new Date()
-  const ret: MappedFlds = {
-    _RowNumber: typeof _RowNumber === 'number' ? _RowNumber! : -1,
-    id: '',
-    createdAt: typeof createdAt === 'string' ? new Date(createdAt) : n,
-    updatedAt: typeof updatedAt === 'string' ? new Date(updatedAt) : n
-  }
+  const ret: MappedFlds = mapConfig.disableBaseFlds
+    ? { id: '' }
+    : {
+        _RowNumber: typeof _RowNumber === 'number' ? _RowNumber! : -1,
+        id: '',
+        createdAt: typeof createdAt === 'string' ? new Date(createdAt) : n,
+        updatedAt: typeof updatedAt === 'string' ? new Date(updatedAt) : n
+      }
   if (validId(id)) {
     ret.id = `${id}`
   } else {

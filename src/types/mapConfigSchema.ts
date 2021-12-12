@@ -51,6 +51,9 @@ export const mapConfigSchema =
         }
     },
     "properties": {
+        "disableBaseFlds": {
+            "type": "boolean"
+        },
         "flds": {
             "items": {
                 "anyOf": [

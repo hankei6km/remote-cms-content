@@ -17,6 +17,7 @@ describe('compileMapConfig', () => {
     })
     //const mapConfig: MapConfig = {
     const mapConfig = {
+      disableBaseFlds: false,
       passthruUnmapped: false,
       media: {
         image: {
@@ -554,6 +555,33 @@ describe('mappingFlds', () => {
       updatedAt: new Date(n),
       title1: 'Title',
       title2: 'Title'
+    })
+  })
+  test('should disable base flds', async () => {
+    const n = new Date().toUTCString()
+    expect(
+      await mappingFlds(
+        new ResRecord({
+          _RowNumber: 1,
+          id: 'idstring',
+          createdAt: n,
+          updatedAt: n,
+          タイトル: 'Title'
+        }),
+        compileMapConfig({
+          disableBaseFlds: true,
+          flds: [
+            {
+              srcName: 'タイトル',
+              dstName: 'title',
+              fldType: 'string'
+            }
+          ]
+        })
+      )
+    ).toEqual({
+      id: 'idstring',
+      title: 'Title'
     })
   })
   test('should select value from object by jsonata', async () => {

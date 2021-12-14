@@ -315,7 +315,7 @@ export const mapConfigSchema =
                             "toMarkdownOpts": {
                                 "additionalProperties": false,
                                 "properties": {
-                                    "embedImgAttrs": {
+                                    "imageSalt": {
                                         "anyOf": [
                                             {
                                                 "additionalProperties": false,
@@ -323,18 +323,46 @@ export const mapConfigSchema =
                                                     "baseURL": {
                                                         "type": "string"
                                                     },
-                                                    "embedTo": {
+                                                    "command": {
                                                         "enum": [
-                                                            "alt",
-                                                            "block"
+                                                            "embed",
+                                                            "rebuild"
                                                         ],
                                                         "type": "string"
                                                     },
-                                                    "pickAttrs": {
-                                                        "items": {
-                                                            "type": "string"
+                                                    "embed": {
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "embedTo": {
+                                                                "enum": [
+                                                                    "alt",
+                                                                    "block"
+                                                                ],
+                                                                "type": "string"
+                                                            },
+                                                            "pickAttrs": {
+                                                                "items": {
+                                                                    "type": "string"
+                                                                },
+                                                                "type": "array"
+                                                            }
                                                         },
-                                                        "type": "array"
+                                                        "type": "object"
+                                                    },
+                                                    "rebuild": {
+                                                        "additionalProperties": false,
+                                                        "properties": {
+                                                            "baseAttrs": {
+                                                                "type": "string"
+                                                            },
+                                                            "keepBaseURL": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "tagName": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
                                                     }
                                                 },
                                                 "type": "object"
@@ -346,18 +374,46 @@ export const mapConfigSchema =
                                                         "baseURL": {
                                                             "type": "string"
                                                         },
-                                                        "embedTo": {
+                                                        "command": {
                                                             "enum": [
-                                                                "alt",
-                                                                "block"
+                                                                "embed",
+                                                                "rebuild"
                                                             ],
                                                             "type": "string"
                                                         },
-                                                        "pickAttrs": {
-                                                            "items": {
-                                                                "type": "string"
+                                                        "embed": {
+                                                            "additionalProperties": false,
+                                                            "properties": {
+                                                                "embedTo": {
+                                                                    "enum": [
+                                                                        "alt",
+                                                                        "block"
+                                                                    ],
+                                                                    "type": "string"
+                                                                },
+                                                                "pickAttrs": {
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "type": "array"
+                                                                }
                                                             },
-                                                            "type": "array"
+                                                            "type": "object"
+                                                        },
+                                                        "rebuild": {
+                                                            "additionalProperties": false,
+                                                            "properties": {
+                                                                "baseAttrs": {
+                                                                    "type": "string"
+                                                                },
+                                                                "keepBaseURL": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "tagName": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
                                                         }
                                                     },
                                                     "type": "object"

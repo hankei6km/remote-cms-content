@@ -1,4 +1,5 @@
 import { Expression } from 'jsonata'
+import imageSalt from '@hankei6km/rehype-image-salt'
 
 export type BaseFlds = {
   id: string
@@ -64,15 +65,8 @@ export type HtmlToHtmlOpts = {
   lfTo?: string
 }
 
-type HtmlToMarkdownOptsEmbedImgAttrs = {
-  baseURL?: string
-  embedTo?: 'alt' | 'block'
-  pickAttrs?: string[]
-}
 export type HtmlToMarkdownOpts = {
-  embedImgAttrs?:
-    | HtmlToMarkdownOptsEmbedImgAttrs
-    | HtmlToMarkdownOptsEmbedImgAttrs[]
+  imageSalt?: Parameters<typeof imageSalt>[0]
 }
 export type MapFldsHtmlOpts = {
   convert?: 'none' | 'html' | 'markdown'

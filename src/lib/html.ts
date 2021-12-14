@@ -141,18 +141,10 @@ const htmlToHtmlProcessor = (opts: HtmlToHtmlOpts) => {
 
 const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
   const imageSaltOpts: boolean | Parameters<typeof imageSalt>[0] =
-    opts.embedImgAttrs !== undefined
-      ? (Array.isArray(opts.embedImgAttrs)
-          ? opts.embedImgAttrs
-          : [opts.embedImgAttrs]
-        ).map((v) => ({
-          command: 'embed',
-          baseURL: v.baseURL,
-          embed: {
-            embedTo: v.embedTo,
-            pickAttrs: v.pickAttrs
-          }
-        }))
+    opts.imageSalt !== undefined
+      ? Array.isArray(opts.imageSalt)
+        ? opts.imageSalt
+        : [opts.imageSalt]
       : false
   return unified()
     .use(rehypeParse, { fragment: true })

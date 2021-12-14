@@ -82,10 +82,13 @@ describe('compileMapConfig', () => {
           convert: 'markdown',
           toHtmlOpts: { frontMatter: false, splitParagraph: false },
           toMarkdownOpts: {
-            embedImgAttrs: {
+            imageSalt: {
+              command: 'embed',
               baseURL: '/',
-              embedTo: 'block',
-              pickAttrs: ['class']
+              embed: {
+                embedTo: 'block',
+                pickAttrs: ['class']
+              }
             }
           }
         }

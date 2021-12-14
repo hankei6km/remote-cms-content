@@ -392,6 +392,29 @@ describe('saveRemoteContent()', () => {
       )
     }
   })
+  it('should disable position', async () => {
+    const start = 3
+    const mapConfig: MapConfig = compileMapConfig({
+      position: {
+        disable: true,
+        start
+      },
+      flds: []
+    })
+    const res = saveRemoteContent({
+      // paginate させるために、他とは違う方法で client を生成している.
+      client: new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100),
+      mapConfig,
+      ...paginateSaveOption
+    })
+    await expect(res).resolves.toEqual(null)
+    for (let idx = 0; idx < 90; idx++) {
+      expect(mockWriteFile.mock.calls[idx][0]).toEqual(
+        `/path/content/id${idx + 5}.md`
+      )
+      expect(mockWriteFile.mock.calls[idx][1]).not.toContain(`position`)
+    }
+  })
   it('should use positionStart option', async () => {
     const start = 3
     const mapConfig: MapConfig = compileMapConfig({

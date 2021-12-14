@@ -434,6 +434,9 @@ export const mapConfigSchema =
         "position": {
             "additionalProperties": false,
             "properties": {
+                "disable": {
+                    "type": "boolean"
+                },
                 "fldName": {
                     "type": "string"
                 },

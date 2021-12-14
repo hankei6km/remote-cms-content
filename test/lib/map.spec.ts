@@ -27,7 +27,7 @@ describe('compileMapConfig', () => {
         }
       },
       transform: 'Account.Order',
-      position: { fldName: 'index', start: 0 },
+      position: { disable: false, fldName: 'index', start: 0 },
       flds: [
         {
           srcName: 'idFld',

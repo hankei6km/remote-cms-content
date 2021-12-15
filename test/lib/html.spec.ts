@@ -222,7 +222,8 @@ describe('htmlTo() markdown', () => {
         {
           convert: 'markdown',
           toMarkdownOpts: {
-            embedImgAttrs: {
+            imageSalt: {
+              command: 'embed',
               baseURL: 'https://localhost:3000/path/to/image.jpg'
             }
           }
@@ -239,9 +240,12 @@ describe('htmlTo() markdown', () => {
         {
           convert: 'markdown',
           toMarkdownOpts: {
-            embedImgAttrs: {
+            imageSalt: {
+              command: 'embed',
               baseURL: 'https://localhost:3000/path/to/image.jpg',
-              embedTo: 'block'
+              embed: {
+                embedTo: 'block'
+              }
             }
           }
         }
@@ -257,10 +261,13 @@ describe('htmlTo() markdown', () => {
         {
           convert: 'markdown',
           toMarkdownOpts: {
-            embedImgAttrs: {
+            imageSalt: {
+              command: 'embed',
               baseURL: 'https://localhost:3000/path/to/image.jpg',
-              embedTo: 'block',
-              pickAttrs: ['width', 'height', 'dataSaltThumb']
+              embed: {
+                embedTo: 'block',
+                pickAttrs: ['width', 'height', 'dataSaltThumb']
+              }
             }
           }
         }
@@ -276,15 +283,21 @@ describe('htmlTo() markdown', () => {
         {
           convert: 'markdown',
           toMarkdownOpts: {
-            embedImgAttrs: [
+            imageSalt: [
               {
+                command: 'embed',
                 baseURL: 'https://localhost:3000/path/to/image.jpg',
-                embedTo: 'block'
+                embed: {
+                  embedTo: 'block'
+                }
               },
               {
+                command: 'embed',
                 baseURL: 'https://localhost:3001/path/to/image.jpg',
-                embedTo: 'block',
-                pickAttrs: ['width']
+                embed: {
+                  embedTo: 'block',
+                  pickAttrs: ['width']
+                }
               }
             ]
           }
@@ -292,6 +305,27 @@ describe('htmlTo() markdown', () => {
       )
     ).toEqual(
       '# head1\n\ntest1\n\n![image](https://localhost:3000/path/to/image.jpg){width="300" height="200"}\n\n## head2\n\ntest2\n\n![image](https://localhost:3001/path/to/image.jpg){width="300"}\n'
+    )
+  })
+  it('should rebuild image', async () => {
+    expect(
+      await htmlTo(
+        '<h1>head1</h1><p>test1</p><p><img src="https://localhost:3000/path/to/image.jpg" alt="image" width="300" height="200">{data-salt-thumb}</p><h2>head2</h2><p>test2</p>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: {
+            imageSalt: {
+              command: 'rebuild',
+              baseURL: 'https://localhost:3000/path/to/image.jpg',
+              rebuild: {
+                keepBaseURL: true
+              }
+            }
+          }
+        }
+      )
+    ).toEqual(
+      '# head1\n\ntest1\n\n[![image](https://localhost:3000/path/to/image.jpg)](https://localhost:3000/path/to/image.jpg)\n\n## head2\n\ntest2\n'
     )
   })
 })

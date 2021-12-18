@@ -1,6 +1,6 @@
 {
   "name": "remote-cms-content",
-  "version": "0.1.1-pre.54",
+  "version": "0.1.1-pre.55",
   "description": "Mirror content of remote cms to local files for nuxt-content",
   "author": "hankei6km <hankei6km@gmail.com> (https://github.com/hankei6km)",
   "license": "MIT",
@@ -38,7 +38,7 @@
   "dependencies": {
     "@apollo/client": "^3.5.6",
     "@contentful/rich-text-html-renderer": "^15.9.0",
-    "@hankei6km/rehype-image-salt": "^0.1.1-pre.40",
+    "@hankei6km/rehype-image-salt": "^0.1.1-pre.42",
     "@prismicio/helpers": "^2.0.0-beta.3",
     "@types/hast": "^2.3.4",
     "ajv": "^8.8.2",

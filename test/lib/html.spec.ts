@@ -310,7 +310,7 @@ describe('htmlTo() markdown', () => {
   it('should rebuild image', async () => {
     expect(
       await htmlTo(
-        '<h1>head1</h1><p>test1</p><p><img src="https://localhost:3000/path/to/image.jpg" alt="image" width="300" height="200">{data-salt-thumb}</p><h2>head2</h2><p>test2</p>',
+        '<h1>head1</h1><p>test1</p><p><img src="https://localhost:3000/path/to/image.jpg" alt="image" width="300" height="200">{data-salt-thumb data-salt-zenn-cap="caption"}</p><h2>head2</h2><p>test2</p>',
         {
           convert: 'markdown',
           toMarkdownOpts: {
@@ -325,7 +325,7 @@ describe('htmlTo() markdown', () => {
         }
       )
     ).toEqual(
-      '# head1\n\ntest1\n\n[![image](https://localhost:3000/path/to/image.jpg)](https://localhost:3000/path/to/image.jpg)\n\n## head2\n\ntest2\n'
+      '# head1\n\ntest1\n\n[![image](https://localhost:3000/path/to/image.jpg)*caption*](https://localhost:3000/path/to/image.jpg)\n\n## head2\n\ntest2\n'
     )
   })
 })

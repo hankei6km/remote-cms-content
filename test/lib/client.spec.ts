@@ -35,7 +35,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({}).isAsyncFld(
         compileMapFld({
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'string'
         })
@@ -44,7 +44,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({}).isAsyncFld(
         compileMapFld({
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'html'
         })
@@ -55,7 +55,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'text',
+          query: 'text',
           dstName: '',
           fldType: 'string'
         })
@@ -66,7 +66,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ fields: { text: 'test1' } }).getSync(
         compileMapFld({
-          srcName: 'fields.text',
+          query: 'fields.text',
           dstName: '',
           fldType: 'string'
         })
@@ -77,7 +77,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'fields.abc',
+          query: 'fields.abc',
           dstName: '',
           fldType: 'string'
         })
@@ -86,7 +86,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ fields: { text: 'test1' } }).getSync(
         compileMapFld({
-          srcName: 'fields.abc',
+          query: 'fields.abc',
           dstName: '',
           fldType: 'string'
         })
@@ -95,7 +95,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'fields.text',
+          query: 'fields.text',
           dstName: '',
           fldType: 'string'
         })
@@ -106,7 +106,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'abc',
+          query: 'abc',
           dstName: '',
           fldType: 'string'
         })
@@ -115,7 +115,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'fields.text',
+          query: 'fields.text',
           dstName: '',
           fldType: 'string'
         })
@@ -124,7 +124,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ fields: { text: 'test1' } }).getSync(
         compileMapFld({
-          srcName: 'fields.abc',
+          query: 'fields.abc',
           dstName: '',
           fldType: 'string'
         })
@@ -135,7 +135,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: null }).getSync(
         compileMapFld({
-          srcName: 'text',
+          query: 'text',
           dstName: '',
           fldType: 'string'
         })
@@ -144,7 +144,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ fields: { text: null } }).getSync(
         compileMapFld({
-          srcName: 'fields.text',
+          query: 'fields.text',
           dstName: '',
           fldType: 'string'
         })

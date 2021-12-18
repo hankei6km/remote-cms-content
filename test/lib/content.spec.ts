@@ -228,9 +228,9 @@ describe('saveRemoteContent()', () => {
     const mapConfig: MapConfig = compileMapConfig({
       media: { image: { fileNameField: 'fileName', download: true } },
       flds: [
-        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
-        { srcName: '画像', dstName: 'image', fldType: 'image', setSize: true },
-        { srcName: 'content', dstName: 'content', fldType: 'string' }
+        { query: 'タイトル', dstName: 'title', fldType: 'string' },
+        { query: '画像', dstName: 'image', fldType: 'image', setSize: true },
+        { query: 'content', dstName: 'content', fldType: 'string' }
       ]
     })
     const res = saveRemoteContent({
@@ -494,9 +494,9 @@ describe('saveRemoteContent()', () => {
       media: { image: { fileNameField: 'fileName', download: true } },
       transform: 'recs',
       flds: [
-        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
-        { srcName: '画像', dstName: 'image', fldType: 'image', setSize: true },
-        { srcName: 'content', dstName: 'content', fldType: 'string' }
+        { query: 'タイトル', dstName: 'title', fldType: 'string' },
+        { query: '画像', dstName: 'image', fldType: 'image', setSize: true },
+        { query: 'content', dstName: 'content', fldType: 'string' }
       ]
     })
     const res = saveRemoteContent({
@@ -591,8 +591,8 @@ describe('saveRemoteContent()', () => {
         image: { fileNameField: 'fileName', download: true }
       },
       flds: [
-        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
-        { srcName: '画像', dstName: 'image', fldType: 'image' }
+        { query: 'タイトル', dstName: 'title', fldType: 'string' },
+        { query: '画像', dstName: 'image', fldType: 'image' }
       ]
     })
     const res = saveRemoteContent({
@@ -705,8 +705,8 @@ describe('saveRemoteContent()', () => {
   it('should get remote content and save as local files without downloading images', async () => {
     const mapConfig: MapConfig = compileMapConfig({
       flds: [
-        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
-        { srcName: '画像', dstName: 'image', fldType: 'image' }
+        { query: 'タイトル', dstName: 'title', fldType: 'string' },
+        { query: '画像', dstName: 'image', fldType: 'image' }
       ]
     })
     const res = saveRemoteContent({
@@ -751,8 +751,8 @@ describe('saveRemoteContent()', () => {
     initLog(...mockStreams(info))
     const mapConfig: MapConfig = compileMapConfig({
       flds: [
-        { srcName: 'タイトル', dstName: 'title', fldType: 'string' },
-        { srcName: '画像', dstName: 'image', fldType: 'image' }
+        { query: 'タイトル', dstName: 'title', fldType: 'string' },
+        { query: '画像', dstName: 'image', fldType: 'image' }
       ]
     })
     const res = saveRemoteContent({

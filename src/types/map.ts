@@ -13,7 +13,7 @@ export type MappedFlds = {
 } & Record<string, unknown>
 
 export type MapFldsBase = {
-  srcName: string
+  query: string
   dstName: string
   /**
    * @ignore

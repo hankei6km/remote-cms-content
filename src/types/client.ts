@@ -34,8 +34,8 @@ export class ResRecord {
     this.updatedAt = updatedAt
   }
   has(map: MapFld): boolean {
-    if (this.record.hasOwnProperty(map.srcName)) {
-      const v = this.record[map.srcName]
+    if (this.record.hasOwnProperty(map.query)) {
+      const v = this.record[map.query]
       if (v !== null) {
         return true
       }
@@ -69,13 +69,13 @@ export class ResRecord {
         return m.transformJsonata.evaluate(value)
       } catch (err: any) {
         throw new Error(
-          `ResRecord.execTransform: srcName=${m.srcName} message=${
+          `ResRecord.execTransform: query=${m.query} message=${
             err.message
           } value=${JSON.stringify(value)}`
         )
       }
     } else if (valueType === 'object') {
-      return (value as any)[m.srcName]
+      return (value as any)[m.query]
     }
     return value
   }

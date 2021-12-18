@@ -102,7 +102,7 @@ describe('CtfRecord', () => {
     expect(
       new CtfRecord({}).isAsyncFld(
         compileMapFld({
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'html'
         })
@@ -113,7 +113,7 @@ describe('CtfRecord', () => {
     expect(
       new CtfRecord({}).isAsyncFld(
         compileMapFld({
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'string'
         })
@@ -126,7 +126,7 @@ describe('CtfRecord', () => {
         fields: { content: mockDataRest.items[0].fields.richt }
       }).getAsync(
         compileMapFld({
-          srcName: 'fields.content',
+          query: 'fields.content',
           dstName: '',
           fldType: 'html'
         })
@@ -137,7 +137,7 @@ describe('CtfRecord', () => {
         fields: { content: mockDataRest.items[1].fields.richt }
       }).getAsync(
         compileMapFld({
-          srcName: 'fields.content',
+          query: 'fields.content',
           dstName: '',
           fldType: 'html'
         })

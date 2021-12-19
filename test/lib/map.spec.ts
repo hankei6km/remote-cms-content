@@ -19,6 +19,8 @@ describe('compileMapConfig', () => {
     const mapConfig = {
       disableBaseFlds: false,
       passthruUnmapped: false,
+      selectFldsToFetch: false,
+      fldsToFetch: [],
       media: {
         image: {
           fileNameField: 'name',
@@ -91,6 +93,12 @@ describe('compileMapConfig', () => {
               }
             }
           }
+        },
+        {
+          fetchFld: 'fields.selFld',
+          query: 'selFld',
+          dstName: 'selFld',
+          fldType: 'string'
         }
       ]
     }

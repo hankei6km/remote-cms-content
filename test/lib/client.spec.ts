@@ -303,6 +303,20 @@ describe('ClientBase', () => {
     })
     expect(c._fetch).toHaveBeenCalledTimes(3)
   })
+  it('should select fields to fetch content', async () => {
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100)
+    const g = c.flds([]).fetch() // base だけ
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'total', total: 100 }, count: 100 },
+        content: c._record.map(
+          ({ id, createdAt, updatedAt }) =>
+            new ResRecord({ id, createdAt, updatedAt })
+        )
+      },
+      done: false
+    })
+  })
   it('should print info from fetch method', async () => {
     const info = { o: '', e: '' }
     initLog(...mockStreams(info))

@@ -51,7 +51,14 @@ export class ClientTest extends ClientBase {
       for (let i = 0; i < lim; i++) {
         const r = this._record[i + skip]
         if (r) {
-          recs.push(r)
+          let sel: RawRecord = r
+          if (this._flds.size > 0) {
+            sel = {}
+            Object.entries(r)
+              .filter(([k]) => this._flds.has(k))
+              .forEach(([k, v]) => (sel[k] = v))
+          }
+          recs.push(sel)
         }
       }
       return new Promise((resolve, reject) => {

@@ -43,6 +43,8 @@ export class ResRecord {
     return false
   }
   baseFlds() {
+    // ClientBase の _fldsBaseName も関連する.
+    // この辺、もう少し統一できないか.
     return {
       _RowNumber: this._RowNumber,
       id: this.id,
@@ -131,6 +133,7 @@ export type ClientChain = {
   limit: (n: number | undefined) => ClientChain
   skip: (n: number) => ClientChain
   pageSize(n: number | undefined): ClientChain
+  flds(f: string[]): ClientChain
   transform: (t: TransformContent) => ClientChain
   query: (q: string[]) => ClientChain
   vars: (v: string[], forceString?: boolean) => ClientChain
@@ -150,6 +153,13 @@ export abstract class ClientBase {
   protected _skip: number = 0
   protected _limit: number | undefined = undefined
   protected _pageSize: number | undefined = undefined
+  protected _fldsBaseName: string[] = [
+    '_RowNumber',
+    'id',
+    'createdAt',
+    'updatedAt'
+  ]
+  protected _flds: Set<string> = new Set<string>()
   protected _query: string[] = []
   protected _vars: GqlVars = {}
   protected _transformer: TransformContent | undefined = undefined
@@ -183,6 +193,14 @@ export abstract class ClientBase {
   }
   pageSize(n: number | undefined): ClientChain {
     this._pageSize = n
+    return this
+  }
+  flds(f: string[]): ClientChain {
+    if (this._flds.size === 0) {
+      // base 用のフィールドを追加しておく(初期化メソッドを用意した方がよいか).
+      this._fldsBaseName.forEach((v) => this._flds.add(v))
+    }
+    f.forEach((v) => this._flds.add(v))
     return this
   }
   query(q: string[]): ClientChain {

@@ -95,6 +95,7 @@ export class ResRecord {
 export type FetchParams = {
   skip: number
   pageSize?: number
+  flds?: string[]
   endCursor?: string | null
   query: string[]
 }
@@ -237,6 +238,7 @@ export abstract class ClientBase {
     let skip = this._skip
     let pageSize = this._pageSize
     let limit = this._limit
+    const flds = Array.from(this._flds)
     const query = this._query
     let count = 0
     let endCursor: string | undefined | null = null
@@ -272,7 +274,7 @@ export abstract class ClientBase {
         }${pageSize !== undefined ? `, pageSize=${pageSize}` : ''}`
       )
 
-      res = await this._fetch({ skip, pageSize, endCursor, query })
+      res = await this._fetch({ skip, pageSize, flds, endCursor, query })
 
       printInfo(`ClientBase.fetch:   count=${res.fetch.count}`)
 

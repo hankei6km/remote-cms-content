@@ -224,18 +224,24 @@ export class CtfRecord extends ResRecord {
 
 export class ClientCtf extends ClientBase {
   ctfClient!: contentful.ContentfulClientApi
+  protected _fldsBaseName: string[] = [
+    'sys.id',
+    'sys.createdAt',
+    'sys.updatedAt'
+  ]
   kind(): ClientKind {
     return 'contentful'
   }
   resRecord(r: RawRecord): ResRecord {
     return new CtfRecord(r)
   }
-  async _fetch({ skip, pageSize }: FetchParams): Promise<FetchResult> {
+  async _fetch({ skip, pageSize, flds }: FetchParams): Promise<FetchResult> {
     const res = await this.ctfClient
       .getEntries<Record<string, any>>({
         ...queryEquality(this._filter),
         skip: skip,
         limit: pageSize,
+        select: flds && flds.length > 0 ? flds.join(',') : undefined,
         content_type: this._apiName
       })
       .catch((err) => {

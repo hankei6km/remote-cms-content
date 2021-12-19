@@ -167,6 +167,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 0,
       pageSize: undefined,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -189,6 +190,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 0,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -202,6 +204,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 30,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -215,6 +218,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 60,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -228,6 +232,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 90,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     }) // limit を指定していない.
@@ -250,6 +255,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 5,
       pageSize: undefined,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -268,6 +274,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 5,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -281,6 +288,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 35,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -294,6 +302,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 65,
       pageSize: 15,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -315,6 +324,13 @@ describe('ClientBase', () => {
         )
       },
       done: false
+    })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 0,
+      pageSize: undefined,
+      flds: ['_RowNumber', 'id', 'createdAt', 'updatedAt'],
+      endCursor: null,
+      query: []
     })
   })
   it('should print info from fetch method', async () => {

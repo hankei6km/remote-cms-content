@@ -110,9 +110,8 @@ const { mockWriteFile } = (mockFsPromise as any)._getMocks()
 const { client } = await import('../../src/lib/client.js')
 const { ClientTest } = await import('./clientTest.js')
 const { compileMapConfig } = await import('../../src/lib/map.js')
-const { saveContentFile, transformContent, saveRemoteContent } = await import(
-  '../../src/lib/content.js'
-)
+const { saveContentFile, fldsToFetch, transformContent, saveRemoteContent } =
+  await import('../../src/lib/content.js')
 
 afterEach(() => {
   mockAxios.reset()
@@ -167,6 +166,103 @@ markdown
       { fldName: 'position', value: 0 }
     )
     expect(String(await res)).toMatch(/dummy error/)
+  })
+})
+
+describe('fldsToFetch()', () => {
+  it('should return empty array', async () => {
+    expect(
+      fldsToFetch(
+        compileMapConfig({
+          flds: []
+        })
+      )
+    ).toEqual([])
+    expect(
+      fldsToFetch(
+        compileMapConfig({
+          fldsToFetch: ['title'],
+          flds: [
+            {
+              fetchFld: 'content.html',
+              query: 'content.html',
+              dstName: 'content',
+              fldType: 'html'
+            }
+          ]
+        })
+      )
+    ).toEqual([])
+  })
+  it('should return array by "fldsToFetch" and "fetchFld"', async () => {
+    expect(
+      fldsToFetch(
+        compileMapConfig({
+          selectFldsToFetch: true,
+          fldsToFetch: ['title'],
+          flds: [
+            {
+              fetchFld: 'content.html',
+              query: 'content.html',
+              dstName: 'content',
+              fldType: 'html'
+            },
+            {
+              fetchFld: 'description',
+              query: 'description',
+              dstName: 'description',
+              fldType: 'string'
+            }
+          ]
+        })
+      )
+    ).toEqual(['title', 'content.html', 'description'])
+    expect(
+      fldsToFetch(
+        compileMapConfig({
+          selectFldsToFetch: true,
+          flds: [
+            {
+              fetchFld: 'content.html',
+              query: 'content.html',
+              dstName: 'content',
+              fldType: 'html'
+            },
+            {
+              fetchFld: 'description',
+              query: 'description',
+              dstName: 'description',
+              fldType: 'string'
+            },
+            {
+              query: 'menuTitle',
+              dstName: 'menuTitle',
+              fldType: 'string'
+            }
+          ]
+        })
+      )
+    ).toEqual(['content.html', 'description'])
+    expect(
+      fldsToFetch(
+        compileMapConfig({
+          selectFldsToFetch: true,
+          fldsToFetch: ['title'],
+          flds: [
+            {
+              query: 'content.html',
+              dstName: 'content',
+              fldType: 'html'
+            },
+            {
+              query: 'description',
+              dstName: 'description',
+              fldType: 'string'
+            }
+          ]
+        })
+      )
+    ).toEqual(['title'])
   })
 })
 
@@ -488,6 +584,61 @@ describe('saveRemoteContent()', () => {
       )
       expect(mockWriteFile.mock.calls[idx][1]).toContain(`position: ${idx + 1}`)
     }
+  })
+  it('should select fields to fetch content', async () => {
+    const mapConfig: MapConfig = compileMapConfig({
+      selectFldsToFetch: true,
+      fldsToFetch: ['title'],
+      flds: [
+        {
+          fetchFld: 'content.html',
+          query: 'content.html',
+          dstName: 'content',
+          fldType: 'html'
+        },
+        {
+          fetchFld: 'description',
+          query: 'description',
+          dstName: 'description',
+          fldType: 'string'
+        }
+      ]
+    })
+    // fields を選択させるために他とは違う方法で client を生成している.
+    // が選択された結果は検証していない.
+    const client = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(
+      100
+    )
+    const res = saveRemoteContent({
+      client,
+      apiName: 'tbl',
+      mapConfig,
+      dstContentDir: '/path/content',
+      dstImagesDir: '/path/static/images',
+      staticRoot: '/path/static',
+      skip: 0,
+      maxRepeat: 10,
+      filter: [],
+      query: [],
+      vars: [],
+      varsStr: []
+    })
+    await expect(res).resolves.toEqual(null)
+    expect(client._fetch).toHaveBeenCalledWith({
+      skip: 0,
+      pageSize: undefined,
+      flds: [
+        '_RowNumber',
+        'id',
+        'createdAt',
+        'updatedAt',
+        'title',
+        'content.html',
+        'description'
+      ],
+      endCursor: null,
+      query: []
+    })
   })
   it('should get remote content and save as local files with transform content', async () => {
     const mapConfig: MapConfig = compileMapConfig({

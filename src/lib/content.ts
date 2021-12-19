@@ -65,6 +65,16 @@ export async function saveContentFile(
 //   return ret
 // }
 
+export function fldsToFetch(m: MapConfig): string[] {
+  if (m.selectFldsToFetch) {
+    const ret: string[] = (m.fldsToFetch || []).concat(
+      m.flds.map(({ fetchFld }) => fetchFld || '').filter((v) => v !== '')
+    )
+    return ret
+  }
+  return []
+}
+
 export function transformContent(m: MapConfig): TransformContent {
   const ret: TransformContent = (content, arrayPath) => {
     const valueType = typeof content
@@ -136,6 +146,7 @@ export async function saveRemoteContent({
       .skip(skip)
       .limit(limit)
       .pageSize(pageSize)
+      .flds(fldsToFetch(mapConfig))
       .transform(transformContent(mapConfig))
       .filter(filter)
       .query(query)

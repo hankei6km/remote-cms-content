@@ -22,7 +22,8 @@ export class ClientTest extends ClientBase {
         id: `id${i}`,
         createdAt: new Date(),
         updatedAt: new Date(),
-        test: this._idx++
+        test: this._idx++,
+        dummy: this._idx++
       })
     }
     return this

@@ -197,11 +197,13 @@ export abstract class ClientBase {
     return this
   }
   flds(f: string[]): ClientChain {
-    if (this._flds.size === 0) {
-      // base 用のフィールドを追加しておく(初期化メソッドを用意した方がよいか).
-      this._fldsBaseName.forEach((v) => this._flds.add(v))
+    if (f.length > 0) {
+      if (this._flds.size === 0) {
+        // base 用のフィールドを追加しておく(初期化メソッドを用意した方がよいか).
+        this._fldsBaseName.forEach((v) => this._flds.add(v))
+      }
+      f.forEach((v) => this._flds.add(v))
     }
-    f.forEach((v) => this._flds.add(v))
     return this
   }
   query(q: string[]): ClientChain {

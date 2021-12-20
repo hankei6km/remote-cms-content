@@ -1,7 +1,6 @@
 import { readFileSync } from 'fs'
 import toNumber from 'lodash.tonumber'
-import { GqlVars } from '../types/gql.js'
-import { OpValue } from '../types/client.js'
+import { OpValue, QuerylVars } from '../types/client.js'
 
 export function decodeFilter(filter: string[]): OpValue[] {
   return filter
@@ -34,10 +33,10 @@ export function readQuery(
   }
 }
 
-export function decodeVars(vars: string[], forceString?: boolean): GqlVars {
-  const ret: GqlVars = {}
+export function decodeVars(vars: string[], forceString?: boolean): QuerylVars {
+  const ret: QuerylVars = {}
   vars
-    .map<[keyof GqlVars, GqlVars[keyof GqlVars]]>((v) => {
+    .map<[keyof QuerylVars, QuerylVars[keyof QuerylVars]]>((v) => {
       const kv = v.split('=')
       const len = kv.length
       if (len === 1 && !forceString) {

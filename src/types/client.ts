@@ -1,6 +1,5 @@
 import { printInfo } from '../lib/log.js'
 import { readQuery, decodeVars } from '../lib/util.js'
-import { GqlVars } from './gql.js'
 import { MapFld } from './map.js'
 
 export const ClientKindValues = [
@@ -92,6 +91,13 @@ export class ResRecord {
   }
 }
 
+// command の flag で渡された variables を収めておくオブジェクト.
+// いまのところはスカラーぽいものだけ.
+// REST とGraphQL で共有.
+// - REST - クエリーパラメーターとして利用
+// - GraphQL - Variables として利用
+export type QuerylVars = Record<string, boolean | number | string>
+
 export type FetchParams = {
   skip: number
   pageSize?: number
@@ -162,7 +168,7 @@ export abstract class ClientBase {
   ]
   protected _flds: Set<string> = new Set<string>()
   protected _query: string[] = []
-  protected _vars: GqlVars = {}
+  protected _vars: QuerylVars = {}
   protected _transformer: TransformContent | undefined = undefined
 
   protected _setupErr: Error | undefined

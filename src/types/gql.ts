@@ -29,10 +29,6 @@ import {
 } from '../types/client.js'
 //ApolloProvider,
 
-// command の flag で渡された variables を収めておくオブジェクト.
-// いまのところはスカラーぽいものだけ.
-export type GqlVars = Record<string, boolean | number | string>
-
 export function gqlClient() {
   return new ApolloClient({
     cache: new InMemoryCache()

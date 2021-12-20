@@ -169,7 +169,8 @@ describe('ClientBase', () => {
       pageSize: undefined,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
     expect(await g.next()).toEqual({
       value: undefined,
@@ -192,7 +193,8 @@ describe('ClientBase', () => {
       pageSize: 30,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
     expect(await g.next()).toEqual({
       value: {
@@ -206,7 +208,8 @@ describe('ClientBase', () => {
       pageSize: 30,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
     expect(await g.next()).toEqual({
       value: {
@@ -220,7 +223,8 @@ describe('ClientBase', () => {
       pageSize: 30,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
     expect(await g.next()).toEqual({
       value: {
@@ -234,7 +238,8 @@ describe('ClientBase', () => {
       pageSize: 30,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     }) // limit を指定していない.
     expect(await g.next()).toEqual({
       value: undefined,
@@ -257,7 +262,8 @@ describe('ClientBase', () => {
       pageSize: undefined,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
     expect(c._fetch).toHaveBeenCalledTimes(1)
   })
@@ -276,7 +282,8 @@ describe('ClientBase', () => {
       pageSize: 30,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
     expect(await g.next()).toEqual({
       value: {
@@ -290,7 +297,8 @@ describe('ClientBase', () => {
       pageSize: 30,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
     expect(await g.next()).toEqual({
       value: {
@@ -304,7 +312,8 @@ describe('ClientBase', () => {
       pageSize: 15,
       flds: [],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
     expect(await g.next()).toEqual({
       value: undefined,
@@ -330,7 +339,21 @@ describe('ClientBase', () => {
       pageSize: undefined,
       flds: ['_RowNumber', 'id', 'createdAt', 'updatedAt', 'test'],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
+    })
+  })
+  it('should pass vars', async () => {
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100)
+    const g = c.vars(['var1=abc', 'var2=123']).fetch()
+    await g.next()
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 0,
+      pageSize: undefined,
+      flds: [],
+      endCursor: null,
+      query: [],
+      vars: { var1: 'abc', var2: 123 }
     })
   })
   it('should print info from fetch method', async () => {

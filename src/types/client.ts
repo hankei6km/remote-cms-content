@@ -104,6 +104,7 @@ export type FetchParams = {
   flds?: string[]
   endCursor?: string | null
   query: string[]
+  vars: QuerylVars
 }
 
 export type FetchResultNextTotal = {
@@ -248,6 +249,7 @@ export abstract class ClientBase {
     let limit = this._limit
     const flds = Array.from(this._flds)
     const query = this._query
+    const vars = this._vars
     let count = 0
     let endCursor: string | undefined | null = null
 
@@ -282,7 +284,7 @@ export abstract class ClientBase {
         }${pageSize !== undefined ? `, pageSize=${pageSize}` : ''}`
       )
 
-      res = await this._fetch({ skip, pageSize, flds, endCursor, query })
+      res = await this._fetch({ skip, pageSize, flds, endCursor, query, vars })
 
       printInfo(`ClientBase.fetch:   count=${res.fetch.count}`)
 

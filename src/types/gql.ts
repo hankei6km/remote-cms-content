@@ -106,7 +106,8 @@ export abstract class ClientGqlBase extends ClientBase {
     skip,
     pageSize,
     endCursor,
-    query
+    query,
+    vars
   }: FetchParams): Promise<FetchResult> {
     return new Promise((resolve, reject) => {
       this._gqlClient
@@ -116,7 +117,7 @@ export abstract class ClientGqlBase extends ClientBase {
             skip,
             pageSize,
             endCursor,
-            ...this._vars
+            ...vars
           }
         })
         .then((res) => {

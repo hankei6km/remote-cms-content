@@ -34,7 +34,8 @@ export class ClientMicroCMS extends ClientBase {
   kind(): ClientKind {
     return 'microcms'
   }
-  async _fetch({ skip, pageSize }: FetchParams): Promise<FetchResult> {
+  protected _fldsBaseName: string[] = ['id', 'createdAt', 'updatedAt']
+  async _fetch({ skip, pageSize, flds }: FetchParams): Promise<FetchResult> {
     const headers: AxiosRequestConfig['headers'] = {}
     headers[this._opts.credential[0]] = this._opts.credential[1]
     const params: Record<string, any> = {}
@@ -47,6 +48,9 @@ export class ClientMicroCMS extends ClientBase {
     }
     if (pageSize !== undefined) {
       params['limit'] = pageSize
+    }
+    if (flds && flds.length > 0) {
+      params['fields'] = flds.join(',')
     }
     const res = await axios
       .get(`${this._opts.apiBaseURL}${this._apiName || ''}`, {

@@ -13,7 +13,8 @@ export type MappedFlds = {
 } & Record<string, unknown>
 
 export type MapFldsBase = {
-  srcName: string
+  fetchFld?: string
+  query: string
   dstName: string
   /**
    * @ignore
@@ -109,6 +110,8 @@ export type MapConfig = {
   }
   disableBaseFlds?: boolean
   passthruUnmapped?: boolean
+  selectFldsToFetch?: boolean
+  fldsToFetch?: string[]
   transform?: string
   /**
    * @ignore

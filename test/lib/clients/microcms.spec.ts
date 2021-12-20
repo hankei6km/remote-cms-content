@@ -184,6 +184,48 @@ describe('client_appsheet', () => {
     })
     expect((await g.next()).done).toBeTruthy()
   })
+  it('should get bare content from microCMS app with selection fields', async () => {
+    const n = new Date().toUTCString()
+
+    const c = new ClientMicroCMS({
+      apiBaseURL: 'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/',
+      apiName: 'tbl',
+      credential: ['X-API-KEY', 'secret']
+    })
+      .request()
+      .flds(['title'])
+    const g = c.fetch()
+    const next = g.next()
+    expect(mockAxios.get).toHaveBeenLastCalledWith(
+      'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/tbl',
+      {
+        headers: { 'X-API-KEY': 'secret' },
+        params: { fields: ['id', 'createdAt', 'updatedAt', 'title'].join(',') }
+      }
+    )
+    const mockData = {
+      contents: [
+        {
+          id: 'idstring1',
+          createdAt: n,
+          updatedAt: n,
+          title: 'title1'
+        },
+        {
+          id: 'idstring2',
+          createdAt: n,
+          updatedAt: n,
+          title: 'title1'
+        }
+      ],
+      totalCount: 2
+    }
+    mockAxios.mockResponse({
+      data: mockData
+    })
+    await next
+    // fields の実際のレスポンスは検証できないので省略.
+  })
 })
 
 export {}

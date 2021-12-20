@@ -20,12 +20,12 @@ const ajv = new Ajv()
 const validate = ajv.compile(mapConfigSchema)
 
 export function compileMapFld(m: MapFld): MapFld {
-  if (isJsonataQuery(m.srcName)) {
+  if (isJsonataQuery(m.query)) {
     try {
-      m.transformJsonata = jsonata(m.srcName)
+      m.transformJsonata = jsonata(m.query)
     } catch (err: any) {
       throw new Error(
-        `compileMapFld: compile jsonata: srcName=${m.srcName}, message=${err.message}`
+        `compileMapFld: compile jsonata: query=${m.query}, message=${err.message}`
       )
     }
   }
@@ -129,23 +129,23 @@ export function validId(s: unknown): s is number | string {
 
 function throwInvalidId(
   value: unknown,
-  srcName: string,
+  query: string,
   dstName: string,
   fldType: string
 ) {
   throw new Error(
-    `mappingFlds: invalid id: value = ${value}, params = ${srcName}, ${dstName}, ${fldType}`
+    `mappingFlds: invalid id: value = ${value}, params = ${query}, ${dstName}, ${fldType}`
   )
 }
 
 function throwInvalidType(
   actually: string,
-  srcName: string,
+  query: string,
   dstName: string,
   fldType: string
 ) {
   throw new Error(
-    `mappingFlds: invalid type: actually type = ${actually}, params = ${srcName}, ${dstName}, ${fldType}`
+    `mappingFlds: invalid type: actually type = ${actually}, params = ${query}, ${dstName}, ${fldType}`
   )
 }
 
@@ -181,24 +181,24 @@ export async function mappingFlds(
             if (validId(srcValue)) {
               ret[m.dstName] = `${srcValue}`
             } else {
-              throwInvalidId(srcValue, m.srcName, m.dstName, m.fldType)
+              throwInvalidId(srcValue, m.query, m.dstName, m.fldType)
             }
           } else {
-            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
+            throwInvalidType(srcFldType, m.query, m.dstName, m.fldType)
           }
           break
         case 'boolean':
           if (srcFldType === 'boolean') {
             ret[m.dstName] = srcValue
           } else {
-            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
+            throwInvalidType(srcFldType, m.query, m.dstName, m.fldType)
           }
           break
         case 'number':
           if (srcFldType === 'number') {
             ret[m.dstName] = srcValue
           } else {
-            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
+            throwInvalidType(srcFldType, m.query, m.dstName, m.fldType)
           }
           break
         case 'string':
@@ -214,7 +214,7 @@ export async function mappingFlds(
           } else if (srcFldType === 'object') {
             ret[m.dstName] = srcValue
           } else {
-            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
+            throwInvalidType(srcFldType, m.query, m.dstName, m.fldType)
           }
           break
         case 'datetime':
@@ -246,12 +246,12 @@ export async function mappingFlds(
               toMarkdownOpts
             })
           } else {
-            throwInvalidType(srcFldType, m.srcName, m.dstName, m.fldType)
+            throwInvalidType(srcFldType, m.query, m.dstName, m.fldType)
           }
           break
       }
       if (ret.hasOwnProperty(m.dstName)) {
-        mapped[m.srcName] = true
+        mapped[m.query] = true
       }
     }
   }

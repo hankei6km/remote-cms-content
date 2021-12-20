@@ -102,7 +102,7 @@ describe('CtfRecord', () => {
     expect(
       new CtfRecord({}).isAsyncFld(
         compileMapFld({
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'html'
         })
@@ -113,7 +113,7 @@ describe('CtfRecord', () => {
     expect(
       new CtfRecord({}).isAsyncFld(
         compileMapFld({
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'string'
         })
@@ -126,7 +126,7 @@ describe('CtfRecord', () => {
         fields: { content: mockDataRest.items[0].fields.richt }
       }).getAsync(
         compileMapFld({
-          srcName: 'fields.content',
+          query: 'fields.content',
           dstName: '',
           fldType: 'html'
         })
@@ -137,7 +137,7 @@ describe('CtfRecord', () => {
         fields: { content: mockDataRest.items[1].fields.richt }
       }).getAsync(
         compileMapFld({
-          srcName: 'fields.content',
+          query: 'fields.content',
           dstName: '',
           fldType: 'html'
         })
@@ -395,8 +395,37 @@ describe('client_contentful', () => {
       skip: 0,
       limit: undefined,
       pageSize: undefined,
+      select: undefined,
       'fields.k1': 'v1',
       'fields.k2': 'v2'
+    })
+  })
+  it('should get rendered content from Contentful space with selection fields', async () => {
+    const c = new ClientCtf({
+      apiBaseURL: '',
+      apiName: 'contentmodel',
+      credential: ['spcaeId', 'cda_token']
+    })
+      .request()
+      .flds(['title', 'content'])
+    const g = c.fetch()
+    await g.next()
+    expect(mockCreateClient).toHaveBeenLastCalledWith({
+      space: 'spcaeId',
+      accessToken: 'cda_token'
+    })
+    expect(mockGetEntries).toHaveBeenLastCalledWith({
+      content_type: 'contentmodel',
+      skip: 0,
+      limit: undefined,
+      pageSize: undefined,
+      select: [
+        'sys.id',
+        'sys.createdAt',
+        'sys.updatedAt',
+        'title',
+        'content'
+      ].join(',')
     })
   })
   it('should get rendered content from Contentful space with paginate', async () => {
@@ -417,7 +446,8 @@ describe('client_contentful', () => {
     expect(mockGetEntries).toHaveBeenLastCalledWith({
       content_type: 'contentmodel',
       skip: 5,
-      limit: 50
+      limit: 50,
+      select: undefined
     })
   })
 })

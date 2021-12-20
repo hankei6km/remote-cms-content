@@ -84,12 +84,12 @@ describe('cli()', () => {
         mapConfig: {
           flds: [
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title',
               fldType: 'string'
             },
             {
-              srcName: '画像',
+              query: '画像',
               dstName: 'image',
               fldType: 'image'
             }
@@ -149,12 +149,12 @@ describe('cli()', () => {
         mapConfig: {
           flds: [
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title',
               fldType: 'string'
             },
             {
-              srcName: '画像',
+              query: '画像',
               dstName: 'image',
               fldType: 'image'
             }
@@ -214,12 +214,12 @@ describe('cli()', () => {
         mapConfig: {
           flds: [
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title',
               fldType: 'string'
             },
             {
-              srcName: '画像',
+              query: '画像',
               dstName: 'image',
               fldType: 'image'
             }

@@ -46,7 +46,7 @@ describe('PrismicGqlRecord', () => {
   it('should return true from isAsyncFld()', () => {
     expect(
       new PrismicGqlRecord({ content: '' }).isAsyncFld({
-        srcName: 'content',
+        query: 'content',
         dstName: 'content',
         fldType: 'html'
       })
@@ -55,7 +55,7 @@ describe('PrismicGqlRecord', () => {
   it('should return false from isAsyncFld()', () => {
     expect(
       new PrismicGqlRecord({ content: '' }).isAsyncFld({
-        srcName: 'content',
+        query: 'content',
         dstName: 'content',
         fldType: 'string'
       })
@@ -87,7 +87,7 @@ describe('PrismicGqlRecord', () => {
           }
         ]
       }).getAsync({
-        srcName: 'content',
+        query: 'content',
         dstName: 'content',
         fldType: 'html'
       })

@@ -63,20 +63,23 @@ export const mapConfigSchema =
                             "dstName": {
                                 "type": "string"
                             },
+                            "fetchFld": {
+                                "type": "string"
+                            },
                             "fldType": {
                                 "enum": [
                                     "id"
                                 ],
                                 "type": "string"
                             },
-                            "srcName": {
+                            "query": {
                                 "type": "string"
                             }
                         },
                         "required": [
                             "dstName",
                             "fldType",
-                            "srcName"
+                            "query"
                         ],
                         "type": "object"
                     },
@@ -84,6 +87,9 @@ export const mapConfigSchema =
                         "additionalProperties": false,
                         "properties": {
                             "dstName": {
+                                "type": "string"
+                            },
+                            "fetchFld": {
                                 "type": "string"
                             },
                             "fldType": {
@@ -92,14 +98,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "srcName": {
+                            "query": {
                                 "type": "string"
                             }
                         },
                         "required": [
                             "dstName",
                             "fldType",
-                            "srcName"
+                            "query"
                         ],
                         "type": "object"
                     },
@@ -107,6 +113,9 @@ export const mapConfigSchema =
                         "additionalProperties": false,
                         "properties": {
                             "dstName": {
+                                "type": "string"
+                            },
+                            "fetchFld": {
                                 "type": "string"
                             },
                             "fldType": {
@@ -115,14 +124,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "srcName": {
+                            "query": {
                                 "type": "string"
                             }
                         },
                         "required": [
                             "dstName",
                             "fldType",
-                            "srcName"
+                            "query"
                         ],
                         "type": "object"
                     },
@@ -130,6 +139,9 @@ export const mapConfigSchema =
                         "additionalProperties": false,
                         "properties": {
                             "dstName": {
+                                "type": "string"
+                            },
+                            "fetchFld": {
                                 "type": "string"
                             },
                             "fldType": {
@@ -138,14 +150,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "srcName": {
+                            "query": {
                                 "type": "string"
                             }
                         },
                         "required": [
                             "dstName",
                             "fldType",
-                            "srcName"
+                            "query"
                         ],
                         "type": "object"
                     },
@@ -153,6 +165,9 @@ export const mapConfigSchema =
                         "additionalProperties": false,
                         "properties": {
                             "dstName": {
+                                "type": "string"
+                            },
+                            "fetchFld": {
                                 "type": "string"
                             },
                             "fldType": {
@@ -161,14 +176,14 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
-                            "srcName": {
+                            "query": {
                                 "type": "string"
                             }
                         },
                         "required": [
                             "dstName",
                             "fldType",
-                            "srcName"
+                            "query"
                         ],
                         "type": "object"
                     },
@@ -176,6 +191,9 @@ export const mapConfigSchema =
                         "additionalProperties": false,
                         "properties": {
                             "dstName": {
+                                "type": "string"
+                            },
+                            "fetchFld": {
                                 "type": "string"
                             },
                             "fileNameField": {
@@ -187,17 +205,17 @@ export const mapConfigSchema =
                                 ],
                                 "type": "string"
                             },
+                            "query": {
+                                "type": "string"
+                            },
                             "setSize": {
                                 "type": "boolean"
-                            },
-                            "srcName": {
-                                "type": "string"
                             }
                         },
                         "required": [
                             "dstName",
                             "fldType",
-                            "srcName"
+                            "query"
                         ],
                         "type": "object"
                     },
@@ -207,10 +225,16 @@ export const mapConfigSchema =
                             "dstName": {
                                 "type": "string"
                             },
+                            "fetchFld": {
+                                "type": "string"
+                            },
                             "fldType": {
                                 "enum": [
                                     "enum"
                                 ],
+                                "type": "string"
+                            },
+                            "query": {
                                 "type": "string"
                             },
                             "replace": {
@@ -238,16 +262,13 @@ export const mapConfigSchema =
                                     "type": "object"
                                 },
                                 "type": "array"
-                            },
-                            "srcName": {
-                                "type": "string"
                             }
                         },
                         "required": [
                             "dstName",
                             "fldType",
-                            "replace",
-                            "srcName"
+                            "query",
+                            "replace"
                         ],
                         "type": "object"
                     },
@@ -257,20 +278,23 @@ export const mapConfigSchema =
                             "dstName": {
                                 "type": "string"
                             },
+                            "fetchFld": {
+                                "type": "string"
+                            },
                             "fldType": {
                                 "enum": [
                                     "object"
                                 ],
                                 "type": "string"
                             },
-                            "srcName": {
+                            "query": {
                                 "type": "string"
                             }
                         },
                         "required": [
                             "dstName",
                             "fldType",
-                            "srcName"
+                            "query"
                         ],
                         "type": "object"
                     },
@@ -288,13 +312,16 @@ export const mapConfigSchema =
                             "dstName": {
                                 "type": "string"
                             },
+                            "fetchFld": {
+                                "type": "string"
+                            },
                             "fldType": {
                                 "enum": [
                                     "html"
                                 ],
                                 "type": "string"
                             },
-                            "srcName": {
+                            "query": {
                                 "type": "string"
                             },
                             "toHtmlOpts": {
@@ -429,11 +456,17 @@ export const mapConfigSchema =
                         "required": [
                             "dstName",
                             "fldType",
-                            "srcName"
+                            "query"
                         ],
                         "type": "object"
                     }
                 ]
+            },
+            "type": "array"
+        },
+        "fldsToFetch": {
+            "items": {
+                "type": "string"
             },
             "type": "array"
         },
@@ -501,6 +534,9 @@ export const mapConfigSchema =
                 }
             },
             "type": "object"
+        },
+        "selectFldsToFetch": {
+            "type": "boolean"
         },
         "transform": {
             "type": "string"

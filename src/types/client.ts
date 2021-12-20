@@ -34,8 +34,8 @@ export class ResRecord {
     this.updatedAt = updatedAt
   }
   has(map: MapFld): boolean {
-    if (this.record.hasOwnProperty(map.srcName)) {
-      const v = this.record[map.srcName]
+    if (this.record.hasOwnProperty(map.query)) {
+      const v = this.record[map.query]
       if (v !== null) {
         return true
       }
@@ -43,6 +43,8 @@ export class ResRecord {
     return false
   }
   baseFlds() {
+    // ClientBase の _fldsBaseName も関連する.
+    // この辺、もう少し統一できないか.
     return {
       _RowNumber: this._RowNumber,
       id: this.id,
@@ -69,13 +71,13 @@ export class ResRecord {
         return m.transformJsonata.evaluate(value)
       } catch (err: any) {
         throw new Error(
-          `ResRecord.execTransform: srcName=${m.srcName} message=${
+          `ResRecord.execTransform: query=${m.query} message=${
             err.message
           } value=${JSON.stringify(value)}`
         )
       }
     } else if (valueType === 'object') {
-      return (value as any)[m.srcName]
+      return (value as any)[m.query]
     }
     return value
   }
@@ -93,6 +95,7 @@ export class ResRecord {
 export type FetchParams = {
   skip: number
   pageSize?: number
+  flds?: string[]
   endCursor?: string | null
   query: string[]
 }
@@ -131,6 +134,7 @@ export type ClientChain = {
   limit: (n: number | undefined) => ClientChain
   skip: (n: number) => ClientChain
   pageSize(n: number | undefined): ClientChain
+  flds(f: string[]): ClientChain
   transform: (t: TransformContent) => ClientChain
   query: (q: string[]) => ClientChain
   vars: (v: string[], forceString?: boolean) => ClientChain
@@ -150,6 +154,13 @@ export abstract class ClientBase {
   protected _skip: number = 0
   protected _limit: number | undefined = undefined
   protected _pageSize: number | undefined = undefined
+  protected _fldsBaseName: string[] = [
+    '_RowNumber',
+    'id',
+    'createdAt',
+    'updatedAt'
+  ]
+  protected _flds: Set<string> = new Set<string>()
   protected _query: string[] = []
   protected _vars: GqlVars = {}
   protected _transformer: TransformContent | undefined = undefined
@@ -183,6 +194,16 @@ export abstract class ClientBase {
   }
   pageSize(n: number | undefined): ClientChain {
     this._pageSize = n
+    return this
+  }
+  flds(f: string[]): ClientChain {
+    if (f.length > 0) {
+      if (this._flds.size === 0) {
+        // base 用のフィールドを追加しておく(初期化メソッドを用意した方がよいか).
+        this._fldsBaseName.forEach((v) => this._flds.add(v))
+      }
+      f.forEach((v) => this._flds.add(v))
+    }
     return this
   }
   query(q: string[]): ClientChain {
@@ -219,6 +240,7 @@ export abstract class ClientBase {
     let skip = this._skip
     let pageSize = this._pageSize
     let limit = this._limit
+    const flds = Array.from(this._flds)
     const query = this._query
     let count = 0
     let endCursor: string | undefined | null = null
@@ -254,7 +276,7 @@ export abstract class ClientBase {
         }${pageSize !== undefined ? `, pageSize=${pageSize}` : ''}`
       )
 
-      res = await this._fetch({ skip, pageSize, endCursor, query })
+      res = await this._fetch({ skip, pageSize, flds, endCursor, query })
 
       printInfo(`ClientBase.fetch:   count=${res.fetch.count}`)
 

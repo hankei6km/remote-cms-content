@@ -19,6 +19,8 @@ describe('compileMapConfig', () => {
     const mapConfig = {
       disableBaseFlds: false,
       passthruUnmapped: false,
+      selectFldsToFetch: false,
+      fldsToFetch: [],
       media: {
         image: {
           fileNameField: 'name',
@@ -30,39 +32,39 @@ describe('compileMapConfig', () => {
       position: { disable: false, fldName: 'index', start: 0 },
       flds: [
         {
-          srcName: 'idFld',
+          query: 'idFld',
           dstName: 'idfld',
           fldType: 'id'
         },
         {
-          srcName: 'booleanFld',
+          query: 'booleanFld',
           dstName: 'booleanFld',
           fldType: 'boolean'
         },
         {
-          srcName: 'numberFld',
+          query: 'numberFld',
           dstName: 'numberFld',
           fldType: 'number'
         },
         {
-          srcName: 'stringFld',
+          query: 'stringFld',
           dstName: 'stringFld',
           fldType: 'string'
         },
         {
-          srcName: 'datetimeFld',
+          query: 'datetimeFld',
           dstName: 'datetimeFld',
           fldType: 'datetime'
         },
         {
-          srcName: 'imageFld',
+          query: 'imageFld',
           dstName: 'imageFld',
           fldType: 'image',
           fileNameField: 'name',
           setSize: false
         },
         {
-          srcName: 'enumFld',
+          query: 'enumFld',
           dstName: 'enumFld',
           fldType: 'enum',
           replace: [
@@ -71,12 +73,12 @@ describe('compileMapConfig', () => {
           ]
         },
         {
-          srcName: 'objectFld',
+          query: 'objectFld',
           dstName: 'objectFld',
           fldType: 'object'
         },
         {
-          srcName: 'htmlFld',
+          query: 'htmlFld',
           dstName: 'htmlFld',
           fldType: 'html',
           convert: 'markdown',
@@ -91,6 +93,12 @@ describe('compileMapConfig', () => {
               }
             }
           }
+        },
+        {
+          fetchFld: 'fields.selFld',
+          query: 'selFld',
+          dstName: 'selFld',
+          fldType: 'string'
         }
       ]
     }
@@ -125,7 +133,7 @@ describe('compileMapConfig', () => {
       typeof compileMapConfig({
         flds: [
           {
-            srcName: '*[title="1234"].image',
+            query: '*[title="1234"].image',
             dstName: 'objectwithJsonataFld',
             fldType: 'object'
           }
@@ -142,7 +150,7 @@ describe('compileMapConfig', () => {
       compileMapConfig({
         flds: [
           {
-            srcName: 'test',
+            query: 'test',
             dstName: 'test',
             fldType: 'object',
             transformJsonata: '*[title="1234"].image'
@@ -154,14 +162,14 @@ describe('compileMapConfig', () => {
       compileMapConfig({
         flds: [
           {
-            srcName: '$$.{',
+            query: '$$.{',
             dstName: 'test',
             fldType: 'object'
           }
         ]
       })
     ).toThrowError(
-      'compileMapFld: compile jsonata: srcName=$$.{, message=Expected ":" before end of expression'
+      'compileMapFld: compile jsonata: query=$$.{, message=Expected ":" before end of expression'
     )
   })
 })
@@ -170,12 +178,12 @@ describe('loadMapConfig', () => {
   const mapConfig = {
     flds: [
       {
-        srcName: 'タイトル',
+        query: 'タイトル',
         dstName: 'title',
         fldType: 'string'
       },
       {
-        srcName: '画像',
+        query: '画像',
         dstName: 'image',
         fldType: 'image'
       }
@@ -228,7 +236,7 @@ describe('fileNameFromURL', () => {
       fileNameFromURL(
         'http://localhost:3000/path/to/image.jpg',
         { flds: [] },
-        { srcName: '', dstName: '', fldType: 'image' }
+        { query: '', dstName: '', fldType: 'image' }
       )
     ).toEqual('image.jpg')
   })
@@ -237,7 +245,7 @@ describe('fileNameFromURL', () => {
       fileNameFromURL(
         'http://localhost:3000/path/to/?fileName=image.jpg',
         { media: { image: { fileNameField: 'fileName' } }, flds: [] },
-        { srcName: '', dstName: '', fldType: 'image' }
+        { query: '', dstName: '', fldType: 'image' }
       )
     ).toEqual('image.jpg')
   })
@@ -247,7 +255,7 @@ describe('fileNameFromURL', () => {
         'http://localhost:3000/path/to/?fileName=image.jpg',
         { flds: [] },
         {
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'image',
           fileNameField: 'fileName'
@@ -261,7 +269,7 @@ describe('fileNameFromURL', () => {
         '/path/to/image.jpg',
 
         { flds: [] },
-        { srcName: '', dstName: '', fldType: 'image' }
+        { query: '', dstName: '', fldType: 'image' }
       )
     ).toThrow(
       'fileNameFromURL: src=/path/to/image.jpg,filedName=: TypeError [ERR_INVALID_URL]: Invalid URL: /path/to/image.jpg'
@@ -270,7 +278,7 @@ describe('fileNameFromURL', () => {
       fileNameFromURL(
         '/path/to/image.jpg',
         { media: { image: { fileNameField: 'fileName' } }, flds: [] },
-        { srcName: '', dstName: '', fldType: 'image' }
+        { query: '', dstName: '', fldType: 'image' }
       )
     ).toThrow(
       'fileNameFromURL: src=/path/to/image.jpg,filedName=fileName: TypeError [ERR_INVALID_URL]: Invalid URL: /path/to/image.jpg'
@@ -282,7 +290,7 @@ describe('fileNameFromURL', () => {
         'http://localhost:3000',
 
         { flds: [] },
-        { srcName: '', dstName: '', fldType: 'image' }
+        { query: '', dstName: '', fldType: 'image' }
       )
     ).toThrow(
       'fileNameFromURL: src=http://localhost:3000,filedName=: image filename is blank'
@@ -293,7 +301,7 @@ describe('fileNameFromURL', () => {
       fileNameFromURL(
         'http://localhost:3000/path/to/?fileName=image.jpg',
         { media: { image: { fileNameField: 'image' } }, flds: [] },
-        { srcName: '', dstName: '', fldType: 'image' }
+        { query: '', dstName: '', fldType: 'image' }
       )
     ).toThrow(
       'fileNameFromURL: src=http://localhost:3000/path/to/?fileName=image.jpg,filedName=image: image filename is blank'
@@ -434,43 +442,43 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title',
               fldType: 'string'
             },
             {
-              srcName: '有効',
+              query: '有効',
               dstName: 'enabled',
               fldType: 'boolean'
             },
             {
-              srcName: '回数',
+              query: '回数',
               dstName: 'count',
               fldType: 'number'
             },
             {
-              srcName: 'タイムスタンプ',
+              query: 'タイムスタンプ',
               dstName: 'timestamp',
               fldType: 'datetime'
             },
             {
-              srcName: '画像',
+              query: '画像',
               dstName: 'image',
               fldType: 'image'
             },
             {
-              srcName: '画像obj',
+              query: '画像obj',
               dstName: 'imageObj',
               fldType: 'image'
             },
             {
-              srcName: '色',
+              query: '色',
               dstName: 'color',
               fldType: 'enum',
               replace: []
             },
             {
-              srcName: '背景色',
+              query: '背景色',
               dstName: 'bgColor',
               fldType: 'enum',
               replace: [
@@ -479,23 +487,23 @@ describe('mappingFlds', () => {
               ]
             },
             {
-              srcName: 'オブジェクト',
+              query: 'オブジェクト',
               dstName: 'obj',
               fldType: 'object'
             },
             {
-              srcName: '配列',
+              query: '配列',
               dstName: 'arr',
               fldType: 'object'
             },
             {
-              srcName: '本文',
+              query: '本文',
               dstName: 'content',
               fldType: 'html',
               convert: 'markdown'
             },
             {
-              srcName: 'null テスト',
+              query: 'null テスト',
               dstName: 'nullTest',
               fldType: 'boolean'
             }
@@ -539,12 +547,12 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title1',
               fldType: 'string'
             },
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title2',
               fldType: 'string'
             }
@@ -575,7 +583,7 @@ describe('mappingFlds', () => {
           disableBaseFlds: true,
           flds: [
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title',
               fldType: 'string'
             }
@@ -630,12 +638,12 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: '*[title="1234"].image',
+              query: '*[title="1234"].image',
               dstName: 'image',
               fldType: 'image'
             },
             {
-              srcName: 'content.html',
+              query: 'content.html',
               dstName: 'content',
               fldType: 'html',
               convert: 'markdown'
@@ -670,7 +678,7 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: '名前',
+              query: '名前',
               dstName: 'filename',
               fldType: 'string'
             }
@@ -691,7 +699,7 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: '名前',
+              query: '名前',
               dstName: 'filename',
               fldType: 'string'
             }
@@ -713,7 +721,7 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: '名前',
+              query: '名前',
               dstName: 'filename',
               fldType: 'id'
             }
@@ -738,7 +746,7 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: '有効',
+              query: '有効',
               dstName: 'enabled',
               fldType: 'boolean'
             }
@@ -760,7 +768,7 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: '回数',
+              query: '回数',
               dstName: 'count',
               fldType: 'number'
             }
@@ -782,7 +790,7 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: '本文',
+              query: '本文',
               dstName: 'content',
               fldType: 'html'
             }
@@ -816,7 +824,7 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: '$${name:title}',
+              query: '$${name:title}',
               dstName: 'list',
               fldType: 'object'
             }
@@ -824,7 +832,7 @@ describe('mappingFlds', () => {
         })
       )
     ).rejects.toThrowError(
-      /^ResRecord.execTransform: srcName=\$\${name:title} message=Key/
+      /^ResRecord.execTransform: query=\$\${name:title} message=Key/
     )
   })
   test('should skip no exist flds', async () => {
@@ -842,12 +850,12 @@ describe('mappingFlds', () => {
         compileMapConfig({
           flds: [
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title',
               fldType: 'string'
             },
             {
-              srcName: '回数',
+              query: '回数',
               dstName: 'count',
               fldType: 'number'
             }
@@ -888,12 +896,12 @@ describe('mappingFlds', () => {
           passthruUnmapped: true,
           flds: [
             {
-              srcName: 'タイトル',
+              query: 'タイトル',
               dstName: 'title',
               fldType: 'string'
             },
             {
-              srcName: '回数',
+              query: '回数',
               dstName: 'count',
               fldType: 'number'
             }

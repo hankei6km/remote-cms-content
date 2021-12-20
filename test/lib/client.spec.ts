@@ -35,7 +35,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({}).isAsyncFld(
         compileMapFld({
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'string'
         })
@@ -44,7 +44,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({}).isAsyncFld(
         compileMapFld({
-          srcName: '',
+          query: '',
           dstName: '',
           fldType: 'html'
         })
@@ -55,7 +55,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'text',
+          query: 'text',
           dstName: '',
           fldType: 'string'
         })
@@ -66,7 +66,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ fields: { text: 'test1' } }).getSync(
         compileMapFld({
-          srcName: 'fields.text',
+          query: 'fields.text',
           dstName: '',
           fldType: 'string'
         })
@@ -77,7 +77,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'fields.abc',
+          query: 'fields.abc',
           dstName: '',
           fldType: 'string'
         })
@@ -86,7 +86,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ fields: { text: 'test1' } }).getSync(
         compileMapFld({
-          srcName: 'fields.abc',
+          query: 'fields.abc',
           dstName: '',
           fldType: 'string'
         })
@@ -95,7 +95,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'fields.text',
+          query: 'fields.text',
           dstName: '',
           fldType: 'string'
         })
@@ -106,7 +106,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'abc',
+          query: 'abc',
           dstName: '',
           fldType: 'string'
         })
@@ -115,7 +115,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: 'test1' }).getSync(
         compileMapFld({
-          srcName: 'fields.text',
+          query: 'fields.text',
           dstName: '',
           fldType: 'string'
         })
@@ -124,7 +124,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ fields: { text: 'test1' } }).getSync(
         compileMapFld({
-          srcName: 'fields.abc',
+          query: 'fields.abc',
           dstName: '',
           fldType: 'string'
         })
@@ -135,7 +135,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ text: null }).getSync(
         compileMapFld({
-          srcName: 'text',
+          query: 'text',
           dstName: '',
           fldType: 'string'
         })
@@ -144,7 +144,7 @@ describe('ResRecord', () => {
     expect(
       new ResRecord({ fields: { text: null } }).getSync(
         compileMapFld({
-          srcName: 'fields.text',
+          query: 'fields.text',
           dstName: '',
           fldType: 'string'
         })
@@ -167,6 +167,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 0,
       pageSize: undefined,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -189,6 +190,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 0,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -202,6 +204,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 30,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -215,6 +218,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 60,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -228,6 +232,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 90,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     }) // limit を指定していない.
@@ -250,6 +255,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 5,
       pageSize: undefined,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -268,6 +274,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 5,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -281,6 +288,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 35,
       pageSize: 30,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -294,6 +302,7 @@ describe('ClientBase', () => {
     expect(c._fetch).toHaveBeenLastCalledWith({
       skip: 65,
       pageSize: 15,
+      flds: [],
       endCursor: null,
       query: []
     })
@@ -302,6 +311,27 @@ describe('ClientBase', () => {
       done: true
     })
     expect(c._fetch).toHaveBeenCalledTimes(3)
+  })
+  it('should select fields to fetch content', async () => {
+    const c = new ClientTest({ apiBaseURL: '', credential: [] }).genRecord(100)
+    const g = c.flds(['test']).fetch() // base だけ
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: { next: { kind: 'total', total: 100 }, count: 100 },
+        content: c._record.map(
+          ({ id, createdAt, updatedAt, test }) =>
+            new ResRecord({ id, createdAt, updatedAt, test })
+        )
+      },
+      done: false
+    })
+    expect(c._fetch).toHaveBeenLastCalledWith({
+      skip: 0,
+      pageSize: undefined,
+      flds: ['_RowNumber', 'id', 'createdAt', 'updatedAt', 'test'],
+      endCursor: null,
+      query: []
+    })
   })
   it('should print info from fetch method', async () => {
     const info = { o: '', e: '' }

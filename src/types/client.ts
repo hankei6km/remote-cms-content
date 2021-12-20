@@ -233,6 +233,16 @@ export abstract class ClientBase {
     this._transformer = t
     return this
   }
+  protected varsWhite: Set<string> = new Set(['']) // 基本は許可しない. abstract の方が良いか？
+  protected safeVars(v: QuerylVars): QuerylVars {
+    const ret: QuerylVars = {}
+    Object.entries(v)
+      .filter(([k]) => this.varsWhite.has(k))
+      .forEach(([k, v]) => {
+        ret[k] = v
+      })
+    return ret
+  }
   protected resRecord(r: RawRecord): ResRecord {
     return new ResRecord(r)
   }

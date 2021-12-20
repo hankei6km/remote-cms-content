@@ -226,6 +226,56 @@ describe('client_appsheet', () => {
     await next
     // fields の実際のレスポンスは検証できないので省略.
   })
+  it('should get bare content from microCMS app with query vars', async () => {
+    const n = new Date().toUTCString()
+
+    const c = new ClientMicroCMS({
+      apiBaseURL: 'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/',
+      apiName: 'tbl',
+      credential: ['X-API-KEY', 'secret']
+    })
+      .request()
+      .vars([
+        'orders=-updatedAt',
+        'filters=createdAt[greater_than]2021-11',
+        'offset=100' // offset は許可されていない.
+      ])
+    const g = c.fetch()
+    const next = g.next()
+    expect(mockAxios.get).toHaveBeenLastCalledWith(
+      'http://localhost:3000/test-nuxt-0x.microcms.io/api/v1/tbl',
+      {
+        headers: { 'X-API-KEY': 'secret' },
+        params: {
+          orders: '-updatedAt',
+          filters: 'createdAt[greater_than]2021-11'
+          // offset は許可されていない.
+        }
+      }
+    )
+    const mockData = {
+      contents: [
+        {
+          id: 'idstring1',
+          createdAt: n,
+          updatedAt: n,
+          title: 'title1'
+        },
+        {
+          id: 'idstring2',
+          createdAt: n,
+          updatedAt: n,
+          title: 'title1'
+        }
+      ],
+      totalCount: 2
+    }
+    mockAxios.mockResponse({
+      data: mockData
+    })
+    await next
+    // query の実際のレスポンスは検証できないので省略.
+  })
 })
 
 export {}

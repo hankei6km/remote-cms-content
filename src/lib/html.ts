@@ -1,12 +1,14 @@
 import { unified, Plugin, Transformer } from 'unified'
 import rehypeParse from 'rehype-parse'
 import rehype2Remark, { Options } from 'rehype-remark'
-// import { Handle } from 'hast-util-to-mdast';
 import rehypeStringify from 'rehype-stringify'
+import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkStringify from 'remark-stringify'
 import { Root, Node, Element, Text } from 'hast'
-// import visit from 'unist-util-visit';
+import { Code } from 'mdast'
+import { visitParents } from 'unist-util-visit-parents'
+import matter from 'gray-matter'
 import splitParagraph from 'rehype-split-paragraph'
 import imageSalt from '@hankei6km/rehype-image-salt'
 import { codeDockHandler } from './codedock.js'
@@ -122,6 +124,32 @@ export const firstParagraphAsCodeDockTransformer: Plugin<
   }
 }
 
+type NormalizeSpaceCharsInCodeTransformerOpts = {}
+// &nbsp; &ensp; &emsp; 体裁を整えるために使われそうな white space 的文字.
+// \s だと \t なども含まれるので使わない.
+const normalizeSpaceCharsInCodeRegExp = /[\u00A0\u2002\u2003]/g
+export const normalizeSpaceCharsInCodeTransformer: Plugin<
+  [NormalizeSpaceCharsInCodeTransformerOpts] | [],
+  string,
+  Root
+> = function replaceNNbspInCodeTransformer(
+  opts?: NormalizeSpaceCharsInCodeTransformerOpts
+): Transformer {
+  const visitTest = (node: Node) => {
+    if (node.type === 'code') {
+      return true
+    }
+    return false
+  }
+  return function transformer(tree: Node): void {
+    const visitor = (node: Node) => {
+      const code = node as Code
+      code.value = code.value.replace(normalizeSpaceCharsInCodeRegExp, ' ')
+    }
+    visitParents(tree, visitTest, visitor)
+  }
+}
+
 const brHandler = (h: any, node: any): any => {
   // <br> が `/` になってしまうので暫定対応
   return h(node, 'text', ' ')
@@ -154,6 +182,15 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(rehype2Remark, {
       handlers: { pre: codeDockHandler, br: brHandler }
     } as unknown as Options)
+    .use(remarkGfm)
+    .use(remarkStringify)
+    .freeze()
+}
+
+const htmlToMarkdownPostProcessor = (opts: HtmlToMarkdownOpts) => {
+  return unified()
+    .use(remarkParse)
+    .use(normalizeSpaceCharsInCodeTransformer)
     .use(remarkGfm)
     .use(remarkStringify)
     .freeze()
@@ -199,25 +236,24 @@ export async function htmlToMarkdown(
   html: string,
   opts: HtmlToMarkdownOpts
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (html) {
-      htmlToMarkdownProcessor(opts).process(html, function (err, file) {
-        if (err) {
-          console.error(err)
-          reject(err)
-        } else {
-          // とりあえず暫定で改ページさせる
-          const markdown = `${file}`.replace(/\\---/g, '---')
-          if (markdown && markdown[markdown.length - 1] === '\n') {
-            resolve(markdown)
-            return
-          }
-          resolve(`${markdown}\n`)
-        }
+  if (html) {
+    const f = await htmlToMarkdownProcessor(opts)
+      .process(html)
+      .catch((err) => {
+        console.error(err)
+        throw err
       })
-    }
-    resolve('')
-  })
+    // とりあえず暫定で改ページさせる
+    const m = matter(`${f}`.replace(/\\---/g, '---'))
+    const file = await htmlToMarkdownPostProcessor(opts)
+      .process(m.content)
+      .catch((err) => {
+        console.error(err)
+        throw err
+      })
+    return matter.stringify(`${file}`, m.data)
+  }
+  return ''
 }
 
 export async function htmlTo(

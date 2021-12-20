@@ -200,9 +200,7 @@ describe('htmlTo() markdown', () => {
           convert: 'markdown'
         }
       )
-    ).toEqual(
-      '---\n\ntitle: test1\n\n---\n\n\n\n# head1\n\ntest1\n\n## head2\n\ntest2\n'
-    )
+    ).toEqual('---\ntitle: test1\n---\n# head1\n\ntest1\n\n## head2\n\ntest2\n')
   })
   it('should convert html embed codedock to markdown', async () => {
     expect(await htmlTo('<p>test1</p>', { convert: 'markdown' })).toEqual(
@@ -327,5 +325,12 @@ describe('htmlTo() markdown', () => {
     ).toEqual(
       '# head1\n\ntest1\n\n[![image](https://localhost:3000/path/to/image.jpg)*caption*](https://localhost:3000/path/to/image.jpg)\n\n## head2\n\ntest2\n'
     )
+  })
+  it('should normalize space chars', async () => {
+    expect(
+      await htmlTo('<pre><code> \u00a0 \u00a0test1</code></pre>', {
+        convert: 'markdown'
+      })
+    ).toEqual('        test1\n')
   })
 })

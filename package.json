@@ -58,8 +58,10 @@
     "rehype-split-paragraph": "^0.2.2",
     "rehype-stringify": "^9.0.2",
     "remark-gfm": "^3.0.1",
+    "remark-parse": "^10.0.1",
     "remark-stringify": "^10.0.2",
     "unified": "^10.1.1",
+    "unist-util-visit-parents": "^5.1.0",
     "yargs": "^17.3.0"
   },
   "devDependencies": {
@@ -67,6 +69,7 @@
     "@types/jest": "^27.0.3",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash.tonumber": "^4.0.6",
+    "@types/mdast": "^3.0.10",
     "@types/node": "^16.11.12",
     "@types/yargs": "^17.0.7",
     "jest": "^27.4.3",

@@ -35,10 +35,25 @@ export class ClientMicroCMS extends ClientBase {
     return 'microcms'
   }
   protected _fldsBaseName: string[] = ['id', 'createdAt', 'updatedAt']
-  async _fetch({ skip, pageSize, flds }: FetchParams): Promise<FetchResult> {
+  protected varsWhite: Set<string> = new Set([
+    // クエリーパラメーターとして許可する一覧.
+    'orders',
+    'q',
+    'ids',
+    'filters',
+    'depth'
+  ])
+  async _fetch({
+    skip,
+    pageSize,
+    flds,
+    vars
+  }: FetchParams): Promise<FetchResult> {
     const headers: AxiosRequestConfig['headers'] = {}
     headers[this._opts.credential[0]] = this._opts.credential[1]
-    const params: Record<string, any> = {}
+    const params: Record<string, any> = {
+      ...this.safeVars(vars)
+    }
     const filterString = queryFilters(this._filter)
     if (filterString) {
       params['filters'] = filterString

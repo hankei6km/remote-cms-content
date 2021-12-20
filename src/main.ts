@@ -64,7 +64,7 @@ import { ClientKindValues } from './types/client.js'
               type: 'string',
               array: true,
               required: false,
-              description: 'variables to GraphQL',
+              description: 'variables to GraphQL or REST query params',
               coerce: yargsArrayFromEnvVars
             },
             'vars-str': {

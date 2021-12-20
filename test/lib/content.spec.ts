@@ -637,7 +637,8 @@ describe('saveRemoteContent()', () => {
         'description'
       ],
       endCursor: null,
-      query: []
+      query: [],
+      vars: {}
     })
   })
   it('should get remote content and save as local files with transform content', async () => {

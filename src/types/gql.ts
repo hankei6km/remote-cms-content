@@ -29,10 +29,6 @@ import {
 } from '../types/client.js'
 //ApolloProvider,
 
-// command の flag で渡された variables を収めておくオブジェクト.
-// いまのところはスカラーぽいものだけ.
-export type GqlVars = Record<string, boolean | number | string>
-
 export function gqlClient() {
   return new ApolloClient({
     cache: new InMemoryCache()
@@ -110,7 +106,8 @@ export abstract class ClientGqlBase extends ClientBase {
     skip,
     pageSize,
     endCursor,
-    query
+    query,
+    vars
   }: FetchParams): Promise<FetchResult> {
     return new Promise((resolve, reject) => {
       this._gqlClient
@@ -120,7 +117,7 @@ export abstract class ClientGqlBase extends ClientBase {
             skip,
             pageSize,
             endCursor,
-            ...this._vars
+            ...vars
           }
         })
         .then((res) => {

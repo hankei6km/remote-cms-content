@@ -1,6 +1,5 @@
 import { printInfo } from '../lib/log.js'
 import { readQuery, decodeVars } from '../lib/util.js'
-import { GqlVars } from './gql.js'
 import { MapFld } from './map.js'
 
 export const ClientKindValues = [
@@ -92,12 +91,20 @@ export class ResRecord {
   }
 }
 
+// command の flag で渡された variables を収めておくオブジェクト.
+// いまのところはスカラーぽいものだけ.
+// REST とGraphQL で共有.
+// - REST - クエリーパラメーターとして利用
+// - GraphQL - Variables として利用
+export type QuerylVars = Record<string, boolean | number | string>
+
 export type FetchParams = {
   skip: number
   pageSize?: number
   flds?: string[]
   endCursor?: string | null
   query: string[]
+  vars: QuerylVars
 }
 
 export type FetchResultNextTotal = {
@@ -162,7 +169,7 @@ export abstract class ClientBase {
   ]
   protected _flds: Set<string> = new Set<string>()
   protected _query: string[] = []
-  protected _vars: GqlVars = {}
+  protected _vars: QuerylVars = {}
   protected _transformer: TransformContent | undefined = undefined
 
   protected _setupErr: Error | undefined
@@ -226,6 +233,16 @@ export abstract class ClientBase {
     this._transformer = t
     return this
   }
+  protected varsWhite: Set<string> = new Set(['']) // 基本は許可しない. abstract の方が良いか？
+  protected safeVars(v: QuerylVars): QuerylVars {
+    const ret: QuerylVars = {}
+    Object.entries(v)
+      .filter(([k]) => this.varsWhite.has(k))
+      .forEach(([k, v]) => {
+        ret[k] = v
+      })
+    return ret
+  }
   protected resRecord(r: RawRecord): ResRecord {
     return new ResRecord(r)
   }
@@ -242,6 +259,7 @@ export abstract class ClientBase {
     let limit = this._limit
     const flds = Array.from(this._flds)
     const query = this._query
+    const vars = this._vars
     let count = 0
     let endCursor: string | undefined | null = null
 
@@ -276,7 +294,7 @@ export abstract class ClientBase {
         }${pageSize !== undefined ? `, pageSize=${pageSize}` : ''}`
       )
 
-      res = await this._fetch({ skip, pageSize, flds, endCursor, query })
+      res = await this._fetch({ skip, pageSize, flds, endCursor, query, vars })
 
       printInfo(`ClientBase.fetch:   count=${res.fetch.count}`)
 

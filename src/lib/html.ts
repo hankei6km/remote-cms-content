@@ -15,7 +15,8 @@ import { codeDockHandler } from './codedock.js'
 import {
   MapFldsHtmlOpts,
   HtmlToMarkdownOpts,
-  HtmlToHtmlOpts
+  HtmlToHtmlOpts,
+  HtmlToOptsUnusualSpaceChars
 } from '../types/map.js'
 
 export function extractFrontMatter(
@@ -124,27 +125,58 @@ export const firstParagraphAsCodeDockTransformer: Plugin<
   }
 }
 
-type NormalizeSpaceCharsInCodeTransformerOpts = {}
+type UnusualSpaceCharsTransformerOpts = {
+  mode?: HtmlToOptsUnusualSpaceChars
+}
 // &nbsp; &ensp; &emsp; 体裁を整えるために使われそうな white space 的文字.
 // \s だと \t なども含まれるので使わない.
-const normalizeSpaceCharsInCodeRegExp = /[\u00A0\u2002\u2003]/g
-export const normalizeSpaceCharsInCodeTransformer: Plugin<
-  [NormalizeSpaceCharsInCodeTransformerOpts] | [],
+const unusualSpaceCharsRegExp = /[\u00A0\u2002\u2003]/g
+export const normalizeSpaceCharsTransformer: Plugin<
+  [UnusualSpaceCharsTransformerOpts] | [],
   string,
   Root
-> = function replaceNNbspInCodeTransformer(
-  opts?: NormalizeSpaceCharsInCodeTransformerOpts
+> = function normalizeSpaceCharsTransformer(
+  opts: UnusualSpaceCharsTransformerOpts = { mode: 'none' }
 ): Transformer {
-  const visitTest = (node: Node) => {
-    if (node.type === 'code') {
-      return true
-    }
-    return false
-  }
+  const visitTest =
+    opts.mode === undefined || opts.mode === 'none'
+      ? (_node: Node) => false
+      : opts.mode === 'throw' || opts.mode === 'normalize'
+      ? (node: Node) => {
+          if (
+            node.type === 'text' ||
+            node.type === 'emphasis' ||
+            node.type === 'strong' ||
+            node.type === 'inlineCode' ||
+            node.type === 'code'
+          ) {
+            return true
+          }
+          return false
+        }
+      : (node: Node) => {
+          if (node.type === 'code') {
+            return true
+          }
+          return false
+        }
   return function transformer(tree: Node): void {
     const visitor = (node: Node) => {
-      const code = node as Code
-      code.value = code.value.replace(normalizeSpaceCharsInCodeRegExp, ' ')
+      const n = node as Code
+      if (typeof n.value === 'string') {
+        if (opts.mode === 'throw') {
+          if (n.value.match(unusualSpaceCharsRegExp)) {
+            throw new Error(
+              `normalizeSpaceCharsTransformer: Unusual space char is existed:${n.value}`
+            )
+          }
+        } else if (
+          opts.mode === 'normalize' ||
+          opts.mode === 'normalizeInCodeBlock'
+        ) {
+          n.value = n.value.replace(unusualSpaceCharsRegExp, ' ')
+        }
+      }
     }
     visitParents(tree, visitTest, visitor)
   }
@@ -190,7 +222,7 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
 const htmlToMarkdownPostProcessor = (opts: HtmlToMarkdownOpts) => {
   return unified()
     .use(remarkParse)
-    .use(normalizeSpaceCharsInCodeTransformer)
+    .use(normalizeSpaceCharsTransformer, { mode: opts.unusualSpaceChars })
     .use(remarkGfm)
     .use(remarkStringify)
     .freeze()
@@ -206,7 +238,6 @@ export async function htmlToHtml(
     const file = await htmlToHtmlProcessor(opts)
       .process(html)
       .catch((err) => {
-        console.error(err)
         throw err
       })
     let converted = `${file}`
@@ -236,7 +267,6 @@ export async function htmlToMarkdown(
     const f = await htmlToMarkdownProcessor(opts)
       .process(html)
       .catch((err) => {
-        console.error(err)
         throw err
       })
     // とりあえず暫定で改ページさせる
@@ -244,7 +274,6 @@ export async function htmlToMarkdown(
     const file = await htmlToMarkdownPostProcessor(opts)
       .process(m.content)
       .catch((err) => {
-        console.error(err)
         throw err
       })
     return matter.stringify(`${file}`, m.data)

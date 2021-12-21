@@ -60,6 +60,12 @@ export type MapFldsObject = {
   fldType: 'object' // 実質 any
 } & MapFldsBase
 
+export type HtmlToOptsUnusualSpaceChars =
+  | 'none'
+  | 'throw'
+  | 'normalize'
+  | 'normalizeInCodeBlock'
+
 export type HtmlToHtmlOpts = {
   frontMatter?: boolean
   splitParagraph?: boolean
@@ -68,6 +74,7 @@ export type HtmlToHtmlOpts = {
 
 export type HtmlToMarkdownOpts = {
   imageSalt?: Parameters<typeof imageSalt>[0]
+  unusualSpaceChars?: HtmlToOptsUnusualSpaceChars
 }
 export type MapFldsHtmlOpts = {
   convert?: 'none' | 'html' | 'markdown'

@@ -448,6 +448,14 @@ export const mapConfigSchema =
                                                 "type": "array"
                                             }
                                         ]
+                                    },
+                                    "unusualSpaceChars": {
+                                        "enum": [
+                                            "none",
+                                            "normalizeInCodeBlock",
+                                            "throw"
+                                        ],
+                                        "type": "string"
                                     }
                                 },
                                 "type": "object"

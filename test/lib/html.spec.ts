@@ -326,11 +326,52 @@ describe('htmlTo() markdown', () => {
       '# head1\n\ntest1\n\n[![image](https://localhost:3000/path/to/image.jpg)*caption*](https://localhost:3000/path/to/image.jpg)\n\n## head2\n\ntest2\n'
     )
   })
-  it('should normalize space chars', async () => {
+  it('should not normalize unusual space chars', async () => {
     expect(
-      await htmlTo('<pre><code> \u00a0 \u00a0test1</code></pre>', {
-        convert: 'markdown'
-      })
-    ).toEqual('        test1\n')
+      await htmlTo(
+        '<p>test1 \u00a0 \u00a0test1</p><pre><code> \u00a0 \u00a0test2</code></pre>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: {}
+        }
+      )
+    ).toEqual('test1 \u00a0 \u00a0test1\n\n     \u00a0 \u00a0test2\n')
+  })
+  it('should throw error by unusual space chars', async () => {
+    await expect(
+      htmlTo(
+        '<p>test1 \u00a0 \u00a0test1</p><pre><code> \u00a0 \u00a0test2</code></pre>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: { unusualSpaceChars: 'throw' }
+        }
+      )
+    ).rejects.toThrowError(/Unusual/)
+  })
+  it('should normalize unusual space chars', async () => {
+    expect(
+      await htmlTo(
+        '<p>test1 \u00a0 \u00a0test1</p><pre><code> \u00a0 \u00a0test2</code></pre>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: {
+            unusualSpaceChars: 'normalize'
+          }
+        }
+      )
+    ).toEqual('test1    test1\n\n        test2\n') // rehype で text ノードを編集しているので空白はそのまま残る.
+  })
+  it('should normalize unusual space chars in code block', async () => {
+    expect(
+      await htmlTo(
+        '<p>test1 \u00a0 \u00a0test1</p><pre><code> \u00a0 \u00a0test2</code></pre>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: {
+            unusualSpaceChars: 'normalizeInCodeBlock'
+          }
+        }
+      )
+    ).toEqual('test1 \u00a0 \u00a0test1\n\n        test2\n')
   })
 })

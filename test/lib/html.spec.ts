@@ -200,9 +200,7 @@ describe('htmlTo() markdown', () => {
           convert: 'markdown'
         }
       )
-    ).toEqual(
-      '---\n\ntitle: test1\n\n---\n\n\n\n# head1\n\ntest1\n\n## head2\n\ntest2\n'
-    )
+    ).toEqual('---\ntitle: test1\n---\n# head1\n\ntest1\n\n## head2\n\ntest2\n')
   })
   it('should convert html embed codedock to markdown', async () => {
     expect(await htmlTo('<p>test1</p>', { convert: 'markdown' })).toEqual(
@@ -327,5 +325,53 @@ describe('htmlTo() markdown', () => {
     ).toEqual(
       '# head1\n\ntest1\n\n[![image](https://localhost:3000/path/to/image.jpg)*caption*](https://localhost:3000/path/to/image.jpg)\n\n## head2\n\ntest2\n'
     )
+  })
+  it('should not normalize unusual space chars', async () => {
+    expect(
+      await htmlTo(
+        '<p>test1 \u00a0 \u00a0test1</p><pre><code> \u00a0 \u00a0test2</code></pre>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: {}
+        }
+      )
+    ).toEqual('test1 \u00a0 \u00a0test1\n\n     \u00a0 \u00a0test2\n')
+  })
+  it('should throw error by unusual space chars', async () => {
+    await expect(
+      htmlTo(
+        '<p>test1 \u00a0 \u00a0test1</p><pre><code> \u00a0 \u00a0test2</code></pre>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: { unusualSpaceChars: 'throw' }
+        }
+      )
+    ).rejects.toThrowError(/Unusual/)
+  })
+  it('should normalize unusual space chars', async () => {
+    expect(
+      await htmlTo(
+        '<p>test1 \u00a0 \u00a0test1</p><pre><code> \u00a0 \u00a0test2</code></pre>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: {
+            unusualSpaceChars: 'normalize'
+          }
+        }
+      )
+    ).toEqual('test1    test1\n\n        test2\n') // rehype で text ノードを編集しているので空白はそのまま残る.
+  })
+  it('should normalize unusual space chars in code block', async () => {
+    expect(
+      await htmlTo(
+        '<p>test1 \u00a0 \u00a0test1</p><pre><code> \u00a0 \u00a0test2</code></pre>',
+        {
+          convert: 'markdown',
+          toMarkdownOpts: {
+            unusualSpaceChars: 'normalizeInCodeBlock'
+          }
+        }
+      )
+    ).toEqual('test1 \u00a0 \u00a0test1\n\n        test2\n')
   })
 })

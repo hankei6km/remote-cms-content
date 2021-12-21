@@ -1,19 +1,22 @@
 import { unified, Plugin, Transformer } from 'unified'
 import rehypeParse from 'rehype-parse'
 import rehype2Remark, { Options } from 'rehype-remark'
-// import { Handle } from 'hast-util-to-mdast';
 import rehypeStringify from 'rehype-stringify'
+import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkStringify from 'remark-stringify'
 import { Root, Node, Element, Text } from 'hast'
-// import visit from 'unist-util-visit';
+import { Code } from 'mdast'
+import { visitParents } from 'unist-util-visit-parents'
+import matter from 'gray-matter'
 import splitParagraph from 'rehype-split-paragraph'
 import imageSalt from '@hankei6km/rehype-image-salt'
 import { codeDockHandler } from './codedock.js'
 import {
   MapFldsHtmlOpts,
   HtmlToMarkdownOpts,
-  HtmlToHtmlOpts
+  HtmlToHtmlOpts,
+  HtmlToOptsUnusualSpaceChars
 } from '../types/map.js'
 
 export function extractFrontMatter(
@@ -122,6 +125,63 @@ export const firstParagraphAsCodeDockTransformer: Plugin<
   }
 }
 
+type UnusualSpaceCharsTransformerOpts = {
+  mode?: HtmlToOptsUnusualSpaceChars
+}
+// &nbsp; &ensp; &emsp; 体裁を整えるために使われそうな white space 的文字.
+// \s だと \t なども含まれるので使わない.
+const unusualSpaceCharsRegExp = /[\u00A0\u2002\u2003]/g
+export const normalizeSpaceCharsTransformer: Plugin<
+  [UnusualSpaceCharsTransformerOpts] | [],
+  string,
+  Root
+> = function normalizeSpaceCharsTransformer(
+  opts: UnusualSpaceCharsTransformerOpts = { mode: 'none' }
+): Transformer {
+  const visitTest =
+    opts.mode === undefined || opts.mode === 'none'
+      ? (_node: Node) => false
+      : opts.mode === 'throw' || opts.mode === 'normalize'
+      ? (node: Node) => {
+          if (
+            node.type === 'text' ||
+            node.type === 'emphasis' ||
+            node.type === 'strong' ||
+            node.type === 'inlineCode' ||
+            node.type === 'code'
+          ) {
+            return true
+          }
+          return false
+        }
+      : (node: Node) => {
+          if (node.type === 'code') {
+            return true
+          }
+          return false
+        }
+  return function transformer(tree: Node): void {
+    const visitor = (node: Node) => {
+      const n = node as Code
+      if (typeof n.value === 'string') {
+        if (opts.mode === 'throw') {
+          if (n.value.match(unusualSpaceCharsRegExp)) {
+            throw new Error(
+              `normalizeSpaceCharsTransformer: Unusual space char is existed:${n.value}`
+            )
+          }
+        } else if (
+          opts.mode === 'normalize' ||
+          opts.mode === 'normalizeInCodeBlock'
+        ) {
+          n.value = n.value.replace(unusualSpaceCharsRegExp, ' ')
+        }
+      }
+    }
+    visitParents(tree, visitTest, visitor)
+  }
+}
+
 const brHandler = (h: any, node: any): any => {
   // <br> が `/` になってしまうので暫定対応
   return h(node, 'text', ' ')
@@ -159,65 +219,66 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .freeze()
 }
 
+const htmlToMarkdownPostProcessor = (opts: HtmlToMarkdownOpts) => {
+  return unified()
+    .use(remarkParse)
+    .use(normalizeSpaceCharsTransformer, { mode: opts.unusualSpaceChars })
+    .use(remarkGfm)
+    .use(remarkStringify)
+    .freeze()
+}
+
 const htmlToHtmlFrontMatterRegExp = /^\s*(---\n.+\n---\n+){0,1}.*$/ms
 const htmlToHtmlLfRegExp = /\n/g
 export async function htmlToHtml(
   html: string,
   opts: HtmlToHtmlOpts
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (html) {
-      htmlToHtmlProcessor(opts).process(html, function (err, file) {
-        if (err) {
-          console.error(err)
-          reject(err)
-        } else {
-          let converted = `${file}`
-          const lfTo = opts.lfTo === undefined ? '&#x000a;' : opts.lfTo
-          if (lfTo) {
-            // 空行あると HTML の終端となってしまうので &#x000a; に置き換える.
-            // processor 側で変換したかったが & がエスケープされたりで断念.
-            const matter = converted.replace(htmlToHtmlFrontMatterRegExp, '$1')
-            const content = converted
-              .slice(matter.length)
-              .replace(htmlToHtmlLfRegExp, lfTo)
-            converted = `${matter}${content}`
-          }
-          if (converted && converted[converted.length - 1] === '\n') {
-            resolve(converted)
-            return
-          }
-          resolve(`${converted}\n`)
-        }
+  if (html) {
+    const file = await htmlToHtmlProcessor(opts)
+      .process(html)
+      .catch((err) => {
+        throw err
       })
+    let converted = `${file}`
+    const lfTo = opts.lfTo === undefined ? '&#x000a;' : opts.lfTo
+    if (lfTo) {
+      // 空行あると HTML の終端となってしまうので &#x000a; に置き換える.
+      // processor 側で変換したかったが & がエスケープされたりで断念.
+      const matter = converted.replace(htmlToHtmlFrontMatterRegExp, '$1')
+      const content = converted
+        .slice(matter.length)
+        .replace(htmlToHtmlLfRegExp, lfTo)
+      converted = `${matter}${content}`
     }
-    resolve('')
-  })
+    if (converted && converted[converted.length - 1] === '\n') {
+      return converted
+    }
+    return `${converted}\n`
+  }
+  return ''
 }
 
 export async function htmlToMarkdown(
   html: string,
   opts: HtmlToMarkdownOpts
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (html) {
-      htmlToMarkdownProcessor(opts).process(html, function (err, file) {
-        if (err) {
-          console.error(err)
-          reject(err)
-        } else {
-          // とりあえず暫定で改ページさせる
-          const markdown = `${file}`.replace(/\\---/g, '---')
-          if (markdown && markdown[markdown.length - 1] === '\n') {
-            resolve(markdown)
-            return
-          }
-          resolve(`${markdown}\n`)
-        }
+  if (html) {
+    const f = await htmlToMarkdownProcessor(opts)
+      .process(html)
+      .catch((err) => {
+        throw err
       })
-    }
-    resolve('')
-  })
+    // とりあえず暫定で改ページさせる
+    const m = matter(`${f}`.replace(/\\---/g, '---'))
+    const file = await htmlToMarkdownPostProcessor(opts)
+      .process(m.content)
+      .catch((err) => {
+        throw err
+      })
+    return matter.stringify(`${file}`, m.data)
+  }
+  return ''
 }
 
 export async function htmlTo(

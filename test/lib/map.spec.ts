@@ -91,7 +91,8 @@ describe('compileMapConfig', () => {
                 embedTo: 'block',
                 pickAttrs: ['class']
               }
-            }
+            },
+            unusualSpaceChars: 'normalizeInCodeBlock'
           }
         },
         {

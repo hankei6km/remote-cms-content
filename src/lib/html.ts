@@ -1,9 +1,11 @@
 import { unified, Plugin, Transformer } from 'unified'
 import rehypeParse from 'rehype-parse'
 import rehype2Remark, { Options } from 'rehype-remark'
+import { em } from 'hast-util-to-mdast/lib/handlers/em.js'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
+import remarkFootnotes from 'remark-footnotes'
 import remarkStringify from 'remark-stringify'
 import { Root, Node, Element, Text } from 'hast'
 import { Code } from 'mdast'
@@ -182,6 +184,18 @@ export const normalizeSpaceCharsTransformer: Plugin<
   }
 }
 
+const uToBracketHandler = (h: any, node: Element): any => {
+  if (node.children.length === 1 && node.children[0].type === 'text') {
+    // text node のみなら [] で囲んだ html へ変換する.
+    // 主に footnote を記述するために使う.
+    // text ではなく html へ変換するのは "[" をエスケープさせないため.
+    // (codedock でも使っているが、この辺はきちんと対応したいところ)
+    return h(node, 'html', `[${node.children[0].value}]`)
+  }
+  // デフォルトでは <u> は <en> と同じような扱いだったので.
+  return em(h, node)
+}
+
 const brHandler = (h: any, node: any): any => {
   // <br> が `/` になってしまうので暫定対応
   return h(node, 'text', ' ')
@@ -212,7 +226,7 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(imageSalt, imageSaltOpts)
     .use(splitParagraph)
     .use(rehype2Remark, {
-      handlers: { pre: codeDockHandler, br: brHandler }
+      handlers: { pre: codeDockHandler, br: brHandler, u: uToBracketHandler }
     } as unknown as Options)
     .use(remarkGfm)
     .use(remarkStringify)
@@ -224,6 +238,7 @@ const htmlToMarkdownPostProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(remarkParse)
     .use(normalizeSpaceCharsTransformer, { mode: opts.unusualSpaceChars })
     .use(remarkGfm)
+    .use(remarkFootnotes, { inlineNotes: true }) // remark-gfm だと inline に対応していないため.
     .use(remarkStringify)
     .freeze()
 }

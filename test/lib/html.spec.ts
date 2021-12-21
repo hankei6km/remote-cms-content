@@ -374,4 +374,11 @@ describe('htmlTo() markdown', () => {
       )
     ).toEqual('test1 \u00a0 \u00a0test1\n\n        test2\n')
   })
+  it('should convert u tag to bracket', async () => {
+    expect(
+      await htmlTo('<p>test^<u>inline footnote</u>test</p>', {
+        convert: 'markdown'
+      })
+    ).toEqual('test^[inline footnote]test\n')
+  })
 })

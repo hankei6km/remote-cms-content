@@ -202,34 +202,30 @@ export async function htmlToHtml(
   html: string,
   opts: HtmlToHtmlOpts
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (html) {
-      htmlToHtmlProcessor(opts).process(html, function (err, file) {
-        if (err) {
-          console.error(err)
-          reject(err)
-        } else {
-          let converted = `${file}`
-          const lfTo = opts.lfTo === undefined ? '&#x000a;' : opts.lfTo
-          if (lfTo) {
-            // 空行あると HTML の終端となってしまうので &#x000a; に置き換える.
-            // processor 側で変換したかったが & がエスケープされたりで断念.
-            const matter = converted.replace(htmlToHtmlFrontMatterRegExp, '$1')
-            const content = converted
-              .slice(matter.length)
-              .replace(htmlToHtmlLfRegExp, lfTo)
-            converted = `${matter}${content}`
-          }
-          if (converted && converted[converted.length - 1] === '\n') {
-            resolve(converted)
-            return
-          }
-          resolve(`${converted}\n`)
-        }
+  if (html) {
+    const file = await htmlToHtmlProcessor(opts)
+      .process(html)
+      .catch((err) => {
+        console.error(err)
+        throw err
       })
+    let converted = `${file}`
+    const lfTo = opts.lfTo === undefined ? '&#x000a;' : opts.lfTo
+    if (lfTo) {
+      // 空行あると HTML の終端となってしまうので &#x000a; に置き換える.
+      // processor 側で変換したかったが & がエスケープされたりで断念.
+      const matter = converted.replace(htmlToHtmlFrontMatterRegExp, '$1')
+      const content = converted
+        .slice(matter.length)
+        .replace(htmlToHtmlLfRegExp, lfTo)
+      converted = `${matter}${content}`
     }
-    resolve('')
-  })
+    if (converted && converted[converted.length - 1] === '\n') {
+      return converted
+    }
+    return `${converted}\n`
+  }
+  return ''
 }
 
 export async function htmlToMarkdown(

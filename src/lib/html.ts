@@ -7,6 +7,7 @@ import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkFootnotes from 'remark-footnotes'
 import remarkStringify from 'remark-stringify'
+import { fromMarkdown } from 'mdast-util-from-markdown'
 import { Root, Node, Element, Text } from 'hast'
 import { Code } from 'mdast'
 import { visitParents } from 'unist-util-visit-parents'
@@ -184,13 +185,39 @@ export const normalizeSpaceCharsTransformer: Plugin<
   }
 }
 
-const uToBracketHandler = (h: any, node: Element): any => {
-  if (node.children.length === 1 && node.children[0].type === 'text') {
-    // text node のみなら [] で囲んだ html へ変換する.
-    // 主に footnote を記述するために使う.
-    // text ではなく html へ変換するのは "[" をエスケープさせないため.
-    // (codedock でも使っているが、この辺はきちんと対応したいところ)
-    return h(node, 'html', `[${node.children[0].value}]`)
+const uToFootnoteReferenceRegExp = /^\^/
+const uToFootnoteHandler = (h: any, node: Element): any => {
+  if (
+    node.children.length === 1 &&
+    node.children[0].type === 'text' &&
+    node.children[0].value !== ''
+  ) {
+    // text node のみ(CMS からの変換だとこの形が多いかな)
+    if (node.children[0].value.match(uToFootnoteReferenceRegExp)) {
+      // text node のみで ^ で始まっているなら footnoteReference へ変換する.
+      // なお、今回の変換は最終的に Markdown になるので
+      // footnoteReference と footnoteDefinition の区別がつかない.
+      // `<u>^1<u>: footnote1` のような記述があれば Markdown としては `[^1]: footnote1` となる.
+      const t = node.children[0].value.slice(1)
+      return {
+        type: 'footnoteReference',
+        identifier: t,
+        label: t
+      }
+    } else {
+      // text node のみなら footnote へ変換する.
+      // テキストは Markdown として解釈する.
+      const text = node.children[0].value
+      const tree = fromMarkdown(text)
+      const children =
+        tree.type === 'root' && tree.children[0].type === 'paragraph'
+          ? tree.children[0].children
+          : [{ type: 'text', value: text }]
+      return {
+        type: 'footnote',
+        children
+      }
+    }
   }
   // デフォルトでは <u> は <en> と同じような扱いだったので.
   return em(h, node)
@@ -226,9 +253,10 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(imageSalt, imageSaltOpts)
     .use(splitParagraph)
     .use(rehype2Remark, {
-      handlers: { pre: codeDockHandler, br: brHandler, u: uToBracketHandler }
+      handlers: { pre: codeDockHandler, br: brHandler, u: uToFootnoteHandler }
     } as unknown as Options)
     .use(remarkGfm)
+    .use(remarkFootnotes, { inlineNotes: true }) // remark-gfm だと inline に対応していないため.
     .use(remarkStringify)
     .freeze()
 }

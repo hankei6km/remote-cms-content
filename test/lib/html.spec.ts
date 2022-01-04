@@ -386,4 +386,11 @@ describe('htmlTo() markdown', () => {
       })
     ).toEqual('test^[inline footnote]test\n')
   })
+  it('should convert u tag to textDirective', async () => {
+    expect(
+      await htmlTo('<p>test<u>:dir[text directive]</u>test</p>', {
+        convert: 'markdown'
+      })
+    ).toEqual('test:dir[text directive]test\n')
+  })
 })

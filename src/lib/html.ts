@@ -7,7 +7,6 @@ import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkFootnotes from 'remark-footnotes'
 import remarkDirective from 'remark-directive'
-
 import remarkStringify from 'remark-stringify'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import { directive } from 'micromark-extension-directive'
@@ -232,8 +231,14 @@ const uToFootnoteOrDirectiveHandler = (h: any, node: Element): any => {
         children.length > 0 &&
         children[0].type === 'textDirective'
       ) {
-        // textDirective ならそのまま返す
-        return children[0]
+        // textDirective なら html としてわたす.
+        // ここで textDirective にするとこれを処理している processor に remark-directive が必要となる.
+        // その場合、pre などのテキストに記述されている textDirective がエスケースされる.
+        // (徐々にがんじがらめになってきた)
+        return {
+          type: 'html',
+          value: text
+        }
       }
 
       return {
@@ -271,7 +276,6 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
         : [opts.imageSalt]
       : false
   return unified()
-    .use(remarkDirective)
     .use(rehypeParse, { fragment: true })
     .use(firstParagraphAsCodeDockTransformer)
     .use(imageSalt, imageSaltOpts)

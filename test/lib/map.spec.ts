@@ -92,7 +92,8 @@ describe('compileMapConfig', () => {
                 pickAttrs: ['class']
               }
             },
-            unusualSpaceChars: 'normalizeInCodeBlock'
+            unusualSpaceChars: 'normalizeInCodeBlock',
+            unescapeBracket: false
           }
         },
         {

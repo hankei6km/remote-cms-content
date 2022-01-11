@@ -1,16 +1,12 @@
 import { unified, Plugin, Transformer } from 'unified'
 import rehypeParse from 'rehype-parse'
 import rehype2Remark, { Options } from 'rehype-remark'
-import { em } from 'hast-util-to-mdast/lib/handlers/em.js'
 import rehypeStringify from 'rehype-stringify'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
 import remarkFootnotes from 'remark-footnotes'
 import remarkDirective from 'remark-directive'
 import remarkStringify from 'remark-stringify'
-import { fromMarkdown } from 'mdast-util-from-markdown'
-import { directive } from 'micromark-extension-directive'
-import { directiveFromMarkdown } from 'mdast-util-directive'
 import { Parent } from 'unist'
 import { Root, Node, Element, Text } from 'hast'
 import { Code, Text as MText } from 'mdast'
@@ -229,69 +225,6 @@ export const unescapeBracketTransformer: Plugin<
   }
 }
 
-const uToFootnoteOrDirectiveReferenceRegExp = /^\^/
-const uToFootnoteOrDirectiveHandler = (h: any, node: Element): any => {
-  if (
-    node.children.length === 1 &&
-    node.children[0].type === 'text' &&
-    node.children[0].value !== ''
-  ) {
-    // text node のみ(CMS からの変換だとこの形が多いかな)
-    if (node.children[0].value.match(uToFootnoteOrDirectiveReferenceRegExp)) {
-      // text node のみで ^ で始まっているなら footnoteReference へ変換する.
-      // なお、今回の変換は最終的に Markdown になるので
-      // footnoteReference と footnoteDefinition の区別がつかない.
-      // `<u>^1<u>: footnote1` のような記述があれば Markdown としては `[^1]: footnote1` となる.
-      const t = node.children[0].value.slice(1)
-      return {
-        type: 'footnoteReference',
-        identifier: t,
-        label: t
-      }
-    } else {
-      // text node のみなら Markdown として解釈する.
-      // その結果から textDirective か footnote として扱う.
-      // ここまでやるなら <u> の中をインライン Markdown として扱いたいが、
-      // node の階層があわない.
-      // <u> のノードに対して children[] を割り当てることは難しい.
-      const text = node.children[0].value
-      const tree = fromMarkdown(text, {
-        extensions: [directive()],
-        mdastExtensions: [directiveFromMarkdown]
-      })
-
-      const children =
-        tree.type === 'root' &&
-        tree.children.length > 0 &&
-        tree.children[0].type === 'paragraph'
-          ? tree.children[0].children
-          : undefined
-
-      if (
-        children &&
-        children.length > 0 &&
-        children[0].type === 'textDirective'
-      ) {
-        // textDirective なら html としてわたす.
-        // ここで textDirective にするとこれを処理している processor に remark-directive が必要となる.
-        // その場合、pre などのテキストに記述されている textDirective がエスケースされる.
-        // (徐々にがんじがらめになってきた)
-        return {
-          type: 'html',
-          value: text
-        }
-      }
-
-      return {
-        type: 'footnote',
-        children: children ? children : [{ type: 'text', value: text }]
-      }
-    }
-  }
-  // デフォルトでは <u> は <en> と同じような扱いだったので.
-  return em(h, node)
-}
-
 const brHandler = (h: any, node: any): any => {
   // <br> が `/` になってしまうので暫定対応
   return h(node, 'text', ' ')
@@ -324,8 +257,7 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     .use(rehype2Remark, {
       handlers: {
         pre: codeDockHandler,
-        br: brHandler,
-        u: uToFootnoteOrDirectiveHandler
+        br: brHandler
       }
     } as unknown as Options)
     .use(remarkGfm)

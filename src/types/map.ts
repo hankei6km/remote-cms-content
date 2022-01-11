@@ -75,6 +75,7 @@ export type HtmlToHtmlOpts = {
 export type HtmlToMarkdownOpts = {
   imageSalt?: Parameters<typeof imageSalt>[0]
   unusualSpaceChars?: HtmlToOptsUnusualSpaceChars
+  unescapeBracket?: boolean
 }
 export type MapFldsHtmlOpts = {
   convert?: 'none' | 'html' | 'markdown'

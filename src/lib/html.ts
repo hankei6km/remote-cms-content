@@ -11,8 +11,9 @@ import remarkStringify from 'remark-stringify'
 import { fromMarkdown } from 'mdast-util-from-markdown'
 import { directive } from 'micromark-extension-directive'
 import { directiveFromMarkdown } from 'mdast-util-directive'
+import { Parent } from 'unist'
 import { Root, Node, Element, Text } from 'hast'
-import { Code } from 'mdast'
+import { Code, Text as MText } from 'mdast'
 import { visitParents } from 'unist-util-visit-parents'
 import matter from 'gray-matter'
 import splitParagraph from 'rehype-split-paragraph'
@@ -24,6 +25,7 @@ import {
   HtmlToHtmlOpts,
   HtmlToOptsUnusualSpaceChars
 } from '../types/map.js'
+import { replace } from 'lodash'
 
 export function extractFrontMatter(
   p: Element
@@ -188,6 +190,45 @@ export const normalizeSpaceCharsTransformer: Plugin<
   }
 }
 
+const unescapeBracketSplitRegexp = /(\\{0,1}\[)/
+export const unescapeBracketTransformer: Plugin<
+  [UnusualSpaceCharsTransformerOpts] | [],
+  string,
+  Root
+> = function unescapeBracketTransformer(): Transformer {
+  const visitTest = (node: Node) => {
+    if (node.type === 'text') {
+      return true
+    }
+    return false
+  }
+  return function transformer(tree: Node): void {
+    const visitor = (node: Node, parents: Parent[]) => {
+      const n = node as MText
+      const s = n.value.split(unescapeBracketSplitRegexp) // '[' または'\\[' で分割、セパレーターは残す.
+      const slen = s.length
+      if (slen > 1) {
+        const parentsLen = parents.length
+        const parent = parents[parentsLen - 1]
+        const nodeIdx = parent.children.findIndex((n) => n === node)
+
+        const replace = s.map((v, i) => {
+          if (i % 2 === 0) {
+            return { type: 'text', value: v }
+          } else {
+            // html として扱うことで gfm などからのエスケープ回避.
+            // '\\[' だった場合はエスケープされていることを含めてエスケープ回避.
+            return { type: 'html', value: v }
+          }
+        })
+        parent.children.splice(nodeIdx, 1, ...replace)
+        return slen
+      }
+    }
+    visitParents(tree, visitTest, visitor)
+  }
+}
+
 const uToFootnoteOrDirectiveReferenceRegExp = /^\^/
 const uToFootnoteOrDirectiveHandler = (h: any, node: Element): any => {
   if (
@@ -289,6 +330,7 @@ const htmlToMarkdownProcessor = (opts: HtmlToMarkdownOpts) => {
     } as unknown as Options)
     .use(remarkGfm)
     .use(remarkFootnotes, { inlineNotes: true }) // remark-gfm だと inline に対応していないため.
+    .use(unescapeBracketTransformer, opts.unescapeBracket || false)
     .use(remarkStringify)
     .freeze()
 }

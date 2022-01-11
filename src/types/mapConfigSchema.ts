@@ -449,9 +449,13 @@ export const mapConfigSchema =
                                             }
                                         ]
                                     },
+                                    "unescapeBracket": {
+                                        "type": "boolean"
+                                    },
                                     "unusualSpaceChars": {
                                         "enum": [
                                             "none",
+                                            "normalize",
                                             "normalizeInCodeBlock",
                                             "throw"
                                         ],

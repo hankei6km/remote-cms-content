@@ -405,4 +405,65 @@ describe('htmlTo() markdown', () => {
       })
     ).toEqual('test:dir{#id}test\n')
   })
+  it('should escape bracket with default settings', async () => {
+    expect(
+      await htmlTo('<p>123[^abc]456</p><p>[^abc]: note</p>', {
+        convert: 'markdown'
+      })
+    ).toEqual('123\\[^abc]456\n\n\\[^abc]: note\n')
+  })
+  it('should not escape bracket(footnote)', async () => {
+    expect(
+      await htmlTo('<p>123[^abc]456</p><p>[^abc]: note</p>', {
+        convert: 'markdown',
+        toMarkdownOpts: { unescapeBracket: true }
+      })
+    ).toEqual('123[^abc]456\n\n[^abc]: note\n')
+  })
+  it('should not escape bracket(inline footnote)', async () => {
+    expect(
+      await htmlTo('<p>123^[abc]456</p>', {
+        convert: 'markdown',
+        toMarkdownOpts: { unescapeBracket: true }
+      })
+    ).toEqual('123^[abc]456\n')
+  })
+  it('should not escape bracket(link definition)', async () => {
+    expect(
+      await htmlTo('<p>123[link]456</p><p>[link]: https://github.com</p>', {
+        convert: 'markdown',
+        toMarkdownOpts: { unescapeBracket: true }
+      })
+    ).toEqual('123[link]456\n\n[link]: https://github.com\n')
+  })
+  it('should not escape bracket(directive)', async () => {
+    expect(
+      await htmlTo('<p>123:abc[efg]456</p>', {
+        convert: 'markdown',
+        toMarkdownOpts: { unescapeBracket: true }
+      })
+    ).toEqual('123:abc[efg]456\n')
+  })
+  it('should not escape bracket(not text)', async () => {
+    expect(
+      await htmlTo('<p>123<code>[efg]</code>456</p>', {
+        convert: 'markdown',
+        toMarkdownOpts: { unescapeBracket: true }
+      })
+    ).toEqual('123`[efg]`456\n')
+    expect(
+      await htmlTo('<p>123<code>[efg]</code>456</p>', {
+        convert: 'markdown',
+        toMarkdownOpts: { unescapeBracket: true }
+      })
+    ).toEqual('123`[efg]`456\n')
+  })
+  it('should keep backslash before bracket', async () => {
+    expect(
+      await htmlTo('<p>123\\[^abc]456</p><p>[^abc]: note</p>', {
+        convert: 'markdown',
+        toMarkdownOpts: { unescapeBracket: true }
+      })
+    ).toEqual('123\\[^abc]456\n\n[^abc]: note\n')
+  })
 })

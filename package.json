@@ -1,6 +1,6 @@
 {
   "name": "remote-cms-content",
-  "version": "0.1.1-pre.65",
+  "version": "0.1.1-pre.66",
   "description": "Mirror content of remote cms to local files for nuxt-content",
   "author": "hankei6km <hankei6km@gmail.com> (https://github.com/hankei6km)",
   "license": "MIT",
@@ -52,9 +52,6 @@
     "js-yaml": "^4.1.0",
     "jsonata": "^1.8.5",
     "lodash.tonumber": "^4.0.3",
-    "mdast-util-directive": "^2.2.0",
-    "mdast-util-from-markdown": "^1.2.0",
-    "micromark-extension-directive": "^2.1.1",
     "react": "^17.0.2",
     "rehype-parse": "^8.0.3",
     "rehype-remark": "^9.1.0",

@@ -374,25 +374,6 @@ describe('htmlTo() markdown', () => {
       )
     ).toEqual('test1 \u00a0 \u00a0test1\n\n        test2\n')
   })
-  it('should convert u tag to footnote', async () => {
-    expect(
-      await htmlTo('<p>test<u>^1</u>test</p>', {
-        convert: 'markdown'
-      })
-    ).toEqual('test\\[^1]test\n') // 対応する footnoteDefinition がないのでエスケープされている.
-    expect(
-      await htmlTo('<p>test<u>inline footnote</u>test</p>', {
-        convert: 'markdown'
-      })
-    ).toEqual('test^[inline footnote]test\n')
-  })
-  it('should convert u tag to textDirective', async () => {
-    expect(
-      await htmlTo('<p>test<u>:dir[text directive]</u>test</p>', {
-        convert: 'markdown'
-      })
-    ).toEqual('test:dir[text directive]test\n')
-  })
   it('should convert text directive', async () => {
     expect(
       await htmlTo('<p>test:dir{#id}test</p>', {

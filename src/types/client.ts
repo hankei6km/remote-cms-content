@@ -8,7 +8,8 @@ export const ClientKindValues = [
   'contentful:gql',
   'graphcms:gql',
   'microcms',
-  'prismic:gql'
+  'prismic:gql',
+  'sssapi'
 ] as const
 export type ClientKind = typeof ClientKindValues[number]
 
@@ -327,6 +328,10 @@ export abstract class ClientBase {
           complete = true
         } else {
           if (count === 0) {
+            // 0 件だったので終了
+            complete = true
+          }
+          if (res.fetch.count === 0) {
             // 0 件だったので終了
             complete = true
           }

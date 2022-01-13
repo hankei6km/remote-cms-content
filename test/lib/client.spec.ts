@@ -439,6 +439,13 @@ describe('client', () => {
     })
     expect(c.kind()).toEqual('microcms')
   })
+  it('should return sssapi client instanse', async () => {
+    const c = await client('sssapi', {
+      apiBaseURL: 'http://localhost:3000',
+      credential: ['secret']
+    })
+    expect(c.kind()).toEqual('sssapi')
+  })
   it('should throw error when pass unkown kid', async () => {
     await expect(() =>
       client('UNKWON' as any, {

@@ -312,6 +312,14 @@ export abstract class ClientBase {
         }
       }
       skip = skip + res.fetch.count
+
+      if (pageSize !== undefined) {
+        if (res.fetch.count < pageSize) {
+          // 指定した pageSize より少ないので完了.
+          complete = true
+        }
+      }
+
       if (res.fetch.next.kind === 'page') {
         endCursor = res.fetch.next.endCursor
         if (!res.fetch.next.hasNextPage) {

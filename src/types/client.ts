@@ -8,7 +8,8 @@ export const ClientKindValues = [
   'contentful:gql',
   'graphcms:gql',
   'microcms',
-  'prismic:gql'
+  'prismic:gql',
+  'sssapi'
 ] as const
 export type ClientKind = typeof ClientKindValues[number]
 
@@ -312,6 +313,14 @@ export abstract class ClientBase {
         }
       }
       skip = skip + res.fetch.count
+
+      if (pageSize !== undefined) {
+        if (res.fetch.count < pageSize) {
+          // 指定した pageSize より少ないので完了.
+          complete = true
+        }
+      }
+
       if (res.fetch.next.kind === 'page') {
         endCursor = res.fetch.next.endCursor
         if (!res.fetch.next.hasNextPage) {
@@ -319,6 +328,10 @@ export abstract class ClientBase {
           complete = true
         } else {
           if (count === 0) {
+            // 0 件だったので終了
+            complete = true
+          }
+          if (res.fetch.count === 0) {
             // 0 件だったので終了
             complete = true
           }

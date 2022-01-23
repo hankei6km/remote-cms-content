@@ -326,7 +326,48 @@ describe('ClientGql', () => {
     expect(body.query).toMatch(/testCollection/)
     expect(body.variables).toEqual({ skip: 20, pageSize: 10 })
 
-    // has では空振り(empry を fetch)が 1 回余分に実行される.
+    // ~~has では空振り(empry を fetch)が 1 回余分に実行される.~~
+    // pageSize より少ない count のときは完了する.
+    expect(await g.next()).toEqual({
+      value: undefined,
+      done: true
+    })
+  })
+  it('should fetch all content without total and pageSize', async () => {
+    const mockData = {
+      data: {
+        testCollection: {
+          items: genItems(25)
+        },
+        total: undefined
+      },
+      errors: {}
+    }
+    const [mockFetch, mockLink] = mockFetchLink(mockData)
+    const client = new ClienteGqlTest(mockLink, {
+      apiBaseURL: '',
+      credential: []
+    })
+      .request()
+      .transform((content) => content.data.testCollection)
+      .query(queryHas)
+    const g = client.fetch()
+
+    expect(await g.next()).toEqual({
+      value: {
+        fetch: {
+          next: { kind: 'page', hasNextPage: true, endCursor: null },
+          count: 25
+        },
+        content: mockData.data.testCollection.items.map((v) => new ResRecord(v))
+      },
+      done: false
+    })
+    let body = JSON.parse((mockFetch.mock.calls[0][1] as any).body)
+    expect(body.query).toMatch(/testCollection/)
+    expect(body.variables).toEqual({ skip: 0 })
+
+    // 空振り(empry を fetch)が 1 回余分に実行される.
     expect(await g.next()).toEqual({
       value: {
         fetch: {
@@ -337,9 +378,9 @@ describe('ClientGql', () => {
       },
       done: false
     })
-    body = JSON.parse((mockFetch.mock.calls[2][1] as any).body)
+    body = JSON.parse((mockFetch.mock.calls[1][1] as any).body)
     expect(body.query).toMatch(/testCollection/)
-    expect(body.variables).toEqual({ skip: 20, pageSize: 10 })
+    expect(body.variables).toEqual({ skip: 25 })
 
     expect(await g.next()).toEqual({
       value: undefined,

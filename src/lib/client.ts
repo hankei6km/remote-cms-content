@@ -22,6 +22,9 @@ export async function client(
   } else if (kind === 'prismic:gql') {
     const { ClientPrismicGql } = await import('./clients/prismic.js')
     return new ClientPrismicGql(opts)
+  } else if (kind === 'sssapi') {
+    const { ClientSssapi: ClientSssapi } = await import('./clients/sssapi.js')
+    return new ClientSssapi(opts)
   }
   throw new Error(`client: unknown kind ${kind}`)
 }
